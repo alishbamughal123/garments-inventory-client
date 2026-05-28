@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const API_URL =
- `${import.meta.env.VITE_API_URL}/sales`;
+ `${import.meta.env.VITE_API_URL}/customers`;
+
 
 const getAuthConfig = () => {
   const token =
