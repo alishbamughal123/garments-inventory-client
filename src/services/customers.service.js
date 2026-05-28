@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API_URL =
-  "http://localhost:8000/api/v1/customers";
+ `${import.meta.env.VITE_API_URL}/sales`;
 
 const getAuthConfig = () => {
   const token =
