@@ -14,7 +14,7 @@ import {
 } from "../../services/products.service";
 
 const API_URL =
-  "http://localhost:8000/api/v1";
+  import.meta.env.VITE_API_URL;
 
 const BarcodePage = () => {
   const { id } =
