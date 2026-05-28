@@ -29,37 +29,53 @@ const LoginPage = () => {
     });
   };
 
-  const handleSubmit = async (
-    e
-  ) => {
+
+const handleSubmit =
+  async (e) => {
+
     e.preventDefault();
 
     try {
+
       setLoading(true);
 
       const response =
         await loginUser(formData);
 
-      login(
-        response.data.token,
-        response.data.user
+      console.log(response);
+
+      localStorage.setItem(
+        "token",
+        response.data.token
+      );
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(
+          response.data.user
+        )
       );
 
       toast.success(
-        "Login Successful"
+        "Login successful"
       );
 
       navigate("/dashboard");
+
     } catch (error) {
+
       toast.error(
-        error.response?.data
+        error?.response?.data
           ?.message ||
-          "Login Failed"
+          "Login failed"
       );
+
     } finally {
+
       setLoading(false);
     }
   };
+
 
   return (
     <div className="h-screen flex justify-center items-center bg-gray-100">

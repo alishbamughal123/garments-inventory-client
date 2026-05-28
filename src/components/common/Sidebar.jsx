@@ -1,3 +1,4 @@
+
 import {
   FiGrid,
   FiBox,
@@ -7,6 +8,9 @@ import {
   FiAlertTriangle,
   FiMenu,
   FiX,
+  FiUsers,
+  FiShoppingCart,
+  FiFileText,
 } from "react-icons/fi";
 
 import {
@@ -29,36 +33,61 @@ const Sidebar = () => {
       path: "/dashboard",
       icon: FiGrid,
     },
+
     {
       name: "Products",
       path: "/products",
       icon: FiBox,
     },
+
     {
       name: "Stock IN",
       path: "/stock-in",
       icon: FiArrowDownCircle,
     },
+
     {
       name: "Stock OUT",
       path: "/stock-out",
       icon: FiArrowUpCircle,
     },
+
     {
       name: "Transactions",
       path: "/transactions",
       icon: FiRepeat,
     },
+
+    {
+      name: "Customers",
+      path: "/customers",
+      icon: FiUsers,
+    },
+
     {
       name: "Returns",
       path: "/returns",
       icon: FiRepeat,
     },
+
     {
       name: "Low Stock",
       path: "/low-stock",
       icon: FiAlertTriangle,
     },
+
+    {
+      name: "Sales",
+      path: "/sales",
+      icon: FiShoppingCart,
+    },
+
+    {
+      name: "Create Sale",
+      path: "/sales/create",
+      icon: FiFileText,
+    },
+
     {
       name: "Categories",
       path: "/categories",
@@ -126,10 +155,12 @@ const Sidebar = () => {
           z-50
           transition-transform
           duration-300
+          overflow-hidden
 
-          ${open
-            ? "translate-x-0"
-            : "-translate-x-full"
+          ${
+            open
+              ? "translate-x-0"
+              : "-translate-x-full"
           }
 
           lg:translate-x-0
@@ -146,6 +177,7 @@ const Sidebar = () => {
             pl-4
             border-b
             border-slate-100
+            flex-shrink-0
           "
         >
 
@@ -153,26 +185,18 @@ const Sidebar = () => {
             src={logo}
             alt="Immi Garments"
             className="
-
-  h-22
-  w-56
-  mt-5
-  object-contain
-"
-
+              h-22
+              w-56
+              mt-5
+              object-contain
+            "
           />
 
         </div>
 
         {/* Navigation */}
 
-        <nav
-          className="
-            flex-1
-            px-4
-            py-6
-          "
-        >
+       <nav className=" flex-1 overflow-y-auto px-4 py-6 sidebar-scroll " >
 
           <ul className="space-y-2">
 
@@ -211,9 +235,10 @@ const Sidebar = () => {
                         duration-200
                         font-medium
 
-                        ${isActive
-                          ? "bg-blue-50 text-blue-600"
-                          : "text-slate-600 hover:bg-slate-100"
+                        ${
+                          isActive
+                            ? "bg-blue-50 text-blue-600"
+                            : "text-slate-600 hover:bg-slate-100"
                         }
                       `
                       }

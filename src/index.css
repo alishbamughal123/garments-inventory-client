@@ -18,3 +18,5 @@ body {
 .input:focus {
   border-color: #3b82f6;
 }
+.sidebar-scroll::-webkit-scrollbar { display: none; }
+ .sidebar-scroll { -ms-overflow-style: none; scrollbar-width: none; }
