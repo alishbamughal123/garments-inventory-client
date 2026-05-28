@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 
 import MainLayout from "../../layouts/MainLayout";
 
-import ProductForm from "../../components/products/ProductForm";
+import ProductForm from "../../components/products/productForm";
 
 import {
   createProduct,
