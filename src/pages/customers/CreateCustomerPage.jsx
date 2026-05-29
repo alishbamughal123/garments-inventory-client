@@ -52,7 +52,7 @@ const CreateCustomerPage = () => {
         );
 
         navigate(
-          "/customers"
+          "/crm/customers"
         );
       } catch (error) {
         toast.error(

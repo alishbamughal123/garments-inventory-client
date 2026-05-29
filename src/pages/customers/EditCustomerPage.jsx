@@ -119,7 +119,7 @@ const EditCustomerPage = () => {
         );
 
         navigate(
-          `/customers/${id}`
+          `/crm/customers/${id}`
         );
       } catch (error) {
         toast.error(

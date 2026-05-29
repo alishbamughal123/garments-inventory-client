@@ -12,7 +12,10 @@ import {
   FiShoppingCart,
   FiFileText,
 } from "react-icons/fi";
-
+import {
+  Users,
+  UserPlus,
+} from "lucide-react";
 import {
   NavLink,
 } from "react-router-dom";
@@ -60,8 +63,8 @@ const Sidebar = () => {
 
 
 {
-  name: "CRM Customers",
-  path: "/customers",
+  name: "CRM",
+  path: "/crm/customers",
   icon: FiUsers,
 },
 

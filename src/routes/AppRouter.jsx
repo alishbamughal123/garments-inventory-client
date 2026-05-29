@@ -25,6 +25,12 @@ import EditCustomerPage from "../pages/customers/EditCustomerPage";
 import SalesPage from "../pages/sales/SalesPage"; 
 import CreateSalePage from "../pages/sales/CreateSalePage";
  import SaleDetailsPage from "../pages/sales/SaleDetailsPage";
+ import LeadsPage from "../pages/leads/LeadsPage";
+import CreateLeadPage from "../pages/leads/CreateLeadPage";
+import EditLeadPage from "../pages/leads/EditLeadPage";
+import LeadDetailsPage from "../pages/leads/LeadDetailsPage";
+import LeadPipelinePage from "../pages/leads/LeadPipelinePage";
+import CRMLayout from "../pages/crm/CRMLayout";
 const AppRouter = () => {
   return (
     <BrowserRouter>
@@ -144,10 +150,89 @@ const AppRouter = () => {
 <Route path="/sales" element={<SalesPage />} /> 
 <Route path="/sales/create" element={<CreateSalePage />} /> 
 <Route path="/sales/:id" element={<SaleDetailsPage />} />
-<Route path="/customers" element={<CustomersPage />} /> 
+<Route
+  path="/crm"
+  element={
+    <ProtectedRoute>
+      <CRMLayout />
+    </ProtectedRoute>
+  }
+>
+
+  <Route
+    path="customers"
+    element={<CustomersPage />}
+  />
+
+  <Route
+    path="customers/create"
+    element={<CreateCustomerPage />}
+  />
+
+  <Route
+    path="customers/edit/:id"
+    element={<EditCustomerPage />}
+  />
+
+  <Route
+    path="customers/:id"
+    element={<CustomerDetailsPage />}
+  />
+
+  <Route
+    path="leads"
+    element={<LeadsPage />}
+  />
+
+  <Route
+    path="leads/create"
+    element={<CreateLeadPage />}
+  />
+
+  <Route
+    path="leads/edit/:id"
+    element={<EditLeadPage />}
+  />
+
+  <Route
+    path="leads/:id"
+    element={<LeadDetailsPage />}
+  />
+
+  <Route
+    path="pipeline"
+    element={<LeadPipelinePage />}
+  />
+
+</Route>
+{/* <Route path="/customers" element={<CustomersPage />} /> 
 <Route path="/customers/create" element={<CreateCustomerPage />} /> 
 <Route path="/customers/edit/:id" element={<EditCustomerPage />} /> 
 <Route path="/customers/:id" element={<CustomerDetailsPage />} />
+<Route
+  path="/leads"
+  element={<LeadsPage />}
+/>
+
+<Route
+  path="/leads/create"
+  element={<CreateLeadPage />}
+/>
+
+<Route
+  path="/leads/pipeline"
+  element={<LeadPipelinePage />}
+/>
+
+<Route
+  path="/leads/:id"
+  element={<LeadDetailsPage />}
+/>
+
+<Route
+  path="/leads/edit/:id"
+  element={<EditLeadPage />}
+/> */}
 
       </Routes>
     </BrowserRouter>

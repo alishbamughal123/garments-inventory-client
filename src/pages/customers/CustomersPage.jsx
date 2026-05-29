@@ -102,7 +102,7 @@ const CustomersPage = () => {
 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
 
-        <div>
+        {/* <div>
           <h1 className="text-2xl font-bold">
             Customers
           </h1>
@@ -110,10 +110,10 @@ const CustomersPage = () => {
           <p className="text-slate-500">
             CRM Contact Management
           </p>
-        </div>
+        </div> */}
 
         <Link
-          to="/customers/create"
+          to="/crm/customers/create"
           className="
             inline-flex
             items-center
@@ -320,13 +320,13 @@ const CustomersPage = () => {
                       <div className="flex gap-3">
 
                         <Link
-                          to={`/customers/${customer.id}`}
+                          to={`/crm/customers/${customer.id}`}
                         >
                           <FiEye />
                         </Link>
 
                         <Link
-                          to={`/customers/edit/${customer.id}`}
+                          to={`/crm/customers/edit/${customer.id}`}
                         >
                           <FiEdit />
                         </Link>

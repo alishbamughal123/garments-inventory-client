@@ -149,7 +149,7 @@ const CustomerDetailsPage = () => {
         </div>
 
         <Link
-          to={`/customers/edit/${customer.id}`}
+          to={`/crm/customers/edit/${customer.id}`}
           className="
             flex
             items-center
