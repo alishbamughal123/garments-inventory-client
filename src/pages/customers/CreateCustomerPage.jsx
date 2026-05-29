@@ -1,29 +1,15 @@
 
-import {
-  useEffect,
-  useState,
-} from "react";
-
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
-
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import {
-  getCustomerById,
-  updateCustomer,
+  createCustomer,
 } from "../../services/customer.service";
 
-const EditCustomerPage = () => {
-  const { id } = useParams();
-
+const CreateCustomerPage = () => {
   const navigate =
     useNavigate();
-
-  const [loading, setLoading] =
-    useState(true);
 
   const [formData, setFormData] =
     useState({
@@ -42,58 +28,6 @@ const EditCustomerPage = () => {
       status: "ACTIVE",
     });
 
-  useEffect(() => {
-    loadCustomer();
-  }, [id]);
-
-  const loadCustomer =
-    async () => {
-      try {
-        const response =
-          await getCustomerById(id);
-
-        const customer =
-          response.data;
-
-        setFormData({
-          fullName:
-            customer.fullName || "",
-          companyName:
-            customer.companyName || "",
-          designation:
-            customer.designation || "",
-          phoneNumber:
-            customer.phoneNumber || "",
-          alternatePhone:
-            customer.alternatePhone || "",
-          email:
-            customer.email || "",
-          website:
-            customer.website || "",
-          source:
-            customer.source || "",
-          address:
-            customer.address || "",
-          city:
-            customer.city || "",
-          notes:
-            customer.notes || "",
-          customerType:
-            customer.customerType ||
-            "REGULAR",
-          status:
-            customer.status ||
-            "ACTIVE",
-        });
-      } catch (error) {
-        toast.error(
-          "Failed to load customer"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
   const handleChange = (
     e
   ) => {
@@ -109,45 +43,36 @@ const EditCustomerPage = () => {
       e.preventDefault();
 
       try {
-        await updateCustomer(
-          id,
+        await createCustomer(
           formData
         );
 
         toast.success(
-          "Customer updated successfully"
+          "Customer created successfully"
         );
 
         navigate(
-          `/customers/${id}`
+          "/customers"
         );
       } catch (error) {
         toast.error(
           error?.response
             ?.data?.message ||
-            "Update failed"
+            "Failed to create customer"
         );
       }
     };
-
-  if (loading) {
-    return (
-      <div className="p-6">
-        Loading...
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-5xl mx-auto p-6">
 
       <div className="mb-6">
         <h1 className="text-2xl font-bold">
-          Edit Customer
+          Create Customer
         </h1>
 
         <p className="text-slate-500">
-          Update CRM Contact
+          Add CRM Contact
         </p>
       </div>
 
@@ -168,109 +93,112 @@ const EditCustomerPage = () => {
 
         <input
           name="fullName"
+          placeholder="Full Name"
           value={
             formData.fullName
           }
           onChange={
             handleChange
           }
-          placeholder="Full Name"
+          required
           className="border rounded-lg px-4 py-3"
         />
 
         <input
           name="companyName"
+          placeholder="Company Name"
           value={
             formData.companyName
           }
           onChange={
             handleChange
           }
-          placeholder="Company Name"
           className="border rounded-lg px-4 py-3"
         />
 
         <input
           name="designation"
+          placeholder="Designation"
           value={
             formData.designation
           }
           onChange={
             handleChange
           }
-          placeholder="Designation"
           className="border rounded-lg px-4 py-3"
         />
 
         <input
           name="phoneNumber"
+          placeholder="Phone Number"
           value={
             formData.phoneNumber
           }
           onChange={
             handleChange
           }
-          placeholder="Phone Number"
+          required
           className="border rounded-lg px-4 py-3"
         />
 
         <input
           name="alternatePhone"
+          placeholder="Alternate Phone"
           value={
             formData.alternatePhone
           }
           onChange={
             handleChange
           }
-          placeholder="Alternate Phone"
           className="border rounded-lg px-4 py-3"
         />
 
         <input
           name="email"
+          type="email"
+          placeholder="Email"
           value={
             formData.email
           }
           onChange={
             handleChange
           }
-          placeholder="Email"
           className="border rounded-lg px-4 py-3"
         />
 
         <input
           name="website"
+          placeholder="Website"
           value={
             formData.website
           }
           onChange={
             handleChange
           }
-          placeholder="Website"
           className="border rounded-lg px-4 py-3"
         />
 
         <input
           name="source"
+          placeholder="Customer Source"
           value={
             formData.source
           }
           onChange={
             handleChange
           }
-          placeholder="Customer Source"
           className="border rounded-lg px-4 py-3"
         />
 
         <input
           name="city"
+          placeholder="City"
           value={
             formData.city
           }
           onChange={
             handleChange
           }
-          placeholder="City"
           className="border rounded-lg px-4 py-3"
         />
 
@@ -318,6 +246,7 @@ const EditCustomerPage = () => {
 
         <textarea
           name="address"
+          placeholder="Address"
           value={
             formData.address
           }
@@ -325,7 +254,6 @@ const EditCustomerPage = () => {
             handleChange
           }
           rows="3"
-          placeholder="Address"
           className="
             border
             rounded-lg
@@ -337,6 +265,7 @@ const EditCustomerPage = () => {
 
         <textarea
           name="notes"
+          placeholder="Notes"
           value={
             formData.notes
           }
@@ -344,7 +273,6 @@ const EditCustomerPage = () => {
             handleChange
           }
           rows="4"
-          placeholder="Notes"
           className="
             border
             rounded-lg
@@ -364,7 +292,7 @@ const EditCustomerPage = () => {
             md:col-span-2
           "
         >
-          Update Customer
+          Save Customer
         </button>
 
       </form>
@@ -373,4 +301,4 @@ const EditCustomerPage = () => {
   );
 };
 
-export default EditCustomerPage;
+export default CreateCustomerPage;

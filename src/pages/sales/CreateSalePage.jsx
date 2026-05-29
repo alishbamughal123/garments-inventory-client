@@ -22,7 +22,7 @@ import {
 
 import {
   getCustomers,
-} from "../../services/customers.service";
+} from "../../services/customer.service";
 
 const CreateSalePage = () => {
   const navigate =

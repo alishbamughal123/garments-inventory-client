@@ -18,10 +18,10 @@ import EditCategoryPage from "../pages/categories/EditCategoryPage";
 import StockInPage from "../pages/inventory/StockInPage";
 import StockOutPage from "../pages/inventory/StockOutPage";
 import TransactionsPage from "../pages/inventory/TransactionsPage";
-import CustomersPage from "../pages/customers/CustomersPage";
- import AddCustomerPage from "../pages/customers/AddCustomerPage"; 
- import EditCustomerPage from "../pages/customers/EditCustomerPage"; 
-import CustomerDetailsPage from "../pages/customers/CustomerDetailsPage";
+import CustomersPage from "../pages/customers/CustomersPage"; 
+import CreateCustomerPage from "../pages/customers/CreateCustomerPage"; 
+import EditCustomerPage from "../pages/customers/EditCustomerPage";
+ import CustomerDetailsPage from "../pages/customers/CustomerDetailsPage";
 import SalesPage from "../pages/sales/SalesPage"; 
 import CreateSalePage from "../pages/sales/CreateSalePage";
  import SaleDetailsPage from "../pages/sales/SaleDetailsPage";
@@ -140,13 +140,14 @@ const AppRouter = () => {
     </ProtectedRoute>
   }
 />
-<Route path="/customers" element={<CustomersPage />} /> 
-<Route path="/customers/add" element={<AddCustomerPage />} /> 
-<Route path="/customers/edit/:id" element={<EditCustomerPage />} /> 
-<Route path="/customers/:id" element={<CustomerDetailsPage />} />
+
 <Route path="/sales" element={<SalesPage />} /> 
 <Route path="/sales/create" element={<CreateSalePage />} /> 
 <Route path="/sales/:id" element={<SaleDetailsPage />} />
+<Route path="/customers" element={<CustomersPage />} /> 
+<Route path="/customers/create" element={<CreateCustomerPage />} /> 
+<Route path="/customers/edit/:id" element={<EditCustomerPage />} /> 
+<Route path="/customers/:id" element={<CustomerDetailsPage />} />
 
       </Routes>
     </BrowserRouter>

@@ -58,11 +58,13 @@ const Sidebar = () => {
       icon: FiRepeat,
     },
 
-    {
-      name: "Customers",
-      path: "/customers",
-      icon: FiUsers,
-    },
+
+{
+  name: "CRM Customers",
+  path: "/customers",
+  icon: FiUsers,
+},
+
 
     {
       name: "Returns",

@@ -1,379 +1,344 @@
+
 import {
   useEffect,
   useState,
 } from "react";
 
 import {
-  useNavigate,
+  Link,
 } from "react-router-dom";
+
+import {
+  FiPlus,
+  FiEdit,
+  FiTrash2,
+  FiEye,
+} from "react-icons/fi";
 
 import toast from "react-hot-toast";
 
 import {
-  FiEye,
-  FiEdit,
-  FiTrash2,
-  FiPlus,
-} from "react-icons/fi";
-
-import MainLayout from "../../layouts/MainLayout";
-
-import DeleteModal from "../../components/common/DeleteModal";
-
-import {
   getCustomers,
   deleteCustomer,
-} from "../../services/customers.service";
+} from "../../services/customer.service";
 
 const CustomersPage = () => {
-  const navigate = useNavigate();
-
   const [customers, setCustomers] =
     useState([]);
 
   const [loading, setLoading] =
-    useState(true);
+    useState(false);
 
   const [search, setSearch] =
     useState("");
 
-  const [showDeleteModal, setShowDeleteModal] =
-    useState(false);
+  const [
+    customerType,
+    setCustomerType,
+  ] = useState("");
 
-  const [selectedCustomerId, setSelectedCustomerId] =
-    useState(null);
+  const [status, setStatus] =
+    useState("");
+
+  const fetchCustomers =
+    async () => {
+      try {
+        setLoading(true);
+
+        const response =
+          await getCustomers(
+            search,
+            customerType,
+            status
+          );
+
+        setCustomers(
+          response.data
+        );
+      } catch (error) {
+        toast.error(
+          "Failed to load customers"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
   useEffect(() => {
     fetchCustomers();
-  }, []);
-
- const fetchCustomers =
-  async () => {
-    try {
-      const response =
-        await getCustomers();
-
-      console.log(response.data);
-
-     setCustomers(
-  response.data.data || []
-);
-
-    } catch (error) {
-      console.log(error);
-
-      toast.error(
-        "Failed to fetch customers"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const openDeleteModal = (
-    id
-  ) => {
-    setSelectedCustomerId(id);
-
-    setShowDeleteModal(true);
-  };
-
-  const closeDeleteModal =
-    () => {
-      setSelectedCustomerId(null);
-
-      setShowDeleteModal(false);
-    };
+  }, [
+    search,
+    customerType,
+    status,
+  ]);
 
   const handleDelete =
     async (id) => {
+      const confirmDelete =
+        window.confirm(
+          "Delete customer?"
+        );
+
+      if (!confirmDelete)
+        return;
+
       try {
         await deleteCustomer(id);
 
         toast.success(
-          "Customer deleted successfully"
+          "Customer deleted"
         );
 
         fetchCustomers();
-
-        closeDeleteModal();
       } catch (error) {
         toast.error(
-          "Failed to delete customer"
+          "Delete failed"
         );
       }
     };
 
-  const filteredCustomers =
-    customers.filter(
-      (customer) =>
-        customer.fullName
-          ?.toLowerCase()
-          .includes(
-            search.toLowerCase()
-          ) ||
-        customer.phoneNumber
-          ?.includes(search)
-    );
-
-  if (loading) {
-    return (
-      <MainLayout>
-        Loading customers...
-      </MainLayout>
-    );
-  }
-
   return (
-    <MainLayout>
-      <div className="space-y-6">
+    <div className="p-6">
 
-        <div
-          className="
-            flex
-            items-center
-            justify-between
-          "
-        >
-          <h1
-            className="
-              text-3xl
-              font-bold
-            "
-          >
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+
+        <div>
+          <h1 className="text-2xl font-bold">
             Customers
           </h1>
 
-          <button
-            onClick={() =>
-              navigate(
-                "/customers/add"
-              )
-            }
-            className="
-              bg-blue-600
-              hover:bg-blue-700
-              text-white
-              px-5
-              py-3
-              rounded-xl
-              flex
-              items-center
-              gap-2
-              transition
-            "
-          >
-            <FiPlus />
-
-            Add Customer
-          </button>
+          <p className="text-slate-500">
+            CRM Contact Management
+          </p>
         </div>
 
-        <div
+        <Link
+          to="/customers/create"
           className="
-            bg-white
-            p-6
-            rounded-2xl
-            border
+            inline-flex
+            items-center
+            gap-2
+            bg-blue-600
+            text-white
+            px-4
+            py-2
+            rounded-lg
           "
         >
-          <input
-            type="text"
-            placeholder="Search customer..."
-            value={search}
-            onChange={(e) =>
-              setSearch(
-                e.target.value
-              )
-            }
-            className="
-              w-full
-              border
-              rounded-xl
-              px-4
-              py-3
-              outline-none
-              focus:ring-2
-              focus:ring-blue-500
-            "
-          />
-        </div>
+          <FiPlus />
+          Add Customer
+        </Link>
 
-        <div
+      </div>
+
+      <div className="grid md:grid-cols-4 gap-4 mb-6">
+
+        <input
+          type="text"
+          placeholder="Search..."
+          value={search}
+          onChange={(e) =>
+            setSearch(
+              e.target.value
+            )
+          }
           className="
-            bg-white
-            rounded-2xl
             border
-            overflow-hidden
+            rounded-lg
+            px-4
+            py-2
+          "
+        />
+
+        <select
+          value={customerType}
+          onChange={(e) =>
+            setCustomerType(
+              e.target.value
+            )
+          }
+          className="
+            border
+            rounded-lg
+            px-4
+            py-2
           "
         >
+          <option value="">
+            All Types
+          </option>
+
+          <option value="REGULAR">
+            Regular
+          </option>
+
+          <option value="WHOLESALE">
+            Wholesale
+          </option>
+
+          <option value="VIP">
+            VIP
+          </option>
+
+        </select>
+
+        <select
+          value={status}
+          onChange={(e) =>
+            setStatus(
+              e.target.value
+            )
+          }
+          className="
+            border
+            rounded-lg
+            px-4
+            py-2
+          "
+        >
+          <option value="">
+            All Status
+          </option>
+
+          <option value="ACTIVE">
+            Active
+          </option>
+
+          <option value="INACTIVE">
+            Inactive
+          </option>
+
+        </select>
+
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+
+        <div className="overflow-x-auto">
+
           <table className="w-full">
 
-            <thead
-              className="
-                bg-slate-100
-              "
-            >
-              <tr>
+            <thead>
 
-                <th
-                  className="
-                    text-left
-                    p-5
-                  "
-                >
-                  Name
+              <tr className="border-b">
+
+                <th className="text-left p-4">
+                  Customer
                 </th>
 
-                <th
-                  className="
-                    text-left
-                    p-5
-                  "
-                >
+                <th className="text-left p-4">
+                  Company
+                </th>
+
+                <th className="text-left p-4">
                   Phone
                 </th>
 
-                <th
-                  className="
-                    text-left
-                    p-5
-                  "
-                >
+                <th className="text-left p-4">
                   Type
                 </th>
 
-                <th
-                  className="
-                    text-left
-                    p-5
-                  "
-                >
-                  City
+                <th className="text-left p-4">
+                  Status
                 </th>
 
-                <th
-                  className="
-                    text-left
-                    p-5
-                  "
-                >
+                <th className="text-left p-4">
+                  Orders
+                </th>
+
+                <th className="text-left p-4">
+                  Spent
+                </th>
+
+                <th className="text-left p-4">
                   Actions
                 </th>
 
               </tr>
+
             </thead>
 
             <tbody>
 
-              {filteredCustomers.map(
+              {customers.map(
                 (customer) => (
                   <tr
-                    key={customer.id}
+                    key={
+                      customer.id
+                    }
                     className="
-                      border-t
+                      border-b
                     "
                   >
 
-                    <td className="p-5">
+                    <td className="p-4">
                       {
                         customer.fullName
                       }
                     </td>
 
-                    <td className="p-5">
+                    <td className="p-4">
+                      {
+                        customer.companyName ||
+                        "-"
+                      }
+                    </td>
+
+                    <td className="p-4">
                       {
                         customer.phoneNumber
                       }
                     </td>
 
-                    <td className="p-5">
+                    <td className="p-4">
                       {
                         customer.customerType
                       }
                     </td>
 
-                    <td className="p-5">
+                    <td className="p-4">
                       {
-                        customer.city
+                        customer.status
                       }
                     </td>
 
-                    <td className="p-5">
+                    <td className="p-4">
+                      {
+                        customer.totalOrders
+                      }
+                    </td>
 
-                      <div
-                        className="
-                          flex
-                          items-center
-                          gap-3
-                        "
-                      >
+                    <td className="p-4">
+                      Rs.
+                      {
+                        customer.totalSpent
+                      }
+                    </td>
 
-                        <button
-                          onClick={() =>
-                            navigate(
-                              `/customers/${customer.id}`
-                            )
-                          }
-                          className="
-                            w-10
-                            h-10
-                            rounded-xl
-                            border
-                            flex
-                            items-center
-                            justify-center
-                            hover:bg-slate-100
-                            transition
-                          "
+                    <td className="p-4">
+
+                      <div className="flex gap-3">
+
+                        <Link
+                          to={`/customers/${customer.id}`}
                         >
-                          <FiEye size={18} />
-                        </button>
+                          <FiEye />
+                        </Link>
 
-                        <button
-                          onClick={() =>
-                            navigate(
-                              `/customers/edit/${customer.id}`
-                            )
-                          }
-                          className="
-                            w-10
-                            h-10
-                            rounded-xl
-                            border
-                            border-blue-200
-                            text-blue-600
-                            flex
-                            items-center
-                            justify-center
-                            hover:bg-blue-50
-                            transition
-                          "
+                        <Link
+                          to={`/customers/edit/${customer.id}`}
                         >
-                          <FiEdit size={18} />
-                        </button>
+                          <FiEdit />
+                        </Link>
 
                         <button
                           onClick={() =>
-                            openDeleteModal(
+                            handleDelete(
                               customer.id
                             )
                           }
-                          className="
-                            w-10
-                            h-10
-                            rounded-xl
-                            border
-                            border-red-200
-                            text-red-600
-                            flex
-                            items-center
-                            justify-center
-                            hover:bg-red-50
-                            transition
-                          "
                         >
-                          <FiTrash2 size={18} />
+                          <FiTrash2 />
                         </button>
 
                       </div>
@@ -387,26 +352,18 @@ const CustomersPage = () => {
             </tbody>
 
           </table>
+
         </div>
 
-        <DeleteModal
-          isOpen={
-            showDeleteModal
-          }
-          onClose={
-            closeDeleteModal
-          }
-          onConfirm={() =>
-            handleDelete(
-              selectedCustomerId
-            )
-          }
-          title="Delete Customer"
-          message="Are you sure you want to delete this customer?"
-        />
-
       </div>
-    </MainLayout>
+
+      {loading && (
+        <p className="mt-4">
+          Loading...
+        </p>
+      )}
+
+    </div>
   );
 };
 
