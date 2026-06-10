@@ -1,4 +1,7 @@
 
+import Button from "../ui/Button";
+import { formControlClass } from "../ui/formStyles";
+
 const CustomerForm = ({
   formData,
   handleChange,
@@ -24,7 +27,7 @@ const CustomerForm = ({
         value={formData.fullName}
         onChange={handleChange}
         placeholder="Full Name"
-        className="border rounded-lg px-4 py-3"
+        className={formControlClass}
       />
 
       {/* Company */}
@@ -33,7 +36,7 @@ const CustomerForm = ({
         value={formData.companyName}
         onChange={handleChange}
         placeholder="Company Name"
-        className="border rounded-lg px-4 py-3"
+        className={formControlClass}
       />
 
       {/* Designation */}
@@ -42,7 +45,7 @@ const CustomerForm = ({
         value={formData.designation}
         onChange={handleChange}
         placeholder="Designation"
-        className="border rounded-lg px-4 py-3"
+        className={formControlClass}
       />
 
       {/* Phone */}
@@ -51,7 +54,7 @@ const CustomerForm = ({
         value={formData.phoneNumber}
         onChange={handleChange}
         placeholder="Phone Number"
-        className="border rounded-lg px-4 py-3"
+        className={formControlClass}
       />
 
       {/* Email */}
@@ -60,21 +63,16 @@ const CustomerForm = ({
         value={formData.email}
         onChange={handleChange}
         placeholder="Email"
-        className="border rounded-lg px-4 py-3"
+        className={formControlClass}
       />
 
-      <button
+      <Button
         type="submit"
-        className="
-          bg-blue-600
-          text-white
-          py-3
-          rounded-lg
-          md:col-span-2
-        "
+        className="md:col-span-2"
+        size="lg"
       >
         {submitText}
-      </button>
+      </Button>
     </form>
   );
 };

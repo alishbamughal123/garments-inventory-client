@@ -6,7 +6,6 @@ import {
 
 import {
   useParams,
-  useNavigate,
 } from "react-router-dom";
 
 import {
@@ -14,9 +13,10 @@ import {
 } from "react-icons/fi";
 
 import toast from "react-hot-toast";
-
 import MainLayout from "../../layouts/MainLayout";
-
+import Button from "../../components/ui/Button";
+import PageHeader from "../../components/ui/PageHeader";
+import SurfaceCard from "../../components/ui/SurfaceCard";
 import {
   getSaleById,
 } from "../../services/sales.service";
@@ -24,10 +24,6 @@ import {
 const SaleDetailsPage = () => {
   const { id } =
     useParams();
-
-  const navigate =
-    useNavigate();
-
   const [sale, setSale] =
     useState(null);
 
@@ -35,26 +31,33 @@ const SaleDetailsPage = () => {
     useState(true);
 
   useEffect(() => {
-    fetchSale();
-  }, []);
+    let isMounted = true;
 
-  const fetchSale =
-    async () => {
+    (async () => {
       try {
         const response =
           await getSaleById(id);
 
-        setSale(
-          response.data.data
-        );
-      } catch (error) {
+        if (isMounted) {
+          setSale(
+            response.data
+          );
+        }
+      } catch {
         toast.error(
           "Failed to fetch sale"
         );
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
+    })();
+
+    return () => {
+      isMounted = false;
     };
+  }, [id]);
 
   if (loading) {
     return (
@@ -77,55 +80,21 @@ const SaleDetailsPage = () => {
 
       <div className="space-y-6">
 
-        <div
-          className="
-            flex
-            items-center
-            justify-between
-          "
-        >
-
-          <div>
-
-            <h1
-              className="
-                text-3xl
-                font-bold
-              "
-            >
-              Invoice Details
-            </h1>
-
-            <p className="text-slate-500 mt-1">
-              {
-                sale.invoiceNumber
-              }
-            </p>
-
-          </div>
-
-          <button
+        <PageHeader
+          title="Invoice Details"
+          description={sale.invoiceNumber}
+          action={
+            <Button
             onClick={() =>
               window.print()
             }
-            className="
-              bg-blue-600
-              hover:bg-blue-700
-              text-white
-              px-5
-              py-3
-              rounded-xl
-              flex
-              items-center
-              gap-2
-            "
+            size="lg"
           >
             <FiPrinter />
-
             Print Invoice
-          </button>
-
-        </div>
+            </Button>
+          }
+        />
 
         <div
           className="
@@ -136,14 +105,7 @@ const SaleDetailsPage = () => {
           "
         >
 
-          <div
-            className="
-              bg-white
-              border
-              rounded-2xl
-              p-6
-            "
-          >
+          <SurfaceCard className="p-6">
 
             <h2
               className="
@@ -201,16 +163,9 @@ const SaleDetailsPage = () => {
 
             </div>
 
-          </div>
+          </SurfaceCard>
 
-          <div
-            className="
-              bg-white
-              border
-              rounded-2xl
-              p-6
-            "
-          >
+          <SurfaceCard className="p-6">
 
             <h2
               className="
@@ -289,18 +244,11 @@ const SaleDetailsPage = () => {
 
             </div>
 
-          </div>
+          </SurfaceCard>
 
         </div>
 
-        <div
-          className="
-            bg-white
-            border
-            rounded-2xl
-            overflow-hidden
-          "
-        >
+        <SurfaceCard className="overflow-hidden">
 
           <div className="p-6 border-b">
 
@@ -385,7 +333,7 @@ const SaleDetailsPage = () => {
 
           </table>
 
-        </div>
+        </SurfaceCard>
 
       </div>
 

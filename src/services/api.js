@@ -21,4 +21,16 @@ api.interceptors.request.use(
   }
 );
 
+export const buildQueryParams = (
+  filters = {}
+) =>
+  Object.fromEntries(
+    Object.entries(filters).filter(
+      ([, value]) =>
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+    )
+  );
+
 export default api;

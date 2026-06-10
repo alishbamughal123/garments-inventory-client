@@ -11,6 +11,13 @@ import {
 import toast from "react-hot-toast";
 
 import MainLayout from "../../layouts/MainLayout";
+import Button from "../../components/ui/Button";
+import PageHeader from "../../components/ui/PageHeader";
+import SurfaceCard from "../../components/ui/SurfaceCard";
+import {
+  formControlClass,
+  formLabelClass,
+} from "../../components/ui/formStyles";
 
 import {
   createSale,
@@ -56,68 +63,51 @@ const CreateSalePage = () => {
     useState(false);
 
   useEffect(() => {
-    fetchProducts();
+    let isMounted = true;
 
-    fetchCustomers();
+    (async () => {
+      try {
+        const [
+          productResponse,
+          customerResponse,
+        ] = await Promise.all([
+          getProducts(),
+          getCustomers(),
+        ]);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setProducts(
+          Array.isArray(
+            productResponse.data
+          )
+            ? productResponse.data
+            : productResponse.data
+                .data || []
+        );
+
+        setCustomers(
+          Array.isArray(
+            customerResponse.data
+          )
+            ? customerResponse.data
+            : customerResponse.data
+                .data || []
+        );
+      } catch (error) {
+        console.log(error);
+        toast.error(
+          "Failed to fetch sale setup data"
+        );
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
-
- const fetchProducts =
-  async () => {
-    try {
-      const response =
-        await getProducts();
-
-      console.log(
-        "PRODUCTS:",
-        response.data
-      );
-
-      setProducts(
-        Array.isArray(
-          response.data
-        )
-          ? response.data
-          : response.data.data ||
-              []
-      );
-
-    } catch (error) {
-      console.log(error);
-
-      toast.error(
-        "Failed to fetch products"
-      );
-    }
-  };
-
- const fetchCustomers =
-  async () => {
-    try {
-      const response =
-        await getCustomers();
-
-      console.log(
-        "CUSTOMERS:",
-        response.data
-      );
-
-      setCustomers(
-        Array.isArray(
-          response.data
-        )
-          ? response.data
-          : response.data.data ||
-              []
-      );
-
-    } catch (error) {
-      console.log(error);
-
-      toast.error(
-        "Failed to fetch customers"
-      );
-    }
-  };
 
   const addToCart = () => {
     if (!selectedProduct) {
@@ -292,15 +282,10 @@ const CreateSalePage = () => {
     <MainLayout>
 
       <div className="space-y-6">
-
-        <h1
-          className="
-            text-3xl
-            font-bold
-          "
-        >
-          Create Sale
-        </h1>
+        <PageHeader
+          title="Create Sale"
+          description="Build an order with shared controls, consistent buttons, and reusable form styling."
+        />
 
         <div
           className="
@@ -318,16 +303,9 @@ const CreateSalePage = () => {
             "
           >
 
-            <div
-              className="
-                bg-white
-                border
-                rounded-2xl
-                p-6
-              "
-            >
+            <SurfaceCard className="p-6">
 
-              <label className="block mb-2 font-medium">
+              <label className={formLabelClass}>
                 Select Customer
               </label>
 
@@ -340,13 +318,7 @@ const CreateSalePage = () => {
                     e.target.value
                   )
                 }
-                className="
-                  w-full
-                  border
-                  rounded-xl
-                  px-4
-                  py-3
-                "
+                className={formControlClass}
               >
 
                 <option value="">
@@ -372,16 +344,9 @@ const CreateSalePage = () => {
 
               </select>
 
-            </div>
+            </SurfaceCard>
 
-            <div
-              className="
-                bg-white
-                border
-                rounded-2xl
-                p-6
-              "
-            >
+            <SurfaceCard className="p-6">
 
               <div className="flex gap-4">
 
@@ -394,13 +359,7 @@ const CreateSalePage = () => {
                       e.target.value
                     )
                   }
-                  className="
-                    flex-1
-                    border
-                    rounded-xl
-                    px-4
-                    py-3
-                  "
+                  className={formControlClass}
                 >
 
                   <option value="">
@@ -426,24 +385,17 @@ const CreateSalePage = () => {
 
                 </select>
 
-                <button
+                <Button
                   onClick={
                     addToCart
                   }
-                  className="
-                    bg-blue-600
-                    hover:bg-blue-700
-                    text-white
-                    px-6
-                    rounded-xl
-                  "
                 >
                   Add
-                </button>
+                </Button>
 
               </div>
 
-            </div>
+            </SurfaceCard>
 
             <div
               className="
@@ -522,13 +474,7 @@ const CreateSalePage = () => {
                                   .value
                               )
                             }
-                            className="
-                              w-20
-                              border
-                              rounded-lg
-                              px-3
-                              py-2
-                            "
+                            className="w-20 rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-[var(--color-primary)]"
                           />
 
                         </td>
@@ -576,16 +522,7 @@ const CreateSalePage = () => {
 
           </div>
 
-          <div
-            className="
-              bg-white
-              border
-              rounded-2xl
-              p-6
-              h-fit
-              space-y-5
-            "
-          >
+          <SurfaceCard className="h-fit space-y-5 p-6">
 
             <h2
               className="
@@ -608,7 +545,7 @@ const CreateSalePage = () => {
 
             <div>
 
-              <label className="block mb-2">
+              <label className={formLabelClass}>
                 Discount
               </label>
 
@@ -620,20 +557,14 @@ const CreateSalePage = () => {
                     e.target.value
                   )
                 }
-                className="
-                  w-full
-                  border
-                  rounded-xl
-                  px-4
-                  py-3
-                "
+                className={formControlClass}
               />
 
             </div>
 
             <div>
 
-              <label className="block mb-2">
+              <label className={formLabelClass}>
                 Tax
               </label>
 
@@ -645,20 +576,14 @@ const CreateSalePage = () => {
                     e.target.value
                   )
                 }
-                className="
-                  w-full
-                  border
-                  rounded-xl
-                  px-4
-                  py-3
-                "
+                className={formControlClass}
               />
 
             </div>
 
             <div>
 
-              <label className="block mb-2">
+              <label className={formLabelClass}>
                 Payment Method
               </label>
 
@@ -671,13 +596,7 @@ const CreateSalePage = () => {
                     e.target.value
                   )
                 }
-                className="
-                  w-full
-                  border
-                  rounded-xl
-                  px-4
-                  py-3
-                "
+                className={formControlClass}
               >
 
                 <option value="CASH">
@@ -723,27 +642,20 @@ const CreateSalePage = () => {
 
             </div>
 
-            <button
+            <Button
               onClick={
                 handleSubmit
               }
               disabled={loading}
-              className="
-                w-full
-                bg-green-600
-                hover:bg-green-700
-                text-white
-                py-4
-                rounded-xl
-                font-semibold
-              "
+              className="w-full bg-emerald-600 hover:bg-emerald-700"
+              size="lg"
             >
               {loading
                 ? "Processing..."
                 : "Complete Sale"}
-            </button>
+            </Button>
 
-          </div>
+          </SurfaceCard>
 
         </div>
 

@@ -7,7 +7,7 @@ export const getProducts = async () => {
 
 export const searchProducts = async (query) => {
   const response = await api.get(
-    `/products/search?q=${query}`
+    `/products/search?query=${query}`
   );
 
   return response.data;

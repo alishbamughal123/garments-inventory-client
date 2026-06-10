@@ -1,5 +1,7 @@
 
-import api from "./api";
+import api, {
+  buildQueryParams,
+} from "./api";
 
 /*
 |--------------------------------------------------------------------------
@@ -13,7 +15,14 @@ export const getCustomers = async (
   status = ""
 ) => {
   const response = await api.get(
-    `/customers?search=${search}&customerType=${customerType}&status=${status}`
+    "/customers",
+    {
+      params: buildQueryParams({
+        search,
+        customerType,
+        status,
+      }),
+    }
   );
 
   return response.data;

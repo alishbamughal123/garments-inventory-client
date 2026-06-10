@@ -1,43 +1,36 @@
-import axios from "axios";
+import api from "./api";
 
-const API_URL =
-  `${import.meta.env.VITE_API_URL}/leads`;
-
-const getAuthConfig = () => {
-  const token =
-    localStorage.getItem("token");
-
-  return {
-    headers: {
-      Authorization:
-        `Bearer ${token}`,
-    },
-  };
-};
+const leadsEndpoint = "/leads";
 
 export const getLeads =
   async () => {
-    return await axios.get(
-      API_URL,
-      getAuthConfig()
-    );
+    const response =
+      await api.get(
+        leadsEndpoint
+      );
+
+    return response.data;
   };
 
 export const getLeadById =
   async (id) => {
-    return await axios.get(
-      `${API_URL}/${id}`,
-      getAuthConfig()
-    );
+    const response =
+      await api.get(
+        `${leadsEndpoint}/${id}`
+      );
+
+    return response.data;
   };
 
 export const createLead =
   async (payload) => {
-    return await axios.post(
-      API_URL,
-      payload,
-      getAuthConfig()
-    );
+    const response =
+      await api.post(
+        leadsEndpoint,
+        payload
+      );
+
+    return response.data;
   };
 
 export const updateLead =
@@ -45,19 +38,23 @@ export const updateLead =
     id,
     payload
   ) => {
-    return await axios.patch(
-      `${API_URL}/${id}`,
-      payload,
-      getAuthConfig()
-    );
+    const response =
+      await api.patch(
+        `${leadsEndpoint}/${id}`,
+        payload
+      );
+
+    return response.data;
   };
 
 export const deleteLead =
   async (id) => {
-    return await axios.delete(
-      `${API_URL}/${id}`,
-      getAuthConfig()
-    );
+    const response =
+      await api.delete(
+        `${leadsEndpoint}/${id}`
+      );
+
+    return response.data;
   };
 
 export const updateLeadStage =
@@ -65,18 +62,21 @@ export const updateLeadStage =
     id,
     status
   ) => {
-    return await axios.patch(
-      `${API_URL}/${id}/stage`,
-      { status },
-      getAuthConfig()
-    );
+    const response =
+      await api.patch(
+        `${leadsEndpoint}/${id}/stage`,
+        { status }
+      );
+
+    return response.data;
   };
 
 export const convertLead =
   async (id) => {
-    return await axios.post(
-      `${API_URL}/${id}/convert`,
-      {},
-      getAuthConfig()
-    );
+    const response =
+      await api.post(
+        `${leadsEndpoint}/${id}/convert`
+      );
+
+    return response.data;
   };

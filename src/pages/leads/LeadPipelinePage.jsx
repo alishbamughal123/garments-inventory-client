@@ -2,15 +2,14 @@ import {
   useEffect,
   useState,
 } from "react";
-
 import toast from "react-hot-toast";
-
 import {
   DragDropContext,
-  Droppable,
   Draggable,
+  Droppable,
 } from "@hello-pangea/dnd";
-
+import PageHeader from "../../components/ui/PageHeader";
+import StatusBadge from "../../components/ui/StatusBadge";
 import {
   getLeads,
   updateLeadStage,
@@ -29,32 +28,36 @@ const stages = [
 const LeadPipelinePage = () => {
   const [leads, setLeads] =
     useState([]);
-
   const [loading, setLoading] =
     useState(true);
 
-  const fetchLeads =
-    async () => {
-      try {
-        setLoading(true);
+  useEffect(() => {
+    let isMounted = true;
 
+    (async () => {
+      try {
         const response =
           await getLeads();
 
-        setLeads(
-          response.data.data
-        );
-      } catch (error) {
+        if (isMounted) {
+          setLeads(
+            response.data || []
+          );
+        }
+      } catch {
         toast.error(
           "Failed to load leads"
         );
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-    };
+    })();
 
-  useEffect(() => {
-    fetchLeads();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const onDragEnd =
@@ -66,7 +69,6 @@ const LeadPipelinePage = () => {
 
       const leadId =
         result.draggableId;
-
       const newStage =
         result.destination
           .droppableId;
@@ -95,7 +97,7 @@ const LeadPipelinePage = () => {
         toast.success(
           `Lead moved to ${newStage}`
         );
-      } catch (error) {
+      } catch {
         toast.error(
           "Failed to update stage"
         );
@@ -104,129 +106,109 @@ const LeadPipelinePage = () => {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
         Loading Pipeline...
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">
-          Lead Pipeline
-        </h1>
-
-        <p className="text-gray-500">
-          Drag leads between
-          stages
-        </p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Lead Pipeline"
+        description="Drag leads between stages. The board now scales better on smaller screens and keeps each column readable."
+      />
 
       <DragDropContext
         onDragEnd={
           onDragEnd
         }
       >
-        <div className="flex gap-4 overflow-x-auto pb-4">
-          {stages.map(
-            (stage) => {
-              const stageLeads =
-                leads.filter(
-                  (lead) =>
-                    lead.status ===
-                    stage
-                );
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          {stages.map((stage) => {
+            const stageLeads =
+              leads.filter(
+                (lead) =>
+                  lead.status ===
+                  stage
+              );
 
-              return (
-                <Droppable
-                  key={stage}
-                  droppableId={
-                    stage
-                  }
-                >
-                  {(
-                    provided
-                  ) => (
-                    <div
-                      ref={
-                        provided.innerRef
-                      }
-                      {...provided.droppableProps}
-                      className="min-w-[320px] bg-gray-100 rounded-lg p-4"
-                    >
-                      <div className="flex justify-between items-center mb-4">
-                        <h2 className="font-bold text-sm">
-                          {stage.replace(
-                            "_",
-                            " "
-                          )}
-                        </h2>
+            return (
+              <Droppable
+                key={stage}
+                droppableId={stage}
+              >
+                {(provided) => (
+                  <section
+                    ref={
+                      provided.innerRef
+                    }
+                    {...provided.droppableProps}
+                    className="min-h-[320px] rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                  >
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <StatusBadge
+                        value={stage}
+                        className="text-[11px] uppercase tracking-[0.08em]"
+                      />
 
-                        <span className="bg-white px-2 py-1 rounded text-xs">
-                          {
-                            stageLeads.length
-                          }
-                        </span>
-                      </div>
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                        {
+                          stageLeads.length
+                        }
+                      </span>
+                    </div>
 
+                    <div className="space-y-3">
                       {stageLeads.map(
                         (
                           lead,
                           index
                         ) => (
                           <Draggable
-                            key={
-                              lead.id
-                            }
-                            draggableId={
-                              lead.id
-                            }
-                            index={
-                              index
-                            }
+                            key={lead.id}
+                            draggableId={lead.id}
+                            index={index}
                           >
-                            {(
-                              provided
-                            ) => (
-                              <div
+                            {(provided) => (
+                              <article
                                 ref={
                                   provided.innerRef
                                 }
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                className="bg-white rounded-lg shadow p-4 mb-3"
+                                className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
                               >
-                                <h3 className="font-semibold">
+                                <h4 className="font-semibold text-slate-900">
                                   {
                                     lead.fullName
                                   }
-                                </h3>
+                                </h4>
 
-                                <p className="text-sm text-gray-500">
+                                <p className="mt-1 text-sm text-slate-500">
                                   {lead.companyName ||
                                     "No Company"}
                                 </p>
 
-                                <p className="text-sm mt-2">
-                                  📞{" "}
-                                  {
-                                    lead.phoneNumber
-                                  }
-                                </p>
+                                <div className="mt-4 space-y-2 text-sm text-slate-600">
+                                  <p className="break-words">
+                                    {
+                                      lead.phoneNumber
+                                    }
+                                  </p>
 
-                                <p className="text-sm">
-                                  💰 Rs.{" "}
-                                  {Number(
-                                    lead.expectedDealValue ||
-                                      0
-                                  ).toLocaleString()}
-                                </p>
+                                  <p className="font-medium text-emerald-700">
+                                    Rs.{" "}
+                                    {Number(
+                                      lead.expectedDealValue ||
+                                        0
+                                    ).toLocaleString()}
+                                  </p>
+                                </div>
 
                                 {lead.assignedTo && (
-                                  <div className="mt-2 text-xs text-blue-600">
-                                    Assigned:
-                                    {" "}
+                                  <div className="mt-3 text-xs font-medium text-[var(--color-primary-ink)]">
+                                    Assigned:{" "}
                                     {
                                       lead
                                         .assignedTo
@@ -236,29 +218,32 @@ const LeadPipelinePage = () => {
                                 )}
 
                                 {lead.source && (
-                                  <div className="mt-1 text-xs text-gray-500">
-                                    Source:
-                                    {" "}
+                                  <div className="mt-1 text-xs text-slate-500">
+                                    Source:{" "}
                                     {
                                       lead.source
                                     }
                                   </div>
                                 )}
-                              </div>
+                              </article>
                             )}
                           </Draggable>
                         )
                       )}
 
-                      {
-                        provided.placeholder
-                      }
+                      {provided.placeholder}
+
+                      {stageLeads.length === 0 && (
+                        <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-xs text-slate-400">
+                          No leads in this stage
+                        </div>
+                      )}
                     </div>
-                  )}
-                </Droppable>
-              );
-            }
-          )}
+                  </section>
+                )}
+              </Droppable>
+            );
+          })}
         </div>
       </DragDropContext>
     </div>

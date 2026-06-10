@@ -1,248 +1,211 @@
 import {
-useEffect,
-useState,
+  useEffect,
+  useState,
 } from "react";
-
 import {
-useNavigate,
-useParams,
+  useNavigate,
+  useParams,
 } from "react-router-dom";
-
 import toast from "react-hot-toast";
-
+import Button from "../../components/ui/Button";
+import PageHeader from "../../components/ui/PageHeader";
+import { appRoutes } from "../../config/routes";
 import {
-getLeadById,
-updateLead,
+  getLeadById,
+  updateLead,
 } from "../../services/lead.service";
 
+const inputClass =
+  "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white";
+
 const EditLeadPage = () => {
-const { id } =
-useParams();
+  const { id } =
+    useParams();
+  const navigate =
+    useNavigate();
+  const [loading, setLoading] =
+    useState(true);
+  const [formData, setFormData] =
+    useState(null);
 
-const navigate =
-useNavigate();
+  async function loadLead() {
+      try {
+        const response =
+          await getLeadById(id);
 
-const [loading, setLoading] =
-useState(true);
+        setFormData(
+          response.data
+        );
+      } catch {
+        toast.error(
+          "Failed to load lead"
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
 
-const [formData, setFormData] =
-useState(null);
+  useEffect(() => {
+    loadLead();
+  }, [id]);
 
-useEffect(() => {
-loadLead();
-}, []);
+  const handleChange = (
+    e
+  ) => {
+    setFormData({
+      ...formData,
+      [e.target.name]:
+        e.target.value,
+    });
+  };
 
-const loadLead =
-async () => {
-try {
-const response =
-await getLeadById(id);
+  const submit =
+    async (e) => {
+      e.preventDefault();
 
+      try {
+        await updateLead(
+          id,
+          formData
+        );
 
-    setFormData(
-      response.data.data
+        toast.success(
+          "Lead updated successfully"
+        );
+
+        navigate(
+          appRoutes.crmLeadDetails(id)
+        );
+      } catch {
+        toast.error(
+          "Update failed"
+        );
+      }
+    };
+
+  if (loading) {
+    return (
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
+        Loading lead...
+      </div>
     );
-  } catch {
-    toast.error(
-      "Failed to load lead"
-    );
-  } finally {
-    setLoading(false);
   }
-};
 
-
-const handleChange = (
-e
-) => {
-setFormData({
-...formData,
-[e.target.name]:
-e.target.value,
-});
-};
-
-const submit =
-async (e) => {
-e.preventDefault();
-
-
-  try {
-    await updateLead(
-      id,
-      formData
-    );
-
-    toast.success(
-      "Lead updated successfully"
-    );
-
-    navigate(
-      `/crm/leads/${id}`
-    );
-  } catch {
-    toast.error(
-      "Update failed"
-    );
-  }
-};
-
-
-if (loading)
-return ( <div className="p-6">
-Loading... </div>
-);
-
-return ( <div className="max-w-6xl mx-auto p-6">
-
-
-  <div className="mb-6">
-
-    <h1 className="text-3xl font-bold">
-      Edit Lead
-    </h1>
-
-    <p className="text-gray-500 mt-1">
-      Update lead information
-    </p>
-
-  </div>
-
-  <form
-    onSubmit={submit}
-    className="bg-white border rounded-2xl p-8 shadow-sm"
-  >
-
-    <div className="grid md:grid-cols-2 gap-5">
-
-      <div>
-        <label className="block mb-2 font-medium">
-          Full Name
-        </label>
-
-        <input
-          name="fullName"
-          value={
-            formData.fullName || ""
-          }
-          onChange={handleChange}
-          className="w-full border rounded-lg px-4 py-3"
-        />
-      </div>
-
-      <div>
-        <label className="block mb-2 font-medium">
-          Company Name
-        </label>
-
-        <input
-          name="companyName"
-          value={
-            formData.companyName || ""
-          }
-          onChange={handleChange}
-          className="w-full border rounded-lg px-4 py-3"
-        />
-      </div>
-
-      <div>
-        <label className="block mb-2 font-medium">
-          Email
-        </label>
-
-        <input
-          name="email"
-          value={
-            formData.email || ""
-          }
-          onChange={handleChange}
-          className="w-full border rounded-lg px-4 py-3"
-        />
-      </div>
-
-      <div>
-        <label className="block mb-2 font-medium">
-          Phone
-        </label>
-
-        <input
-          name="phoneNumber"
-          value={
-            formData.phoneNumber || ""
-          }
-          onChange={handleChange}
-          className="w-full border rounded-lg px-4 py-3"
-        />
-      </div>
-
-      <div>
-        <label className="block mb-2 font-medium">
-          City
-        </label>
-
-        <input
-          name="city"
-          value={
-            formData.city || ""
-          }
-          onChange={handleChange}
-          className="w-full border rounded-lg px-4 py-3"
-        />
-      </div>
-
-      <div>
-        <label className="block mb-2 font-medium">
-          Deal Value
-        </label>
-
-        <input
-          type="number"
-          name="expectedDealValue"
-          value={
-            formData.expectedDealValue || 0
-          }
-          onChange={handleChange}
-          className="w-full border rounded-lg px-4 py-3"
-        />
-      </div>
-
-    </div>
-
-    <div className="mt-5">
-
-      <label className="block mb-2 font-medium">
-        Notes
-      </label>
-
-      <textarea
-        rows="5"
-        name="notes"
-        value={
-          formData.notes || ""
-        }
-        onChange={handleChange}
-        className="w-full border rounded-lg px-4 py-3"
+  return (
+    <div className="mx-auto w-full max-w-6xl space-y-6">
+      <PageHeader
+        title="Edit Lead"
+        description="Update lead details, notes, and deal value from a mobile-safe form."
       />
 
-    </div>
-
-    <div className="mt-8 flex justify-end">
-
-      <button
-        type="submit"
-        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl"
+      <form
+        onSubmit={submit}
+        className="space-y-6"
       >
-        Update Lead
-      </button>
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-5">
+            <h3 className="text-lg font-semibold text-slate-900">
+              Lead Information
+            </h3>
+          </div>
 
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <input
+              name="fullName"
+              value={
+                formData.fullName || ""
+              }
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="Full Name"
+            />
+
+            <input
+              name="companyName"
+              value={
+                formData.companyName || ""
+              }
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="Company Name"
+            />
+
+            <input
+              name="designation"
+              value={
+                formData.designation || ""
+              }
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="Designation"
+            />
+
+            <input
+              name="email"
+              value={
+                formData.email || ""
+              }
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="Email"
+            />
+
+            <input
+              name="phoneNumber"
+              value={
+                formData.phoneNumber || ""
+              }
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="Phone"
+            />
+
+            <input
+              name="city"
+              value={
+                formData.city || ""
+              }
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="City"
+            />
+
+            <input
+              type="number"
+              name="expectedDealValue"
+              value={
+                formData.expectedDealValue || 0
+              }
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="Deal Value"
+            />
+          </div>
+
+          <div className="mt-4 grid gap-4">
+            <textarea
+              rows="5"
+              name="notes"
+              value={
+                formData.notes || ""
+              }
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="Notes"
+            />
+          </div>
+        </section>
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <Button
+            type="submit"
+          >
+            Update Lead
+          </Button>
+        </div>
+      </form>
     </div>
-
-  </form>
-
-</div>
-
-
-);
+  );
 };
 
 export default EditLeadPage;

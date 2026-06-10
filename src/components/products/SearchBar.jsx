@@ -1,3 +1,5 @@
+import { formControlClass } from "../ui/formStyles";
+
 const SearchBar = ({
   search,
   setSearch,
@@ -5,24 +7,12 @@ const SearchBar = ({
   return (
     <input
   type="text"
-  placeholder="Search by Name, SKU, Barcode..."
+  placeholder="Search by style no, name, article, SKU, or barcode..."
   value={search}
   onChange={(e) =>
     setSearch(e.target.value)
   }
-  className="
-    w-full
-    md:w-96
-    bg-white
-    border
-    border-slate-200
-    rounded-xl
-    px-5
-    py-3
-    outline-none
-    focus:ring-2
-    focus:ring-indigo-500
-  "
+  className={`${formControlClass} md:w-96`}
 />
   );
 };

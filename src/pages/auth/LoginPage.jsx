@@ -6,6 +6,10 @@ import toast from "react-hot-toast";
 import { loginUser } from "../../services/auth.service";
 
 import { useAuth } from "../../context/AuthContext";
+import Button from "../../components/ui/Button";
+import {
+  formControlClass,
+} from "../../components/ui/formStyles";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -41,19 +45,9 @@ const handleSubmit =
 
       const response =
         await loginUser(formData);
-
-      console.log(response);
-
-      localStorage.setItem(
-        "token",
-        response.data.token
-      );
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify(
-          response.data.user
-        )
+      login(
+        response.data.token,
+        response.data.user
       );
 
       toast.success(
@@ -78,15 +72,18 @@ const handleSubmit =
 
 
   return (
-    <div className="h-screen flex justify-center items-center bg-gray-100">
+    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.12),_transparent_28%),linear-gradient(180deg,_#eff6ff_0%,_#f8fafc_70%)] px-4">
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-xl shadow-lg w-[400px]"
+        className="w-full max-w-sm rounded-3xl border border-[var(--color-primary-border)] bg-white p-8 shadow-lg"
       >
-        <h1 className="text-3xl font-bold mb-6 text-center">
-          Inventory Login
+        <h1 className="mb-2 text-center text-3xl font-bold">
+          Nordic Prowear
         </h1>
+        <p className="mb-6 text-center text-sm text-slate-500">
+          Sign in to access articles, sales, CRM, and inventory workflows.
+        </p>
 
         <input
           type="email"
@@ -95,7 +92,7 @@ const handleSubmit =
           onChange={
             handleChange
           }
-          className="border w-full p-3 mb-4 rounded"
+          className={`${formControlClass} mb-4`}
         />
 
         <input
@@ -105,16 +102,18 @@ const handleSubmit =
           onChange={
             handleChange
           }
-          className="border w-full p-3 mb-4 rounded"
+          className={`${formControlClass} mb-4`}
         />
 
-        <button
-          className="bg-blue-600 text-white w-full py-3 rounded"
+        <Button
+          type="submit"
+          className="w-full"
+          size="lg"
         >
           {loading
             ? "Loading..."
             : "Login"}
-        </button>
+        </Button>
       </form>
     </div>
   );

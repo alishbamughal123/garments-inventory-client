@@ -8,6 +8,9 @@ import {
 } from "react-router-dom";
 
 import MainLayout from "../../layouts/MainLayout";
+import Button from "../../components/ui/Button";
+import PageHeader from "../../components/ui/PageHeader";
+import SurfaceCard from "../../components/ui/SurfaceCard";
 
 import {
   getProductById,
@@ -30,17 +33,19 @@ const BarcodePage = () => {
     useState("");
 
   useEffect(() => {
-    fetchProduct();
-  }, []);
+    let isMounted = true;
 
-  const fetchProduct =
-    async () => {
+    (async () => {
       try {
         const response =
           await getProductById(id);
 
         const productData =
           response.data;
+
+        if (!isMounted) {
+          return;
+        }
 
         setProduct(
           productData
@@ -58,9 +63,16 @@ const BarcodePage = () => {
       } catch (error) {
         console.log(error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
+    })();
+
+    return () => {
+      isMounted = false;
     };
+  }, [id]);
 
   if (loading) {
     return (
@@ -73,30 +85,17 @@ const BarcodePage = () => {
   return (
     <MainLayout>
 
-      <div
-        className="
-          bg-white
-          rounded-2xl
-          border
-          border-slate-200
-          p-8
-          max-w-3xl
-        "
-      >
+      <div className="mx-auto max-w-3xl space-y-6">
+        <PageHeader
+          title="Article Barcode"
+          description="Preview and print the primary barcode for a Nordic Prowear article variant."
+        />
 
-        <h1
-          className="
-            text-3xl
-            font-bold
-            mb-6
-          "
-        >
-          Product Barcode
-        </h1>
+        <SurfaceCard className="p-8">
 
         <div className="mb-6">
           <p className="text-slate-500">
-            Product
+            Article
           </p>
 
           <p className="font-semibold text-lg">
@@ -129,23 +128,16 @@ const BarcodePage = () => {
         </div>
 
         <div className="mt-6">
-          <button
+          <Button
             onClick={() =>
               window.print()
             }
-            className="
-              bg-blue-500
-              hover:bg-blue-600
-              text-white
-              px-5
-              py-3
-              rounded-xl
-            "
+            size="lg"
           >
             Print Barcode
-          </button>
+          </Button>
         </div>
-
+        </SurfaceCard>
       </div>
 
     </MainLayout>

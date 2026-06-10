@@ -6,9 +6,8 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import toast from "react-hot-toast";
-
 import MainLayout from "../../layouts/MainLayout";
-
+import PageHeader from "../../components/ui/PageHeader";
 import ProductForm from "../../components/products/productForm";
 
 import {
@@ -30,24 +29,29 @@ const AddProductPage = () => {
     useState([]);
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    let isMounted = true;
 
-  const fetchCategories =
-    async () => {
+    (async () => {
       try {
         const response =
           await getCategories();
 
-        setCategories(
-          response.data
-        );
+        if (isMounted) {
+          setCategories(
+            response.data
+          );
+        }
       } catch {
         toast.error(
           "Failed to load categories"
         );
       }
+    })();
+
+    return () => {
+      isMounted = false;
     };
+  }, []);
 
   const handleCreateProduct =
     async (data) => {
@@ -77,17 +81,10 @@ const AddProductPage = () => {
   return (
     <MainLayout>
 
-      <div className="mb-8">
-
-        <h1 className="text-3xl font-bold">
-          Add Product
-        </h1>
-
-        <p className="text-slate-500 mt-2">
-          Create a new product
-        </p>
-
-      </div>
+      <PageHeader
+        title="Add Article"
+        description="Create a Nordic Prowear inventory article with dynamic style-number variants."
+      />
 
       <ProductForm
         categories={
@@ -97,6 +94,7 @@ const AddProductPage = () => {
           handleCreateProduct
         }
         loading={loading}
+        submitLabel="Save Article"
       />
 
     </MainLayout>

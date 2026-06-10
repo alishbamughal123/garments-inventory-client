@@ -9,8 +9,8 @@ import {
 } from "react-router-dom";
 
 import toast from "react-hot-toast";
-
 import MainLayout from "../../layouts/MainLayout";
+import PageHeader from "../../components/ui/PageHeader";
 import ProductForm from "../../components/products/productForm";
 
 import {
@@ -41,34 +41,44 @@ const EditProductPage = () => {
     useState([]);
 
   useEffect(() => {
-    loadData();
+    let isMounted = true;
+
+    (async () => {
+      try {
+        const [
+          categoriesResponse,
+          productResponse,
+        ] = await Promise.all([
+          getCategories(),
+          getProductById(id),
+        ]);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setCategories(
+          categoriesResponse.data
+        );
+
+        setProduct(
+          productResponse.data
+        );
+      } catch {
+        toast.error(
+          "Failed to load product"
+        );
+      } finally {
+        if (isMounted) {
+          setPageLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
-
-  const loadData = async () => {
-    try {
-      const [
-        categoriesResponse,
-        productResponse,
-      ] = await Promise.all([
-        getCategories(),
-        getProductById(id),
-      ]);
-
-      setCategories(
-        categoriesResponse.data
-      );
-
-      setProduct(
-        productResponse.data
-      );
-    } catch (error) {
-      toast.error(
-        "Failed to load product"
-      );
-    } finally {
-      setPageLoading(false);
-    }
-  };
 
   const handleSubmit = async (
     data
@@ -110,20 +120,15 @@ const EditProductPage = () => {
   return (
     <MainLayout>
 
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-900">
-          Edit Product
-        </h1>
-
-        <p className="text-slate-500 mt-1">
-          Update product details
-        </p>
-      </div>
+      <PageHeader
+        title="Edit Article"
+        description="Update article attributes, style-number variants, and inventory metadata."
+      />
 
       <ProductForm
+        key={product.id}
         categories={categories}
         loading={loading}
-        buttonText="Update Product"
         initialData={{
           categoryId:
             product.categoryId,
@@ -131,17 +136,41 @@ const EditProductPage = () => {
           productName:
             product.productName,
 
+          baseStyleNumber:
+            product.baseStyleNumber ||
+            "",
+
+          styleNumber:
+            product.styleNumber || "",
+
+          styleName:
+            product.styleName || "",
+
+          itemName:
+            product.itemName || "",
+
           brand:
             product.brand || "",
 
           color:
             product.color || "",
 
+          colorCode:
+            product.colorCode || "",
+
           size:
             product.size || "",
 
           fabric:
             product.fabric || "",
+
+          fabricComposition:
+            product.fabricComposition ||
+            "",
+
+          fabricWeight:
+            product.fabricWeight ||
+            "",
 
           purchasePrice:
             product.purchasePrice,
@@ -159,6 +188,7 @@ const EditProductPage = () => {
             product.description || "",
         }}
         onSubmit={handleSubmit}
+        submitLabel="Update Article"
       />
 
     </MainLayout>

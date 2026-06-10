@@ -1,5 +1,6 @@
 import {
   FiEye,
+  FiTrash2,
   FiTag,
   FiEdit2,
 } from "react-icons/fi";
@@ -10,6 +11,7 @@ import {
 
 const ProductTable = ({
   products,
+  onDelete,
 }) => {
   const navigate =
     useNavigate();
@@ -21,9 +23,12 @@ const ProductTable = ({
 
         <thead>
           <tr className="border-b">
+            <th className="text-left p-3">
+              Style No
+            </th>
 
             <th className="text-left p-3">
-              Product
+              Article
             </th>
 
             <th className="text-left p-3">
@@ -73,7 +78,17 @@ const ProductTable = ({
               >
 
                 <td className="p-3 font-medium">
+                  {product.styleNumber ||
+                    product.sku}
+                </td>
+
+                <td className="p-3 font-medium">
                   {product.productName}
+                  <div className="mt-1 text-xs text-slate-500">
+                    {product.itemName ||
+                      product.styleName ||
+                      "-"}
+                  </div>
                 </td>
 
                 <td className="p-3">
@@ -152,11 +167,11 @@ const ProductTable = ({
                         p-2
                         rounded-lg
                         text-slate-500
-                        hover:bg-blue-50
-                        hover:text-blue-600
+                        hover:bg-[var(--color-primary-soft)]
+                        hover:text-[var(--color-primary-ink)]
                         transition
                       "
-                      title="View Product"
+                      title="View Article"
                     >
                       <FiEye size={18} />
                     </button>
@@ -177,7 +192,7 @@ const ProductTable = ({
                         hover:text-emerald-600
                         transition
                       "
-                      title="Barcode"
+                      title="Article Barcode"
                     >
                       <FiTag size={18} />
                     </button>
@@ -198,9 +213,28 @@ const ProductTable = ({
                         hover:text-amber-600
                         transition
                       "
-                      title="Edit Product"
+                      title="Edit Article"
                     >
                       <FiEdit2 size={18} />
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        onDelete(
+                          product
+                        )
+                      }
+                      className="
+                        p-2
+                        rounded-lg
+                        text-slate-500
+                        hover:bg-red-50
+                        hover:text-red-600
+                        transition
+                      "
+                      title="Delete Article"
+                    >
+                      <FiTrash2 size={18} />
                     </button>
 
                   </div>

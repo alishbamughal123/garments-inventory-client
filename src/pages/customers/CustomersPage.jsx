@@ -1,47 +1,43 @@
-
 import {
   useEffect,
   useState,
 } from "react";
-
 import {
   Link,
 } from "react-router-dom";
-
 import {
-  FiPlus,
-  FiEdit,
-  FiTrash2,
-  FiEye,
-} from "react-icons/fi";
-
+  Eye,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+} from "lucide-react";
+import Button from "../../components/ui/Button";
+import PageHeader from "../../components/ui/PageHeader";
+import StatusBadge from "../../components/ui/StatusBadge";
+import SurfaceCard from "../../components/ui/SurfaceCard";
+import { appRoutes } from "../../config/routes";
 import toast from "react-hot-toast";
-
 import {
-  getCustomers,
   deleteCustomer,
+  getCustomers,
 } from "../../services/customer.service";
 
 const CustomersPage = () => {
   const [customers, setCustomers] =
     useState([]);
-
   const [loading, setLoading] =
     useState(false);
-
   const [search, setSearch] =
     useState("");
-
   const [
     customerType,
     setCustomerType,
   ] = useState("");
-
   const [status, setStatus] =
     useState("");
 
-  const fetchCustomers =
-    async () => {
+  async function fetchCustomers() {
       try {
         setLoading(true);
 
@@ -55,14 +51,14 @@ const CustomersPage = () => {
         setCustomers(
           response.data
         );
-      } catch (error) {
+      } catch {
         toast.error(
           "Failed to load customers"
         );
       } finally {
         setLoading(false);
       }
-    };
+    }
 
   useEffect(() => {
     fetchCustomers();
@@ -84,13 +80,11 @@ const CustomersPage = () => {
 
       try {
         await deleteCustomer(id);
-
         toast.success(
           "Customer deleted"
         );
-
         fetchCustomers();
-      } catch (error) {
+      } catch {
         toast.error(
           "Delete failed"
         );
@@ -98,271 +92,343 @@ const CustomersPage = () => {
     };
 
   return (
-    <div className="p-6">
-
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-
-        {/* <div>
-          <h1 className="text-2xl font-bold">
-            Customers
-          </h1>
-
-          <p className="text-slate-500">
-            CRM Contact Management
-          </p>
-        </div> */}
-
-        <Link
-          to="/crm/customers/create"
-          className="
-            inline-flex
-            items-center
-            gap-2
-            bg-blue-600
-            text-white
-            px-4
-            py-2
-            rounded-lg
-          "
-        >
-          <FiPlus />
+    <div className="space-y-6">
+      <PageHeader
+        title="Customers"
+        description="Search, segment, and manage CRM contacts from one responsive list."
+        action={
+          <Button
+            as={Link}
+            to={appRoutes.crmCustomersCreate}
+          >
+          <Plus size={16} />
           Add Customer
-        </Link>
+          </Button>
+        }
+      />
 
-      </div>
+      <SurfaceCard className="p-4 sm:p-6">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)]">
+          <label className="relative block">
+            <Search
+              size={16}
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+            />
 
-      <div className="grid md:grid-cols-4 gap-4 mb-6">
+            <input
+              type="text"
+              placeholder="Search customer, phone, or company"
+              value={search}
+              onChange={(e) =>
+                setSearch(
+                  e.target.value
+                )
+              }
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white"
+            />
+          </label>
 
-        <input
-          type="text"
-          placeholder="Search..."
-          value={search}
-          onChange={(e) =>
-            setSearch(
-              e.target.value
-            )
-          }
-          className="
-            border
-            rounded-lg
-            px-4
-            py-2
-          "
-        />
+          <select
+            value={customerType}
+            onChange={(e) =>
+              setCustomerType(
+                e.target.value
+              )
+            }
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white"
+          >
+            <option value="">
+              All Types
+            </option>
+            <option value="REGULAR">
+              Regular
+            </option>
+            <option value="WHOLESALE">
+              Wholesale
+            </option>
+            <option value="VIP">
+              VIP
+            </option>
+          </select>
 
-        <select
-          value={customerType}
-          onChange={(e) =>
-            setCustomerType(
-              e.target.value
-            )
-          }
-          className="
-            border
-            rounded-lg
-            px-4
-            py-2
-          "
-        >
-          <option value="">
-            All Types
-          </option>
+          <select
+            value={status}
+            onChange={(e) =>
+              setStatus(
+                e.target.value
+              )
+            }
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white"
+          >
+            <option value="">
+              All Status
+            </option>
+            <option value="ACTIVE">
+              Active
+            </option>
+            <option value="INACTIVE">
+              Inactive
+            </option>
+          </select>
+        </div>
+      </SurfaceCard>
 
-          <option value="REGULAR">
-            Regular
-          </option>
+      <section className="space-y-4">
+        <div className="grid gap-4 lg:hidden">
+          {customers.map((customer) => (
+            <article
+              key={customer.id}
+              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <h3 className="truncate text-base font-semibold text-slate-900">
+                    {customer.fullName}
+                  </h3>
 
-          <option value="WHOLESALE">
-            Wholesale
-          </option>
+                  <p className="mt-1 truncate text-sm text-slate-500">
+                    {customer.companyName ||
+                      "No company"}
+                  </p>
+                </div>
 
-          <option value="VIP">
-            VIP
-          </option>
+                <StatusBadge
+                  value={
+                    customer.status
+                  }
+                />
+              </div>
 
-        </select>
-
-        <select
-          value={status}
-          onChange={(e) =>
-            setStatus(
-              e.target.value
-            )
-          }
-          className="
-            border
-            rounded-lg
-            px-4
-            py-2
-          "
-        >
-          <option value="">
-            All Status
-          </option>
-
-          <option value="ACTIVE">
-            Active
-          </option>
-
-          <option value="INACTIVE">
-            Inactive
-          </option>
-
-        </select>
-
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-
-        <div className="overflow-x-auto">
-
-          <table className="w-full">
-
-            <thead>
-
-              <tr className="border-b">
-
-                <th className="text-left p-4">
-                  Customer
-                </th>
-
-                <th className="text-left p-4">
-                  Company
-                </th>
-
-                <th className="text-left p-4">
-                  Phone
-                </th>
-
-                <th className="text-left p-4">
-                  Type
-                </th>
-
-                <th className="text-left p-4">
-                  Status
-                </th>
-
-                <th className="text-left p-4">
-                  Orders
-                </th>
-
-                <th className="text-left p-4">
-                  Spent
-                </th>
-
-                <th className="text-left p-4">
-                  Actions
-                </th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {customers.map(
-                (customer) => (
-                  <tr
-                    key={
-                      customer.id
+              <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <dt className="text-slate-400">
+                    Phone
+                  </dt>
+                  <dd className="mt-1 font-medium text-slate-700">
+                    {
+                      customer.phoneNumber
                     }
-                    className="
-                      border-b
-                    "
-                  >
+                  </dd>
+                </div>
 
-                    <td className="p-4">
-                      {
-                        customer.fullName
-                      }
-                    </td>
-
-                    <td className="p-4">
-                      {
-                        customer.companyName ||
-                        "-"
-                      }
-                    </td>
-
-                    <td className="p-4">
-                      {
-                        customer.phoneNumber
-                      }
-                    </td>
-
-                    <td className="p-4">
-                      {
+                <div>
+                  <dt className="text-slate-400">
+                    Type
+                  </dt>
+                  <dd className="mt-1">
+                    <StatusBadge
+                      value={
                         customer.customerType
                       }
-                    </td>
+                      className="px-2.5"
+                    />
+                  </dd>
+                </div>
 
-                    <td className="p-4">
-                      {
-                        customer.status
-                      }
-                    </td>
+                <div>
+                  <dt className="text-slate-400">
+                    Orders
+                  </dt>
+                  <dd className="mt-1 font-medium text-slate-700">
+                    {
+                      customer.totalOrders
+                    }
+                  </dd>
+                </div>
 
-                    <td className="p-4">
-                      {
-                        customer.totalOrders
-                      }
-                    </td>
+                <div>
+                  <dt className="text-slate-400">
+                    Spent
+                  </dt>
+                  <dd className="mt-1 font-medium text-slate-700">
+                    Rs.
+                    {Number(
+                      customer.totalSpent || 0
+                    ).toLocaleString()}
+                  </dd>
+                </div>
+              </dl>
 
-                    <td className="p-4">
-                      Rs.
-                      {
-                        customer.totalSpent
-                      }
-                    </td>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <Link
+                  to={appRoutes.crmCustomerDetails(
+                    customer.id
+                  )}
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700"
+                >
+                  <Eye size={16} />
+                  View
+                </Link>
 
-                    <td className="p-4">
+                <Link
+                  to={appRoutes.crmCustomerEdit(
+                    customer.id
+                  )}
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700"
+                >
+                  <Pencil size={16} />
+                  Edit
+                </Link>
 
-                      <div className="flex gap-3">
+                <button
+                  onClick={() =>
+                    handleDelete(
+                      customer.id
+                    )
+                  }
+                  className="inline-flex items-center gap-2 rounded-full border border-red-200 px-3 py-2 text-sm font-medium text-red-600"
+                >
+                  <Trash2 size={16} />
+                  Delete
+                </button>
+              </div>
+            </article>
+          ))}
 
-                        <Link
-                          to={`/crm/customers/${customer.id}`}
-                        >
-                          <FiEye />
-                        </Link>
-
-                        <Link
-                          to={`/crm/customers/edit/${customer.id}`}
-                        >
-                          <FiEdit />
-                        </Link>
-
-                        <button
-                          onClick={() =>
-                            handleDelete(
-                              customer.id
-                            )
-                          }
-                        >
-                          <FiTrash2 />
-                        </button>
-
-                      </div>
-
-                    </td>
-
-                  </tr>
-                )
-              )}
-
-            </tbody>
-
-          </table>
-
+          {!loading &&
+            customers.length === 0 && (
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
+                No customers found.
+              </div>
+            )}
         </div>
 
-      </div>
+        <div className="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:block">
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead className="bg-slate-50 text-sm text-slate-500">
+                <tr>
+                  <th className="px-5 py-4 text-left font-medium">
+                    Customer
+                  </th>
+                  <th className="px-5 py-4 text-left font-medium">
+                    Company
+                  </th>
+                  <th className="px-5 py-4 text-left font-medium">
+                    Phone
+                  </th>
+                  <th className="px-5 py-4 text-left font-medium">
+                    Type
+                  </th>
+                  <th className="px-5 py-4 text-left font-medium">
+                    Status
+                  </th>
+                  <th className="px-5 py-4 text-left font-medium">
+                    Orders
+                  </th>
+                  <th className="px-5 py-4 text-left font-medium">
+                    Spent
+                  </th>
+                  <th className="px-5 py-4 text-left font-medium">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
 
-      {loading && (
-        <p className="mt-4">
-          Loading...
-        </p>
-      )}
+              <tbody>
+                {customers.map(
+                  (customer) => (
+                    <tr
+                      key={customer.id}
+                      className="border-t border-slate-100 text-sm text-slate-700 transition hover:bg-slate-50"
+                    >
+                      <td className="px-5 py-4 font-medium text-slate-900">
+                        {
+                          customer.fullName
+                        }
+                      </td>
+                      <td className="px-5 py-4">
+                        {customer.companyName ||
+                          "-"}
+                      </td>
+                      <td className="px-5 py-4">
+                        {
+                          customer.phoneNumber
+                        }
+                      </td>
+                      <td className="px-5 py-4">
+                        <StatusBadge
+                          value={
+                            customer.customerType
+                          }
+                          className="px-2.5"
+                        />
+                      </td>
+                      <td className="px-5 py-4">
+                        <StatusBadge
+                          value={
+                            customer.status
+                          }
+                          className="px-2.5"
+                        />
+                      </td>
+                      <td className="px-5 py-4">
+                        {
+                          customer.totalOrders
+                        }
+                      </td>
+                      <td className="px-5 py-4 font-medium text-slate-900">
+                        Rs.
+                        {Number(
+                          customer.totalSpent || 0
+                        ).toLocaleString()}
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-2">
+                          <Link
+                            to={appRoutes.crmCustomerDetails(
+                              customer.id
+                            )}
+                            className="rounded-full border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100"
+                          >
+                            <Eye size={16} />
+                          </Link>
+                          <Link
+                            to={appRoutes.crmCustomerEdit(
+                              customer.id
+                            )}
+                            className="rounded-full border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100"
+                          >
+                            <Pencil size={16} />
+                          </Link>
+                          <button
+                            onClick={() =>
+                              handleDelete(
+                                customer.id
+                              )
+                            }
+                            className="rounded-full border border-red-200 p-2 text-red-600 transition hover:bg-red-50"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                )}
 
+                {!loading &&
+                  customers.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan="8"
+                        className="px-5 py-10 text-center text-sm text-slate-500"
+                      >
+                        No customers found.
+                      </td>
+                    </tr>
+                  )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {loading && (
+          <p className="text-sm text-slate-500">
+            Loading customers...
+          </p>
+        )}
+      </section>
     </div>
   );
 };

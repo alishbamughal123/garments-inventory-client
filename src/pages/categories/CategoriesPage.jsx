@@ -8,6 +8,8 @@ import {
 } from "react-router-dom";
 
 import toast from "react-hot-toast";
+import Button from "../../components/ui/Button";
+import PageHeader from "../../components/ui/PageHeader";
 
 import {
   FiPlus,
@@ -41,26 +43,33 @@ const CategoriesPage = () => {
     useState(null);
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    let isMounted = true;
 
-  const fetchCategories =
-    async () => {
+    (async () => {
       try {
         const response =
           await getCategories();
 
-        setCategories(
-          response.data
-        );
-      } catch (error) {
+        if (isMounted) {
+          setCategories(
+            response.data
+          );
+        }
+      } catch {
         toast.error(
           "Failed to load categories"
         );
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
+    })();
+
+    return () => {
+      isMounted = false;
     };
+  }, []);
 
   const openDeleteModal = (
     id
@@ -81,8 +90,11 @@ const CategoriesPage = () => {
         );
 
         setDeleteModal(false);
-
-        fetchCategories();
+        const response =
+          await getCategories();
+        setCategories(
+          response.data
+        );
       } catch (error) {
         toast.error(
           error?.response?.data
@@ -105,63 +117,23 @@ const CategoriesPage = () => {
   return (
     <MainLayout>
 
-      <div
-        className="
-          flex
-          justify-between
-          items-center
-          mb-6
-        "
-      >
-
-        <div>
-
-          <h1
-            className="
-              text-3xl
-              font-bold
-              text-slate-900
-            "
+      <PageHeader
+        title="Categories"
+        description="Manage product categories with the same reusable controls used across the project."
+        action={
+          <Button
+            onClick={() =>
+              navigate(
+                "/categories/add"
+              )
+            }
+            size="lg"
           >
-            Categories
-          </h1>
-
-          <p
-            className="
-              text-slate-500
-              mt-1
-            "
-          >
-            Manage product categories
-          </p>
-
-        </div>
-
-        <button
-          onClick={() =>
-            navigate(
-              "/categories/add"
-            )
-          }
-          className="
-            flex
-            items-center
-            gap-2
-            bg-blue-500
-            hover:bg-blue-600
-            text-white
-            px-5
-            py-3
-            rounded-xl
-            font-medium
-            transition
-          "
-        >
-          <FiPlus />
-          Add Category
-        </button>
-
-      </div>
+            <FiPlus />
+            Add Category
+          </Button>
+        }
+      />
 
       {loading ? (
         <div

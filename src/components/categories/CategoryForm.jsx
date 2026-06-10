@@ -1,4 +1,9 @@
 import { useState } from "react";
+import Button from "../ui/Button";
+import {
+  formControlClass,
+  formLabelClass,
+} from "../ui/formStyles";
 
 const CategoryForm = ({
   initialData = {
@@ -39,13 +44,7 @@ const CategoryForm = ({
     >
       <div className="mb-5">
 
-        <label className="
-          block
-          mb-2
-          text-sm
-          font-medium
-          text-slate-700
-        ">
+        <label className={formLabelClass}>
           Category Name
         </label>
 
@@ -55,17 +54,7 @@ const CategoryForm = ({
           value={formData.name}
           onChange={handleChange}
           required
-          className="
-            w-full
-            border
-            border-slate-300
-            rounded-xl
-            px-4
-            py-3
-            focus:outline-none
-            focus:ring-2
-            focus:ring-blue-200
-          "
+          className={formControlClass}
           placeholder="Enter category name"
         />
 
@@ -73,13 +62,7 @@ const CategoryForm = ({
 
       <div className="mb-6">
 
-        <label className="
-          block
-          mb-2
-          text-sm
-          font-medium
-          text-slate-700
-        ">
+        <label className={formLabelClass}>
           Description
         </label>
 
@@ -88,40 +71,21 @@ const CategoryForm = ({
           name="description"
           value={formData.description}
           onChange={handleChange}
-          className="
-            w-full
-            border
-            border-slate-300
-            rounded-xl
-            px-4
-            py-3
-            focus:outline-none
-            focus:ring-2
-            focus:ring-blue-200
-          "
+          className={formControlClass}
           placeholder="Category description"
         />
 
       </div>
 
-      <button
+      <Button
         type="submit"
         disabled={loading}
-        className="
-          bg-blue-500
-          hover:bg-blue-600
-          text-white
-          px-6
-          py-3
-          rounded-xl
-          font-medium
-          transition
-        "
+        size="lg"
       >
         {loading
           ? "Saving..."
           : "Save Category"}
-      </button>
+      </Button>
 
     </form>
   );

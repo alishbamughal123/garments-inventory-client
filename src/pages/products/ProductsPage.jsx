@@ -8,17 +8,18 @@ import {
 } from "react-router-dom";
 
 import { FiPlus } from "react-icons/fi";
-
 import MainLayout from "../../layouts/MainLayout";
-
+import Button from "../../components/ui/Button";
+import PageHeader from "../../components/ui/PageHeader";
+import DeleteModal from "../../components/common/DeleteModal";
 import SearchBar from "../../components/products/SearchBar";
-
 import ProductTable from "../../components/products/ProductTable";
-
 import {
+  deleteProduct,
   getProducts,
   searchProducts,
 } from "../../services/products.service";
+import toast from "react-hot-toast";
 
 const ProductsPage = () => {
   const navigate =
@@ -32,100 +33,139 @@ const ProductsPage = () => {
 
   const [search, setSearch] =
     useState("");
+  const [deleteModalOpen, setDeleteModalOpen] =
+    useState(false);
+  const [selectedProduct, setSelectedProduct] =
+    useState(null);
 
   useEffect(() => {
-    fetchProducts();
+    let isMounted = true;
+
+    (async () => {
+      try {
+        const response =
+          await getProducts();
+
+        if (isMounted) {
+          setProducts(
+            response.data
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
     const timeout =
-      setTimeout(() => {
-        handleSearch();
+      setTimeout(async () => {
+        try {
+          if (!search.trim()) {
+            const response =
+              await getProducts();
+            setProducts(
+              response.data
+            );
+
+            return;
+          }
+
+          const response =
+            await searchProducts(
+              search
+            );
+
+          setProducts(
+            response.data
+          );
+        } catch (error) {
+          console.log(error);
+        }
       }, 500);
 
     return () =>
       clearTimeout(timeout);
   }, [search]);
 
-  const fetchProducts =
-    async () => {
-      try {
-        const response =
-          await getProducts();
+  const openDeleteModal = (
+    product
+  ) => {
+    setSelectedProduct(
+      product
+    );
+    setDeleteModalOpen(true);
+  };
 
-        setProducts(
-          response.data
-        );
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
+  const handleDelete =
+    async () => {
+      if (!selectedProduct) {
+        return;
       }
-    };
 
-  const handleSearch =
-    async () => {
       try {
-        if (!search.trim()) {
-          return fetchProducts();
-        }
-
-        const response =
-          await searchProducts(
-            search
-          );
-
-        setProducts(
-          response.data
+        await deleteProduct(
+          selectedProduct.id
         );
+
+        setProducts((prev) =>
+          prev.filter(
+            (product) =>
+              product.id !==
+              selectedProduct.id
+          )
+        );
+
+        toast.success(
+          "Article deleted successfully"
+        );
+        setDeleteModalOpen(false);
+        setSelectedProduct(null);
       } catch (error) {
-        console.log(error);
+        toast.error(
+          error?.response?.data
+            ?.message ||
+            "Failed to delete article"
+        );
       }
     };
 
   return (
     <MainLayout>
 
-      <div className="flex justify-between items-center mb-6">
-
-        <h1 className="text-3xl font-bold text-slate-900">
-          Products
-        </h1>
-
-        <div className="flex items-center gap-3">
-
+      <div className="space-y-6">
+        <PageHeader
+          title="Articles"
+          description="Browse, search, and manage Nordic Prowear article variants with style-aware inventory metadata."
+          action={
+            <div className="flex items-center gap-3">
           <SearchBar
             search={search}
             setSearch={setSearch}
           />
 
-          <button
+          <Button
             onClick={() =>
               navigate(
                 "/products/add"
               )
             }
-            className="
-              flex
-              items-center
-              gap-2
-              bg-blue-500
-              hover:bg-blue-600
-              text-white
-              px-5
-              py-3
-              rounded-xl
-              font-medium
-              transition-all
-            "
+            size="lg"
           >
             <FiPlus size={18} />
-            Add Product
-          </button>
-
-        </div>
-
-      </div>
+            Add Article
+          </Button>
+            </div>
+          }
+        />
 
       {loading ? (
         <div className="
@@ -135,12 +175,12 @@ const ProductsPage = () => {
           border-slate-200
           p-6
         ">
-          Loading Products...
+          Loading Articles...
         </div>
       ) : (
         <>
           <p className="mb-4 text-slate-500">
-            Total Products:{" "}
+            Total Articles:{" "}
             {products.length}
           </p>
 
@@ -154,10 +194,29 @@ const ProductsPage = () => {
           ">
             <ProductTable
               products={products}
+              onDelete={
+                openDeleteModal
+              }
             />
           </div>
         </>
       )}
+      </div>
+
+      <DeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setSelectedProduct(null);
+        }}
+        onConfirm={handleDelete}
+        title="Delete Article"
+        message={`Are you sure you want to delete ${
+          selectedProduct?.styleNumber ||
+          selectedProduct?.productName ||
+          "this article"
+        }? This action cannot be undone.`}
+      />
 
     </MainLayout>
   );

@@ -5,49 +5,16 @@ const MainLayout = ({
   children,
 }) => {
   return (
-    <div
-      className="
-        flex
-        bg-slate-50
-        min-h-screen
-      "
-    >
-
-      {/* Sidebar */}
-
+    <div className="flex min-h-screen bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.14),_transparent_32%),linear-gradient(180deg,_#f8fafc_0%,_#eef2ff_100%)]">
       <Sidebar />
 
-      {/* Main Content */}
-
-      <div
-        className="
-          flex-1
-
-          lg:ml-72
-        "
-      >
-
-        {/* Navbar */}
-
+      <div className="flex-1 lg:ml-56 xl:ml-60">
         <Navbar />
 
-        {/* Page Content */}
-
-        <main
-          className="
-            p-4
-            sm:p-6
-            lg:p-8
-
-            pt-24
-            lg:pt-8
-          "
-        >
+        <main className="mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">
           {children}
         </main>
-
       </div>
-
     </div>
   );
 };

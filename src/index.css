@@ -2,21 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@layer base {
+  :root {
+    color: #0f172a;
+    background-color: #f8fafc;
+    --color-primary: #3b82f6;
+    --color-primary-strong: #2563eb;
+    --color-primary-soft: #eff6ff;
+    --color-primary-muted: #dbeafe;
+    --color-primary-border: #c7d2fe;
+    --color-primary-ink: #2563eb;
+    --color-primary-shadow: rgba(59, 130, 246, 0.14);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family:
+      Inter,
+      "Segoe UI",
+      sans-serif;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
 }
+
 .input {
   width: 100%;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 12px 16px;
   outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .input:focus {
-  border-color: #3b82f6;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px
+    var(--color-primary-shadow);
 }
-.sidebar-scroll::-webkit-scrollbar { display: none; }
- .sidebar-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+.sidebar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.sidebar-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

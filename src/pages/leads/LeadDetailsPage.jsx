@@ -1,231 +1,267 @@
 import {
-useEffect,
-useState,
+  useEffect,
+  useState,
 } from "react";
-
 import {
-Link,
-useParams,
+  Link,
+  useParams,
 } from "react-router-dom";
-
 import {
-User,
-Building2,
-Phone,
-Mail,
-MapPin,
-DollarSign,
-Pencil,
+  Building2,
+  DollarSign,
+  Mail,
+  MapPin,
+  Pencil,
+  Phone,
+  User,
 } from "lucide-react";
-
+import Button from "../../components/ui/Button";
+import StatusBadge from "../../components/ui/StatusBadge";
+import { appRoutes } from "../../config/routes";
 import toast from "react-hot-toast";
-
 import {
-getLeadById,
-convertLead,
+  convertLead,
+  getLeadById,
 } from "../../services/lead.service";
 
 const LeadDetailsPage = () => {
-const { id } = useParams();
+  const { id } = useParams();
+  const [lead, setLead] =
+    useState(null);
 
-const [lead, setLead] =
-useState(null);
+  async function loadLead() {
+    try {
+      const response =
+        await getLeadById(id);
 
-const loadLead = async () => {
-try {
-const response =
-await getLeadById(id);
+      setLead(
+        response.data
+      );
+    } catch {
+      toast.error(
+        "Failed to load lead"
+      );
+    }
+  }
 
+  useEffect(() => {
+    loadLead();
+  }, [id]);
 
-  setLead(
-    response.data.data
-  );
-} catch {
-  toast.error(
-    "Failed to load lead"
-  );
-}
-
-
-};
-
-useEffect(() => {
-loadLead();
-}, []);
-
-if (!lead) {
-return ( <div className="p-6">
-Loading... </div>
-);
-}
-
-return ( <div className="p-6">
-
-  <div className="flex justify-between items-start mb-8">
-
-    <div>
-      <h1 className="text-3xl font-bold">
-        {lead.fullName}
-      </h1>
-
-      <p className="text-gray-500 mt-1">
-        {lead.companyName ||
-          "No Company"}
-      </p>
-    </div>
-
-    <div className="flex gap-3">
-
-      <Link
-        to={`/crm/leads/edit/${lead.id}`}
-        className="bg-yellow-500 text-white px-4 py-2 rounded-xl flex items-center gap-2"
-      >
-        <Pencil size={16} />
-        Edit
-      </Link>
-
-      <button
-        onClick={async () => {
-          try {
-            await convertLead(
-              lead.id
-            );
-
-            toast.success(
-              "Lead converted successfully"
-            );
-          } catch {
-            toast.error(
-              "Conversion failed"
-            );
-          }
-        }}
-        className="bg-green-600 text-white px-4 py-2 rounded-xl"
-      >
-        Convert To Customer
-      </button>
-
-    </div>
-  </div>
-
-  <div className="grid md:grid-cols-3 gap-6">
-
-    <div className="md:col-span-2 space-y-6">
-
-      <div className="bg-white border rounded-2xl p-6">
-
-        <h2 className="font-semibold text-lg mb-5">
-          Lead Information
-        </h2>
-
-        <div className="grid md:grid-cols-2 gap-5">
-
-          <div className="flex items-center gap-3">
-            <User size={18} />
-            <span>
-              {lead.fullName}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Building2 size={18} />
-            <span>
-              {lead.companyName ||
-                "-"}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Phone size={18} />
-            <span>
-              {lead.phoneNumber}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Mail size={18} />
-            <span>
-              {lead.email ||
-                "-"}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <MapPin size={18} />
-            <span>
-              {lead.city ||
-                "-"}
-            </span>
-          </div>
-
-        </div>
-
+  if (!lead) {
+    return (
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
+        Loading lead...
       </div>
+    );
+  }
 
-      <div className="bg-white border rounded-2xl p-6">
-
-        <h2 className="font-semibold text-lg mb-4">
-          Notes
-        </h2>
-
-        <p className="text-gray-600">
-          {lead.notes ||
-            "No notes available"}
-        </p>
-
-      </div>
-
-    </div>
-
+  return (
     <div className="space-y-6">
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">
+              {lead.fullName}
+            </h2>
 
-      <div className="bg-white border rounded-2xl p-6">
+            <p className="mt-1 text-sm text-slate-500">
+              {lead.companyName ||
+                "No Company"}
+            </p>
+          </div>
 
-        <h3 className="font-semibold mb-4">
-          Status
-        </h3>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link
+              to={appRoutes.crmLeadEdit(
+                lead.id
+              )}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+            >
+              <Pencil size={16} />
+              Edit
+            </Link>
 
-        <span className="px-3 py-2 rounded-full bg-blue-100 text-blue-700 text-sm">
-          {lead.status}
-        </span>
+            <Button
+              onClick={async () => {
+                try {
+                  await convertLead(
+                    lead.id
+                  );
 
-      </div>
-
-      <div className="bg-white border rounded-2xl p-6">
-
-        <h3 className="font-semibold mb-4">
-          Deal Value
-        </h3>
-
-        <div className="flex items-center gap-2 text-green-600 font-bold text-2xl">
-          <DollarSign />
-          Rs.
-          {Number(
-            lead.expectedDealValue || 0
-          ).toLocaleString()}
+                  toast.success(
+                    "Lead converted successfully"
+                  );
+                } catch {
+                  toast.error(
+                    "Conversion failed"
+                  );
+                }
+              }}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
+              Convert To Customer
+            </Button>
+          </div>
         </div>
 
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-sm text-slate-500">
+              Status
+            </p>
+            <div className="mt-2">
+              <StatusBadge
+                value={lead.status}
+              />
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-sm text-slate-500">
+              Deal Value
+            </p>
+            <div className="mt-2 flex items-center gap-2 text-xl font-semibold text-emerald-700">
+              <DollarSign size={18} />
+              Rs.
+              {Number(
+                lead.expectedDealValue || 0
+              ).toLocaleString()}
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-sm text-slate-500">
+              Source
+            </p>
+            <p className="mt-2 text-sm font-medium text-slate-900">
+              {lead.source}
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-sm text-slate-500">
+              City
+            </p>
+            <p className="mt-2 text-sm font-medium text-slate-900">
+              {lead.city || "-"}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+        <div className="space-y-6">
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <h3 className="text-lg font-semibold text-slate-900">
+              Lead Information
+            </h3>
+
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <div className="flex items-start gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
+                <User size={18} className="mt-0.5 text-slate-400" />
+                <div>
+                  <p className="text-slate-400">
+                    Full Name
+                  </p>
+                  <p className="mt-1 font-medium">
+                    {lead.fullName}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
+                <Building2 size={18} className="mt-0.5 text-slate-400" />
+                <div>
+                  <p className="text-slate-400">
+                    Company
+                  </p>
+                  <p className="mt-1 font-medium">
+                    {lead.companyName || "-"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
+                <Phone size={18} className="mt-0.5 text-slate-400" />
+                <div>
+                  <p className="text-slate-400">
+                    Phone
+                  </p>
+                  <p className="mt-1 font-medium">
+                    {lead.phoneNumber}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
+                <Mail size={18} className="mt-0.5 text-slate-400" />
+                <div>
+                  <p className="text-slate-400">
+                    Email
+                  </p>
+                  <p className="mt-1 break-words font-medium">
+                    {lead.email || "-"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700 sm:col-span-2">
+                <MapPin size={18} className="mt-0.5 text-slate-400" />
+                <div>
+                  <p className="text-slate-400">
+                    Location
+                  </p>
+                  <p className="mt-1 font-medium">
+                    {lead.city || "-"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <h3 className="text-lg font-semibold text-slate-900">
+              Notes
+            </h3>
+
+            <p className="mt-4 text-sm leading-6 text-slate-600">
+              {lead.notes ||
+                "No notes available"}
+            </p>
+          </section>
+        </div>
+
+        <div className="space-y-6">
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <h3 className="text-lg font-semibold text-slate-900">
+              Opportunity Snapshot
+            </h3>
+
+            <div className="mt-5 space-y-3">
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm text-slate-400">
+                  Lead source
+                </p>
+                <p className="mt-1 text-sm font-medium text-slate-900">
+                  {lead.source}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm text-slate-400">
+                  Designation
+                </p>
+                <p className="mt-1 text-sm font-medium text-slate-900">
+                  {lead.designation || "-"}
+                </p>
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
-
-      <div className="bg-white border rounded-2xl p-6">
-
-        <h3 className="font-semibold mb-4">
-          Source
-        </h3>
-
-        <p>
-          {lead.source}
-        </p>
-
-      </div>
-
     </div>
-
-  </div>
-
-</div>
-
-);
+  );
 };
 
 export default LeadDetailsPage;

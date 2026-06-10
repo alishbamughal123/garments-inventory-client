@@ -1,243 +1,317 @@
 import {
-useEffect,
-useState,
+  useEffect,
+  useState,
 } from "react";
-
 import {
-Link,
+  Link,
 } from "react-router-dom";
-
 import {
-Eye,
-Pencil,
-Trash2,
-Plus,
+  Eye,
+  Pencil,
+  Plus,
+  Trash2,
 } from "lucide-react";
-
+import Button from "../../components/ui/Button";
+import PageHeader from "../../components/ui/PageHeader";
+import StatusBadge from "../../components/ui/StatusBadge";
+import { appRoutes } from "../../config/routes";
 import toast from "react-hot-toast";
-
 import {
-getLeads,
-deleteLead,
+  deleteLead,
+  getLeads,
 } from "../../services/lead.service";
 
 const LeadsPage = () => {
-const [leads, setLeads] =
-useState([]);
+  const [leads, setLeads] =
+    useState([]);
+  const [loading, setLoading] =
+    useState(true);
 
-const [loading, setLoading] =
-useState(true);
+  async function fetchLeads() {
+      try {
+        setLoading(true);
 
-const fetchLeads =
-async () => {
-try {
-setLoading(true);
+        const response =
+          await getLeads();
 
+        setLeads(
+          response.data || []
+        );
+      } catch {
+        toast.error(
+          "Failed to load leads"
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
 
-    const response =
-      await getLeads();
-
-    setLeads(
-      response.data.data || []
-    );
-  } catch {
-    toast.error(
-      "Failed to load leads"
-    );
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-useEffect(() => {
-fetchLeads();
-}, []);
-
-const handleDelete =
-async (id) => {
-if (
-!window.confirm(
-"Delete Lead?"
-)
-)
-return;
-
-
-  try {
-    await deleteLead(id);
-
-    toast.success(
-      "Lead deleted"
-    );
-
+  useEffect(() => {
     fetchLeads();
-  } catch {
-    toast.error(
-      "Delete failed"
-    );
-  }
-};
+  }, []);
 
+  const handleDelete =
+    async (id) => {
+      if (
+        !window.confirm(
+          "Delete Lead?"
+        )
+      )
+        return;
 
-return ( <div className="p-6">
+      try {
+        await deleteLead(id);
+        toast.success(
+          "Lead deleted"
+        );
+        fetchLeads();
+      } catch {
+        toast.error(
+          "Delete failed"
+        );
+      }
+    };
 
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Leads"
+        description="Manage opportunities, track status, and act on leads from any screen size."
+        action={
+          <Button
+            as={Link}
+            to={appRoutes.crmLeadsCreate}
+          >
+          <Plus size={16} />
+          Add Lead
+          </Button>
+        }
+      />
 
-  <div className="flex items-center justify-between mb-8">
-    <div>
-      {/* <h1 className="text-3xl font-bold">
-        Leads
-      </h1> */}
-
-      <p className="text-gray-500 mt-1">
-        Manage sales opportunities
-      </p>
-    </div>
-
-    <Link
-      to="/crm/leads/create"
-      className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl flex items-center gap-2"
-    >
-      <Plus size={18} />
-      Add Lead
-    </Link>
-  </div>
-
-  <div className="bg-white border rounded-2xl shadow-sm overflow-hidden">
-
-    <table className="w-full">
-
-      <thead className="bg-gray-50">
-        <tr>
-          <th className="text-left p-4">
-            Name
-          </th>
-
-          <th className="text-left p-4">
-            Company
-          </th>
-
-          <th className="text-left p-4">
-            Phone
-          </th>
-
-          <th className="text-left p-4">
-            Status
-          </th>
-
-          <th className="text-left p-4">
-            Value
-          </th>
-
-          <th className="text-center p-4">
-            Actions
-          </th>
-        </tr>
-      </thead>
-
-      <tbody>
-
+      <div className="grid gap-4 lg:hidden">
         {loading && (
-          <tr>
-            <td
-              colSpan="6"
-              className="p-10 text-center"
-            >
-              Loading...
-            </td>
-          </tr>
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
+            Loading leads...
+          </div>
         )}
 
         {!loading &&
           leads.length === 0 && (
-            <tr>
-              <td
-                colSpan="6"
-                className="p-10 text-center text-gray-500"
-              >
-                No leads found
-              </td>
-            </tr>
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
+              No leads found
+            </div>
           )}
 
-        {leads.map(
-          (lead) => (
-            <tr
-              key={lead.id}
-              className="border-t hover:bg-gray-50"
-            >
-              <td className="p-4 font-medium">
-                {lead.fullName}
-              </td>
+        {leads.map((lead) => (
+          <article
+            key={lead.id}
+            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h3 className="truncate text-base font-semibold text-slate-900">
+                  {lead.fullName}
+                </h3>
 
-              <td className="p-4">
-                {lead.companyName ||
-                  "-"}
-              </td>
+                <p className="mt-1 truncate text-sm text-slate-500">
+                  {lead.companyName ||
+                    "No company"}
+                </p>
+              </div>
 
-              <td className="p-4">
-                {lead.phoneNumber}
-              </td>
+              <StatusBadge
+                value={lead.status}
+              />
+            </div>
 
-              <td className="p-4">
-                <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
-                  {lead.status}
-                </span>
-              </td>
+            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <dt className="text-slate-400">
+                  Phone
+                </dt>
+                <dd className="mt-1 font-medium text-slate-700">
+                  {lead.phoneNumber}
+                </dd>
+              </div>
 
-              <td className="p-4 font-semibold text-green-600">
-                Rs.
-                {Number(
-                  lead.expectedDealValue ||
-                    0
-                ).toLocaleString()}
-              </td>
+              <div>
+                <dt className="text-slate-400">
+                  Value
+                </dt>
+                <dd className="mt-1 font-medium text-emerald-700">
+                  Rs.
+                  {Number(
+                    lead.expectedDealValue || 0
+                  ).toLocaleString()}
+                </dd>
+              </div>
+            </dl>
 
-              <td className="p-4">
-                <div className="flex items-center justify-center gap-4">
+            <div className="mt-5 flex flex-wrap gap-2">
+                <Link
+                to={appRoutes.crmLeadDetails(
+                  lead.id
+                )}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700"
+              >
+                <Eye size={16} />
+                View
+              </Link>
 
-                  <Link
-                    to={`/crm/leads/${lead.id}`}
+              <Link
+                to={appRoutes.crmLeadEdit(
+                  lead.id
+                )}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700"
+              >
+                <Pencil size={16} />
+                Edit
+              </Link>
+
+              <button
+                onClick={() =>
+                  handleDelete(
+                    lead.id
+                  )
+                }
+                className="inline-flex items-center gap-2 rounded-full border border-red-200 px-3 py-2 text-sm font-medium text-red-600"
+              >
+                <Trash2 size={16} />
+                Delete
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:block">
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead className="bg-slate-50 text-sm text-slate-500">
+              <tr>
+                <th className="p-4 text-left font-medium">
+                  Name
+                </th>
+                <th className="p-4 text-left font-medium">
+                  Company
+                </th>
+                <th className="p-4 text-left font-medium">
+                  Phone
+                </th>
+                <th className="p-4 text-left font-medium">
+                  Status
+                </th>
+                <th className="p-4 text-left font-medium">
+                  Value
+                </th>
+                <th className="p-4 text-center font-medium">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {loading && (
+                <tr>
+                  <td
+                    colSpan="6"
+                    className="p-10 text-center text-sm text-slate-500"
                   >
-                    <Eye
-                      size={18}
-                    />
-                  </Link>
+                    Loading leads...
+                  </td>
+                </tr>
+              )}
 
-                  <Link
-                    to={`/crm/leads/edit/${lead.id}`}
+              {!loading &&
+                leads.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan="6"
+                      className="p-10 text-center text-sm text-slate-500"
+                    >
+                      No leads found
+                    </td>
+                  </tr>
+                )}
+
+              {leads.map(
+                (lead) => (
+                  <tr
+                    key={lead.id}
+                    className="border-t border-slate-100 text-sm text-slate-700 transition hover:bg-slate-50"
                   >
-                    <Pencil
-                      size={18}
-                    />
-                  </Link>
+                    <td className="p-4 font-medium text-slate-900">
+                      {lead.fullName}
+                    </td>
 
-                  <button
-                    onClick={() =>
-                      handleDelete(
-                        lead.id
-                      )
-                    }
-                  >
-                    <Trash2
-                      size={18}
-                      className="text-red-500"
-                    />
-                  </button>
+                    <td className="p-4">
+                      {lead.companyName ||
+                        "-"}
+                    </td>
 
-                </div>
-              </td>
-            </tr>
-          )
-        )}
-      </tbody>
+                    <td className="p-4">
+                      {lead.phoneNumber}
+                    </td>
 
-    </table>
-  </div>
-</div>
+                    <td className="p-4">
+                      <StatusBadge
+                        value={
+                          lead.status
+                        }
+                      />
+                    </td>
 
+                    <td className="p-4 font-semibold text-emerald-700">
+                      Rs.
+                      {Number(
+                        lead.expectedDealValue ||
+                          0
+                      ).toLocaleString()}
+                    </td>
 
-);
+                    <td className="p-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <Link
+                          to={appRoutes.crmLeadDetails(
+                            lead.id
+                          )}
+                          className="rounded-full border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100"
+                        >
+                          <Eye size={16} />
+                        </Link>
+
+                        <Link
+                          to={appRoutes.crmLeadEdit(
+                            lead.id
+                          )}
+                          className="rounded-full border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100"
+                        >
+                          <Pencil size={16} />
+                        </Link>
+
+                        <button
+                          onClick={() =>
+                            handleDelete(
+                              lead.id
+                            )
+                          }
+                          className="rounded-full border border-red-200 p-2 text-red-600 transition hover:bg-red-50"
+                        >
+                          <Trash2
+                            size={16}
+                          />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default LeadsPage;

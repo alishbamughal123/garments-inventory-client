@@ -14,9 +14,11 @@ import {
 } from "react-icons/fi";
 
 import toast from "react-hot-toast";
-
 import MainLayout from "../../layouts/MainLayout";
-
+import Button from "../../components/ui/Button";
+import PageHeader from "../../components/ui/PageHeader";
+import SurfaceCard from "../../components/ui/SurfaceCard";
+import { formControlClass } from "../../components/ui/formStyles";
 import {
   getSales,
 } from "../../services/sales.service";
@@ -35,26 +37,33 @@ const SalesPage = () => {
     useState("");
 
   useEffect(() => {
-    fetchSales();
-  }, []);
+    let isMounted = true;
 
-  const fetchSales =
-    async () => {
+    (async () => {
       try {
         const response =
           await getSales();
 
-        setSales(
-          response.data.data || []
-        );
-      } catch (error) {
+        if (isMounted) {
+          setSales(
+            response.data || []
+          );
+        }
+      } catch {
         toast.error(
           "Failed to fetch sales"
         );
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
+    })();
+
+    return () => {
+      isMounted = false;
     };
+  }, []);
 
   const filteredSales =
     sales.filter((sale) =>
@@ -78,56 +87,25 @@ const SalesPage = () => {
 
       <div className="space-y-6">
 
-        <div
-          className="
-            flex
-            items-center
-            justify-between
-          "
-        >
-
-          <h1
-            className="
-              text-3xl
-              font-bold
-            "
-          >
-            Sales
-          </h1>
-
-          <button
+        <PageHeader
+          title="Sales"
+          description="Track completed sales with the same shared actions and input styling."
+          action={
+            <Button
             onClick={() =>
               navigate(
                 "/sales/create"
               )
             }
-            className="
-              bg-blue-600
-              hover:bg-blue-700
-              text-white
-              px-5
-              py-3
-              rounded-xl
-              flex
-              items-center
-              gap-2
-            "
+            size="lg"
           >
             <FiPlus />
-
             Create Sale
-          </button>
+            </Button>
+          }
+        />
 
-        </div>
-
-        <div
-          className="
-            bg-white
-            border
-            rounded-2xl
-            p-5
-          "
-        >
+        <SurfaceCard className="p-5">
 
           <input
             type="text"
@@ -138,17 +116,9 @@ const SalesPage = () => {
                 e.target.value
               )
             }
-            className="
-              w-full
-              border
-              rounded-xl
-              px-4
-              py-3
-              outline-none
-            "
+            className={formControlClass}
           />
-
-        </div>
+        </SurfaceCard>
 
         <div
           className="
@@ -249,7 +219,7 @@ const SalesPage = () => {
                         }
                         className="
                           text-slate-500
-                          hover:text-blue-600
+                          hover:text-[var(--color-primary-ink)]
                           transition
                         "
                       >

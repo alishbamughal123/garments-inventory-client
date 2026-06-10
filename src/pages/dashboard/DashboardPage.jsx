@@ -308,24 +308,31 @@ const DashboardPage = () => {
     useState(null);
 
   useEffect(() => {
-    fetchDashboard();
-  }, []);
+    let isMounted = true;
 
-  const fetchDashboard =
-    async () => {
+    (async () => {
       try {
         const response =
           await getDashboardData();
 
-        setDashboard(
-          response.data
-        );
+        if (isMounted) {
+          setDashboard(
+            response.data
+          );
+        }
       } catch (error) {
         console.log(error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
+    })();
+
+    return () => {
+      isMounted = false;
     };
+  }, []);
 
   if (loading) {
     return (
@@ -346,7 +353,7 @@ const DashboardPage = () => {
         </h1>
 
         <p className="text-slate-500">
-          Inventory Overview
+          Nordic Prowear Overview
         </p>
       </div>
 
@@ -355,12 +362,12 @@ const DashboardPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
 
         <StatCard
-          title="Total Products"
+          title="Total Articles"
           value={dashboard.totalProducts}
           icon={
             <FiBox
               size={22}
-              className="text-blue-600"
+              className="text-[var(--color-primary-ink)]"
             />
           }
           
@@ -393,7 +400,7 @@ const DashboardPage = () => {
         />
 
         <StatCard
-          title="Healthy Products"
+          title="Healthy Articles"
           value={
             dashboard.healthyProducts
           }
@@ -497,7 +504,7 @@ const DashboardPage = () => {
                         ${
                           item.transactionType ===
                           "STOCK_IN"
-                            ? "bg-blue-50 text-blue-600"
+                            ? "bg-[var(--color-primary-soft)] text-[var(--color-primary-ink)]"
                             : item.transactionType ===
                               "STOCK_OUT"
                             ? "bg-orange-50 text-orange-600"

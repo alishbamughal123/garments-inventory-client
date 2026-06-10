@@ -85,9 +85,9 @@ const CategoryTable = ({
                       className="
                         p-2
                         rounded-lg
-                        bg-blue-50
-                        text-blue-600
-                        hover:bg-blue-100
+                        bg-[var(--color-primary-soft)]
+                        text-[var(--color-primary-ink)]
+                        hover:bg-[var(--color-primary-muted)]
                       "
                     >
                       <FiEdit2 />

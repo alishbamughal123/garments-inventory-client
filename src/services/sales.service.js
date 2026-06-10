@@ -1,59 +1,34 @@
+import api from "./api";
 
-import axios from "axios";
-
-const API_URL =
-  `${import.meta.env.VITE_API_URL}/sales`;
-
-const getAuthConfig = () => {
-  const token =
-    localStorage.getItem("token");
-
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-};
-
-/*
-|--------------------------------------------------------------------------
-| CREATE SALE
-|--------------------------------------------------------------------------
-*/
+const salesEndpoint = "/sales";
 
 export const createSale =
   async (payload) => {
-    return await axios.post(
-      API_URL,
-      payload,
-      getAuthConfig()
-    );
-  };
+    const response =
+      await api.post(
+        salesEndpoint,
+        payload
+      );
 
-/*
-|--------------------------------------------------------------------------
-| GET ALL SALES
-|--------------------------------------------------------------------------
-*/
+    return response.data;
+  };
 
 export const getSales =
   async () => {
-    return await axios.get(
-      API_URL,
-      getAuthConfig()
-    );
-  };
+    const response =
+      await api.get(
+        salesEndpoint
+      );
 
-/*
-|--------------------------------------------------------------------------
-| GET SINGLE SALE
-|--------------------------------------------------------------------------
-*/
+    return response.data;
+  };
 
 export const getSaleById =
   async (id) => {
-    return await axios.get(
-      `${API_URL}/${id}`,
-      getAuthConfig()
-    );
+    const response =
+      await api.get(
+        `${salesEndpoint}/${id}`
+      );
+
+    return response.data;
   };

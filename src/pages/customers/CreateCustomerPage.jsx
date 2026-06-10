@@ -1,11 +1,19 @@
-
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useState,
+} from "react";
+import {
+  useNavigate,
+} from "react-router-dom";
 import toast from "react-hot-toast";
-
+import Button from "../../components/ui/Button";
+import PageHeader from "../../components/ui/PageHeader";
+import { appRoutes } from "../../config/routes";
 import {
   createCustomer,
 } from "../../services/customer.service";
+
+const inputClass =
+  "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white";
 
 const CreateCustomerPage = () => {
   const navigate =
@@ -52,7 +60,7 @@ const CreateCustomerPage = () => {
         );
 
         navigate(
-          "/crm/customers"
+          appRoutes.crmCustomers
         );
       } catch (error) {
         toast.error(
@@ -64,239 +72,224 @@ const CreateCustomerPage = () => {
     };
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">
-          Create Customer
-        </h1>
-
-        <p className="text-slate-500">
-          Add CRM Contact
-        </p>
-      </div>
+    <div className="mx-auto w-full max-w-6xl space-y-6">
+      <PageHeader
+        title="Create Customer"
+        description="Add a new CRM contact with company, status, and engagement details."
+      />
 
       <form
         onSubmit={
           handleSubmit
         }
-        className="
-          bg-white
-          rounded-xl
-          shadow-sm
-          p-6
-          grid
-          md:grid-cols-2
-          gap-4
-        "
+        className="space-y-6"
       >
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-5">
+            <h3 className="text-lg font-semibold text-slate-900">
+              Contact Details
+            </h3>
+          </div>
 
-        <input
-          name="fullName"
-          placeholder="Full Name"
-          value={
-            formData.fullName
-          }
-          onChange={
-            handleChange
-          }
-          required
-          className="border rounded-lg px-4 py-3"
-        />
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <input
+              name="fullName"
+              placeholder="Full Name"
+              value={
+                formData.fullName
+              }
+              onChange={
+                handleChange
+              }
+              required
+              className={inputClass}
+            />
 
-        <input
-          name="companyName"
-          placeholder="Company Name"
-          value={
-            formData.companyName
-          }
-          onChange={
-            handleChange
-          }
-          className="border rounded-lg px-4 py-3"
-        />
+            <input
+              name="companyName"
+              placeholder="Company Name"
+              value={
+                formData.companyName
+              }
+              onChange={
+                handleChange
+              }
+              className={inputClass}
+            />
 
-        <input
-          name="designation"
-          placeholder="Designation"
-          value={
-            formData.designation
-          }
-          onChange={
-            handleChange
-          }
-          className="border rounded-lg px-4 py-3"
-        />
+            <input
+              name="designation"
+              placeholder="Designation"
+              value={
+                formData.designation
+              }
+              onChange={
+                handleChange
+              }
+              className={inputClass}
+            />
 
-        <input
-          name="phoneNumber"
-          placeholder="Phone Number"
-          value={
-            formData.phoneNumber
-          }
-          onChange={
-            handleChange
-          }
-          required
-          className="border rounded-lg px-4 py-3"
-        />
+            <input
+              name="phoneNumber"
+              placeholder="Phone Number"
+              value={
+                formData.phoneNumber
+              }
+              onChange={
+                handleChange
+              }
+              required
+              className={inputClass}
+            />
 
-        <input
-          name="alternatePhone"
-          placeholder="Alternate Phone"
-          value={
-            formData.alternatePhone
-          }
-          onChange={
-            handleChange
-          }
-          className="border rounded-lg px-4 py-3"
-        />
+            <input
+              name="alternatePhone"
+              placeholder="Alternate Phone"
+              value={
+                formData.alternatePhone
+              }
+              onChange={
+                handleChange
+              }
+              className={inputClass}
+            />
 
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          value={
-            formData.email
-          }
-          onChange={
-            handleChange
-          }
-          className="border rounded-lg px-4 py-3"
-        />
+            <input
+              name="email"
+              type="email"
+              placeholder="Email"
+              value={
+                formData.email
+              }
+              onChange={
+                handleChange
+              }
+              className={inputClass}
+            />
+          </div>
+        </section>
 
-        <input
-          name="website"
-          placeholder="Website"
-          value={
-            formData.website
-          }
-          onChange={
-            handleChange
-          }
-          className="border rounded-lg px-4 py-3"
-        />
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-5">
+            <h3 className="text-lg font-semibold text-slate-900">
+              Business Context
+            </h3>
+          </div>
 
-        <input
-          name="source"
-          placeholder="Customer Source"
-          value={
-            formData.source
-          }
-          onChange={
-            handleChange
-          }
-          className="border rounded-lg px-4 py-3"
-        />
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <input
+              name="website"
+              placeholder="Website"
+              value={
+                formData.website
+              }
+              onChange={
+                handleChange
+              }
+              className={inputClass}
+            />
 
-        <input
-          name="city"
-          placeholder="City"
-          value={
-            formData.city
-          }
-          onChange={
-            handleChange
-          }
-          className="border rounded-lg px-4 py-3"
-        />
+            <input
+              name="source"
+              placeholder="Customer Source"
+              value={
+                formData.source
+              }
+              onChange={
+                handleChange
+              }
+              className={inputClass}
+            />
 
-        <select
-          name="customerType"
-          value={
-            formData.customerType
-          }
-          onChange={
-            handleChange
-          }
-          className="border rounded-lg px-4 py-3"
-        >
-          <option value="REGULAR">
-            Regular
-          </option>
+            <input
+              name="city"
+              placeholder="City"
+              value={
+                formData.city
+              }
+              onChange={
+                handleChange
+              }
+              className={inputClass}
+            />
 
-          <option value="WHOLESALE">
-            Wholesale
-          </option>
+            <select
+              name="customerType"
+              value={
+                formData.customerType
+              }
+              onChange={
+                handleChange
+              }
+              className={inputClass}
+            >
+              <option value="REGULAR">
+                Regular
+              </option>
+              <option value="WHOLESALE">
+                Wholesale
+              </option>
+              <option value="VIP">
+                VIP
+              </option>
+            </select>
 
-          <option value="VIP">
-            VIP
-          </option>
-        </select>
+            <select
+              name="status"
+              value={
+                formData.status
+              }
+              onChange={
+                handleChange
+              }
+              className={inputClass}
+            >
+              <option value="ACTIVE">
+                Active
+              </option>
+              <option value="INACTIVE">
+                Inactive
+              </option>
+            </select>
+          </div>
 
-        <select
-          name="status"
-          value={
-            formData.status
-          }
-          onChange={
-            handleChange
-          }
-          className="border rounded-lg px-4 py-3"
-        >
-          <option value="ACTIVE">
-            Active
-          </option>
+          <div className="mt-4 grid gap-4">
+            <textarea
+              name="address"
+              placeholder="Address"
+              value={
+                formData.address
+              }
+              onChange={
+                handleChange
+              }
+              rows="3"
+              className={inputClass}
+            />
 
-          <option value="INACTIVE">
-            Inactive
-          </option>
-        </select>
+            <textarea
+              name="notes"
+              placeholder="Notes"
+              value={
+                formData.notes
+              }
+              onChange={
+                handleChange
+              }
+              rows="4"
+              className={inputClass}
+            />
+          </div>
+        </section>
 
-        <textarea
-          name="address"
-          placeholder="Address"
-          value={
-            formData.address
-          }
-          onChange={
-            handleChange
-          }
-          rows="3"
-          className="
-            border
-            rounded-lg
-            px-4
-            py-3
-            md:col-span-2
-          "
-        />
-
-        <textarea
-          name="notes"
-          placeholder="Notes"
-          value={
-            formData.notes
-          }
-          onChange={
-            handleChange
-          }
-          rows="4"
-          className="
-            border
-            rounded-lg
-            px-4
-            py-3
-            md:col-span-2
-          "
-        />
-
-        <button
-          type="submit"
-          className="
-            bg-blue-600
-            text-white
-            rounded-lg
-            py-3
-            md:col-span-2
-          "
-        >
-          Save Customer
-        </button>
-
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <Button
+            type="submit"
+          >
+            Save Customer
+          </Button>
+        </div>
       </form>
-
     </div>
   );
 };

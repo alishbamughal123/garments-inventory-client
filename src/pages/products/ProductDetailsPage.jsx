@@ -7,9 +7,10 @@ import {
   useParams,
   useNavigate,
 } from "react-router-dom";
-
 import MainLayout from "../../layouts/MainLayout";
-
+import Button from "../../components/ui/Button";
+import PageHeader from "../../components/ui/PageHeader";
+import SurfaceCard from "../../components/ui/SurfaceCard";
 import {
   getProductById,
 } from "../../services/products.service";
@@ -28,26 +29,33 @@ const ProductDetailsPage = () => {
     useState(null);
 
   useEffect(() => {
-    fetchProduct();
-  }, []);
+    let isMounted = true;
 
-  const fetchProduct =
-    async () => {
+    (async () => {
       try {
         const response =
           await getProductById(
             id
           );
 
-        setProduct(
-          response.data
-        );
+        if (isMounted) {
+          setProduct(
+            response.data
+          );
+        }
       } catch (error) {
         console.log(error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
+    })();
+
+    return () => {
+      isMounted = false;
     };
+  }, [id]);
 
   if (loading) {
     return (
@@ -65,52 +73,60 @@ const ProductDetailsPage = () => {
   return (
     <MainLayout>
 
-      <div className="
-        bg-white
-        rounded-2xl
-        border
-        border-slate-200
-        p-8
-      ">
+      <div className="space-y-6">
+        <PageHeader
+          title="Article Details"
+          description="Review style-number variants, composition, and inventory information for Nordic Prowear articles."
+          action={
+            <Button
+              onClick={() =>
+                navigate(
+                  `/products/edit/${product.id}`
+                )
+              }
+              size="lg"
+            >
+              Edit Article
+            </Button>
+          }
+        />
 
-        <div className="
-          flex
-          justify-between
-          items-center
-          mb-8
-        ">
-
-          <h1 className="
-            text-3xl
-            font-bold
-          ">
-            Product Details
-          </h1>
-
-          <button
-            onClick={() =>
-              navigate(
-                `/products/edit/${product.id}`
-              )
-            }
-            className="
-              px-5
-              py-3
-              bg-blue-500
-              text-white
-              rounded-xl
-            "
-          >
-            Edit Product
-          </button>
-
-        </div>
+      <SurfaceCard className="p-8">
 
         <div className="
           grid
           grid-cols-2
           gap-6
         ">
+
+          <Info
+            label="Variant Style No"
+            value={
+              product.styleNumber ||
+              product.sku
+            }
+          />
+
+          <Info
+            label="Base Style No"
+            value={
+              product.baseStyleNumber
+            }
+          />
+
+          <Info
+            label="Style Name"
+            value={
+              product.styleName
+            }
+          />
+
+          <Info
+            label="Article / Item"
+            value={
+              product.itemName
+            }
+          />
 
           <Info
             label="Product Name"
@@ -155,6 +171,13 @@ const ProductDetailsPage = () => {
           />
 
           <Info
+            label="Colour Code"
+            value={
+              product.colorCode
+            }
+          />
+
+          <Info
             label="Size"
             value={
               product.size
@@ -165,6 +188,20 @@ const ProductDetailsPage = () => {
             label="Fabric"
             value={
               product.fabric
+            }
+          />
+
+          <Info
+            label="Fabric Composition"
+            value={
+              product.fabricComposition
+            }
+          />
+
+          <Info
+            label="Fabric Weight"
+            value={
+              product.fabricWeight
             }
           />
 
@@ -213,6 +250,7 @@ const ProductDetailsPage = () => {
 
         </div>
 
+      </SurfaceCard>
       </div>
 
     </MainLayout>
