@@ -34,7 +34,7 @@ const PageHeader = ({
       </div>
 
       {action && (
-        <div className="flex shrink-0">
+        <div className="flex w-full shrink-0 flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-start lg:justify-end">
           {action}
         </div>
       )}

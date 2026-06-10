@@ -146,23 +146,24 @@ const ProductsPage = () => {
           title="Articles"
           description="Browse, search, and manage Nordic Prowear article variants with style-aware inventory metadata."
           action={
-            <div className="flex items-center gap-3">
-          <SearchBar
-            search={search}
-            setSearch={setSearch}
-          />
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <SearchBar
+                search={search}
+                setSearch={setSearch}
+              />
 
-          <Button
-            onClick={() =>
-              navigate(
-                "/products/add"
-              )
-            }
-            size="lg"
-          >
-            <FiPlus size={18} />
-            Add Article
-          </Button>
+              <Button
+                onClick={() =>
+                  navigate(
+                    "/products/add"
+                  )
+                }
+                size="lg"
+                className="w-full sm:w-auto"
+              >
+                <FiPlus size={18} />
+                Add Article
+              </Button>
             </div>
           }
         />

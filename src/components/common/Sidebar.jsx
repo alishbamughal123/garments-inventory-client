@@ -9,6 +9,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import {
+  useEffect,
   useState,
 } from "react";
 import logo from "../../assets/logo.png";
@@ -30,13 +31,32 @@ const Sidebar = () => {
   const [expandedMenus, setExpandedMenus] =
     useState({});
 
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    document.body.style.overflow =
+      open ? "hidden" : "";
+
+    return () => {
+      document.body.style.overflow =
+        "";
+    };
+  }, [open]);
+
   return (
     <>
       <button
         onClick={() =>
           setOpen(!open)
         }
-        className="fixed left-5 top-5 z-50 rounded-xl border border-slate-200 bg-white p-2.5 text-[var(--color-primary-ink)] shadow-md lg:hidden"
+        className="fixed left-4 top-4 z-50 rounded-xl border border-slate-200 bg-white p-2.5 text-[var(--color-primary-ink)] shadow-md lg:hidden"
+        aria-label={
+          open
+            ? "Close sidebar"
+            : "Open sidebar"
+        }
       >
         {open ? (
           <FiX size={22} />
@@ -50,13 +70,13 @@ const Sidebar = () => {
           onClick={() =>
             setOpen(false)
           }
-          className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-[1px] lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-900/35 backdrop-blur-[1px] lg:hidden"
         />
       )}
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 flex h-screen w-56 flex-col overflow-hidden border-r border-[var(--color-primary-border)] bg-white/95 shadow-xl transition-transform duration-300 xl:w-60 lg:translate-x-0",
+          "fixed left-0 top-0 z-50 flex h-screen w-[17.5rem] max-w-[85vw] flex-col overflow-hidden border-r border-[var(--color-primary-border)] bg-white/95 shadow-xl transition-transform duration-300 xl:w-60 lg:w-56 lg:max-w-none lg:translate-x-0",
           open
             ? "translate-x-0"
             : "-translate-x-full"

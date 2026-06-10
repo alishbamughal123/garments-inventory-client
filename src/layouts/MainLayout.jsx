@@ -5,10 +5,10 @@ const MainLayout = ({
   children,
 }) => {
   return (
-    <div className="flex min-h-screen bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.14),_transparent_32%),linear-gradient(180deg,_#f8fafc_0%,_#eef2ff_100%)]">
+    <div className="flex min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.14),_transparent_32%),linear-gradient(180deg,_#f8fafc_0%,_#eef2ff_100%)]">
       <Sidebar />
 
-      <div className="flex-1 lg:ml-56 xl:ml-60">
+      <div className="min-w-0 flex-1 lg:ml-56 xl:ml-60">
         <Navbar />
 
         <main className="mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">

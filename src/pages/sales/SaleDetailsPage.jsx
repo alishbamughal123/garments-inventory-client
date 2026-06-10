@@ -85,13 +85,14 @@ const SaleDetailsPage = () => {
           description={sale.invoiceNumber}
           action={
             <Button
-            onClick={() =>
-              window.print()
-            }
-            size="lg"
-          >
-            <FiPrinter />
-            Print Invoice
+              onClick={() =>
+                window.print()
+              }
+              size="lg"
+              className="w-full sm:w-auto"
+            >
+              <FiPrinter />
+              Print Invoice
             </Button>
           }
         />
@@ -263,75 +264,102 @@ const SaleDetailsPage = () => {
 
           </div>
 
-          <table className="w-full">
+          <div className="grid gap-4 p-4 lg:hidden">
+            {sale.saleItems.map(
+              (item) => (
+                <article
+                  key={item.id}
+                  className="rounded-2xl border border-slate-200 p-4"
+                >
+                  <h3 className="font-semibold text-slate-900">
+                    {
+                      item.product
+                        .productName
+                    }
+                  </h3>
 
-            <thead
-              className="
-                bg-slate-100
-              "
-            >
+                  <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <dt className="text-slate-400">
+                        Quantity
+                      </dt>
+                      <dd className="mt-1 font-medium text-slate-700">
+                        {
+                          item.quantity
+                        }
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-slate-400">
+                        Unit Price
+                      </dt>
+                      <dd className="mt-1 font-medium text-slate-700">
+                        Rs. {item.price}
+                      </dd>
+                    </div>
+                    <div className="col-span-2">
+                      <dt className="text-slate-400">
+                        Total
+                      </dt>
+                      <dd className="mt-1 font-semibold text-slate-900">
+                        Rs. {item.total}
+                      </dd>
+                    </div>
+                  </dl>
+                </article>
+              )
+            )}
+          </div>
 
-              <tr>
+          <div className="hidden overflow-x-auto lg:block">
+            <table className="min-w-[720px] w-full">
+              <thead className="bg-slate-100">
+                <tr>
+                  <th className="p-5 text-left">
+                    Product
+                  </th>
+                  <th className="p-5 text-left">
+                    Quantity
+                  </th>
+                  <th className="p-5 text-left">
+                    Unit Price
+                  </th>
+                  <th className="p-5 text-left">
+                    Total
+                  </th>
+                </tr>
+              </thead>
 
-                <th className="p-5 text-left">
-                  Product
-                </th>
-
-                <th className="p-5 text-left">
-                  Quantity
-                </th>
-
-                <th className="p-5 text-left">
-                  Unit Price
-                </th>
-
-                <th className="p-5 text-left">
-                  Total
-                </th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {sale.saleItems.map(
-                (item) => (
-                  <tr
-                    key={item.id}
-                    className="
-                      border-t
-                    "
-                  >
-
-                    <td className="p-5">
-                      {
-                        item.product
-                          .productName
-                      }
-                    </td>
-
-                    <td className="p-5">
-                      {
-                        item.quantity
-                      }
-                    </td>
-
-                    <td className="p-5">
-                      Rs. {item.price}
-                    </td>
-
-                    <td className="p-5">
-                     Rs. {item.total}
-                    </td>
-
-                  </tr>
-                )
-              )}
-
-            </tbody>
-
-          </table>
+              <tbody>
+                {sale.saleItems.map(
+                  (item) => (
+                    <tr
+                      key={item.id}
+                      className="border-t"
+                    >
+                      <td className="p-5">
+                        {
+                          item.product
+                            .productName
+                        }
+                      </td>
+                      <td className="p-5">
+                        {
+                          item.quantity
+                        }
+                      </td>
+                      <td className="p-5">
+                        Rs. {item.price}
+                      </td>
+                      <td className="p-5">
+                        Rs. {item.total}
+                      </td>
+                    </tr>
+                  )
+                )}
+              </tbody>
+            </table>
+          </div>
 
         </SurfaceCard>
 

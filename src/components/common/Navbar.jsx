@@ -22,9 +22,9 @@ const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/75 backdrop-blur">
-      <div className="flex h-16 items-center justify-between px-4 shadow-sm sm:h-[4.5rem] sm:px-6 lg:px-8">
-        <div className="min-w-0 pl-14 lg:pl-0">
-          <h1 className="truncate text-base font-semibold text-slate-900 sm:text-xl">
+      <div className="flex min-h-16 items-center justify-between gap-3 px-4 py-3 shadow-sm sm:min-h-[4.5rem] sm:px-6 lg:px-8">
+        <div className="min-w-0 flex-1 pl-14 lg:pl-0">
+          <h1 className="truncate pr-2 text-base font-semibold text-slate-900 sm:text-xl">
             <span className="sm:hidden">
               Inventory
             </span>
@@ -35,8 +35,8 @@ const Navbar = () => {
           </h1>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-2.5 py-1.5 shadow-sm">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1.5 shadow-sm sm:gap-3 sm:px-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-700">
               {initials}
             </div>

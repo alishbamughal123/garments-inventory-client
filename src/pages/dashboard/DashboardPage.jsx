@@ -451,13 +451,14 @@ const DashboardPage = () => {
 
       {/* Transactions */}
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-8">
+      <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
         <h2 className="text-xl font-semibold mb-5">
           Recent Transactions
         </h2>
 
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="min-w-[640px] w-full">
 
           <thead>
 
@@ -530,18 +531,20 @@ const DashboardPage = () => {
           </tbody>
 
         </table>
+        </div>
 
       </div>
 
       {/* Returns */}
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
         <h2 className="text-xl font-semibold mb-5">
           Recent Returns
         </h2>
 
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="min-w-[520px] w-full">
 
           <thead>
 
@@ -588,6 +591,7 @@ const DashboardPage = () => {
           </tbody>
 
         </table>
+        </div>
 
       </div>
 
