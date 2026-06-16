@@ -119,7 +119,6 @@ const CategoriesPage = () => {
 
       <PageHeader
         title="Categories"
-        description="Manage product categories with the same reusable controls used across the project."
         action={
           <Button
             onClick={() =>

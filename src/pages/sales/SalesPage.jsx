@@ -1,4 +1,3 @@
-
 import {
   useEffect,
   useState,
@@ -11,6 +10,8 @@ import {
 import {
   FiEye,
   FiPlus,
+  FiTrash2,
+  FiEdit,
 } from "react-icons/fi";
 
 import toast from "react-hot-toast";
@@ -18,9 +19,11 @@ import MainLayout from "../../layouts/MainLayout";
 import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
 import SurfaceCard from "../../components/ui/SurfaceCard";
+import DeleteModal from "../../components/common/DeleteModal";
 import { formControlClass } from "../../components/ui/formStyles";
 import {
   getSales,
+  deleteSale,
 } from "../../services/sales.service";
 
 const SalesPage = () => {
@@ -36,34 +39,42 @@ const SalesPage = () => {
   const [search, setSearch] =
     useState("");
 
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedSale, setSelectedSale] = useState(null);
+
+  const fetchSales = async () => {
+    try {
+      setLoading(true);
+      const response = await getSales();
+      setSales(response.data || []);
+    } catch {
+      toast.error("Failed to fetch sales");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    let isMounted = true;
-
-    (async () => {
-      try {
-        const response =
-          await getSales();
-
-        if (isMounted) {
-          setSales(
-            response.data || []
-          );
-        }
-      } catch {
-        toast.error(
-          "Failed to fetch sales"
-        );
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      isMounted = false;
-    };
+    fetchSales();
   }, []);
+
+  const openDeleteModal = (sale) => {
+    setSelectedSale(sale);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedSale) return;
+    try {
+      await deleteSale(selectedSale.id);
+      toast.success("Sale deleted successfully");
+      fetchSales();
+      setDeleteModalOpen(false);
+      setSelectedSale(null);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to delete sale");
+    }
+  };
 
   const filteredSales =
     sales.filter((sale) =>
@@ -74,10 +85,12 @@ const SalesPage = () => {
         )
     );
 
-  if (loading) {
+  if (loading && sales.length === 0) {
     return (
       <MainLayout>
-        Loading sales...
+        <div className="flex h-[60vh] items-center justify-center">
+          <p className="animate-pulse text-slate-500">Loading sales records...</p>
+        </div>
       </MainLayout>
     );
   }
@@ -89,7 +102,6 @@ const SalesPage = () => {
 
         <PageHeader
           title="Sales"
-          description="Track completed sales with the same shared actions and input styling."
           action={
             <Button
               onClick={() =>
@@ -139,16 +151,34 @@ const SalesPage = () => {
                   </p>
                 </div>
 
-                <button
-                  onClick={() =>
-                    navigate(
-                      `/sales/${sale.id}`
-                    )
-                  }
-                  className="rounded-full border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100"
-                >
-                  <FiEye size={18} />
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() =>
+                      navigate(
+                        `/sales/${sale.id}`
+                      )
+                    }
+                    className="rounded-full border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100"
+                  >
+                    <FiEye size={18} />
+                  </button>
+                  <button
+                    onClick={() =>
+                      navigate(
+                        `/sales/edit/${sale.id}`
+                      )
+                    }
+                    className="rounded-full border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100"
+                  >
+                    <FiEdit size={18} />
+                  </button>
+                  <button
+                    onClick={() => openDeleteModal(sale)}
+                    className="rounded-full border border-red-100 p-2 text-red-600 transition hover:bg-red-50"
+                  >
+                    <FiTrash2 size={18} />
+                  </button>
+                </div>
               </div>
 
               <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
@@ -192,10 +222,10 @@ const SalesPage = () => {
           )}
         </div>
 
-        <div className="hidden overflow-hidden rounded-2xl border bg-white lg:block">
+        <div className="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:block">
           <div className="overflow-x-auto">
-            <table className="min-w-[840px] w-full">
-              <thead className="bg-slate-100">
+            <table className="min-w-full">
+              <thead className="bg-slate-50 text-xs font-bold text-slate-400 uppercase tracking-wider">
                 <tr>
                   <th className="p-5 text-left">
                     Invoice
@@ -212,7 +242,7 @@ const SalesPage = () => {
                   <th className="p-5 text-left">
                     Date
                   </th>
-                  <th className="p-5 text-left">
+                  <th className="p-5 text-right">
                     Actions
                   </th>
                 </tr>
@@ -223,45 +253,66 @@ const SalesPage = () => {
                   (sale) => (
                     <tr
                       key={sale.id}
-                      className="border-t"
+                      className="border-t border-slate-100 transition hover:bg-slate-50"
                     >
-                      <td className="p-5">
+                      <td className="p-5 font-medium text-slate-900">
                         {
                           sale.invoiceNumber
                         }
                       </td>
-                      <td className="p-5">
+                      <td className="p-5 text-slate-600">
                         {sale.customer
                           ?.fullName ||
                           "Walk-in Customer"}
                       </td>
-                      <td className="p-5">
+                      <td className="p-5 font-bold text-slate-900">
                         Rs.{" "}
                         {
                           sale.grandTotal
                         }
                       </td>
-                      <td className="p-5">
+                      <td className="p-5 text-slate-600">
                         {
                           sale.paymentMethod
                         }
                       </td>
-                      <td className="p-5">
+                      <td className="p-5 text-slate-500">
                         {new Date(
                           sale.createdAt
                         ).toLocaleDateString()}
                       </td>
                       <td className="p-5">
-                        <button
-                          onClick={() =>
-                            navigate(
-                              `/sales/${sale.id}`
-                            )
-                          }
-                          className="text-slate-500 transition hover:text-[var(--color-primary-ink)]"
-                        >
-                          <FiEye size={22} />
-                        </button>
+                        <div className="flex justify-end gap-3">
+                          <button
+                            onClick={() =>
+                              navigate(
+                                `/sales/${sale.id}`
+                              )
+                            }
+                            className="text-slate-400 transition hover:text-slate-900"
+                            title="View Invoice"
+                          >
+                            <FiEye size={20} />
+                          </button>
+                          <button
+                            onClick={() =>
+                              navigate(
+                                `/sales/edit/${sale.id}`
+                              )
+                            }
+                            className="text-slate-400 transition hover:text-slate-900"
+                            title="Edit Sale"
+                          >
+                            <FiEdit size={20} />
+                          </button>
+                          <button
+                            onClick={() => openDeleteModal(sale)}
+                            className="text-slate-400 transition hover:text-red-600"
+                            title="Delete Sale"
+                          >
+                            <FiTrash2 size={20} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )
@@ -284,6 +335,17 @@ const SalesPage = () => {
         </div>
 
       </div>
+
+      <DeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setSelectedSale(null);
+        }}
+        onConfirm={handleDelete}
+        title="Delete Sale Transaction"
+        message={`Are you sure you want to delete invoice ${selectedSale?.invoiceNumber}? This will automatically restore stock levels for all items in this sale.`}
+      />
 
     </MainLayout>
   );

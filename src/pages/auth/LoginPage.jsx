@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 
 import { loginUser } from "../../services/auth.service";
 
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 import Button from "../../components/ui/Button";
 import {
   formControlClass,

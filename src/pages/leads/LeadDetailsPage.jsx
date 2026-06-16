@@ -23,30 +23,110 @@ import {
   convertLead,
   getLeadById,
 } from "../../services/lead.service";
+import {
+  createActivity,
+} from "../../services/activity.service";
+import {
+  sendEmail,
+} from "../../services/email.service";
+import ActivityComposer from "../../components/crm/ActivityComposer";
+import EmailComposer from "../../components/crm/EmailComposer";
+import EmailConversationList from "../../components/crm/EmailConversationList";
 
 const LeadDetailsPage = () => {
   const { id } = useParams();
   const [lead, setLead] =
     useState(null);
+  const [
+    activityLoading,
+    setActivityLoading,
+  ] = useState(false);
+  const [
+    emailLoading,
+    setEmailLoading,
+  ] = useState(false);
 
-  async function loadLead() {
-    try {
-      const response =
-        await getLeadById(id);
+  const loadLead = async () => {
+    const response =
+      await getLeadById(id);
 
-      setLead(
-        response.data
-      );
-    } catch {
-      toast.error(
-        "Failed to load lead"
-      );
-    }
-  }
+    setLead(
+      response.data
+    );
+  };
 
   useEffect(() => {
-    loadLead();
+    let isMounted = true;
+
+    (async () => {
+      try {
+        const response =
+          await getLeadById(id);
+
+        if (isMounted) {
+          setLead(
+            response.data
+          );
+        }
+      } catch {
+        if (isMounted) {
+          toast.error(
+            "Failed to load lead"
+          );
+        }
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
+
+  const handleActivitySubmit =
+    async (payload) => {
+      try {
+        setActivityLoading(
+          true
+        );
+        await createActivity(
+          payload
+        );
+        toast.success(
+          "Activity logged"
+        );
+        await loadLead();
+      } catch (error) {
+        toast.error(
+          error?.response?.data
+            ?.message ||
+            "Failed to log activity"
+        );
+      } finally {
+        setActivityLoading(
+          false
+        );
+      }
+    };
+
+  const handleEmailSubmit =
+    async (payload) => {
+      try {
+        setEmailLoading(true);
+        await sendEmail(payload);
+        toast.success(
+          "Email sent successfully"
+        );
+        await loadLead();
+      } catch (error) {
+        toast.error(
+          error?.response?.data
+            ?.message ||
+            "Failed to send email"
+        );
+      } finally {
+        setEmailLoading(false);
+      }
+    };
 
   if (!lead) {
     return (
@@ -92,6 +172,7 @@ const LeadDetailsPage = () => {
                   toast.success(
                     "Lead converted successfully"
                   );
+                  await loadLead();
                 } catch {
                   toast.error(
                     "Conversion failed"
@@ -105,7 +186,7 @@ const LeadDetailsPage = () => {
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <div className="rounded-2xl bg-slate-50 p-4">
             <p className="text-sm text-slate-500">
               Status
@@ -145,6 +226,25 @@ const LeadDetailsPage = () => {
             </p>
             <p className="mt-2 text-sm font-medium text-slate-900">
               {lead.city || "-"}
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-sm text-slate-500">
+              Open Tasks
+            </p>
+            <p className="mt-2 text-sm font-semibold text-slate-900">
+              {
+                lead.tasks.filter(
+                  (task) =>
+                    ![
+                      "COMPLETED",
+                      "CANCELLED",
+                    ].includes(
+                      task.status
+                    )
+                ).length
+              }
             </p>
           </div>
         </div>
@@ -220,15 +320,127 @@ const LeadDetailsPage = () => {
             </div>
           </section>
 
+          <ActivityComposer
+            title="Log Lead Activity"
+            entityIds={{
+              leadId: lead.id,
+            }}
+            onSubmit={
+              handleActivitySubmit
+            }
+            loading={
+              activityLoading
+            }
+          />
+
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h3 className="text-lg font-semibold text-slate-900">
-              Notes
+              Unified Activity Timeline
             </h3>
 
-            <p className="mt-4 text-sm leading-6 text-slate-600">
-              {lead.notes ||
-                "No notes available"}
-            </p>
+            <div className="mt-5 space-y-4">
+              {lead.activityTimeline
+                ?.length === 0 ? (
+                <p className="text-sm text-slate-500">
+                  No activity recorded yet.
+                </p>
+              ) : (
+                lead.activityTimeline.map(
+                  (item) => (
+                    <div
+                      key={`${item.source}-${item.id}`}
+                      className="rounded-2xl border border-slate-200 p-4"
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <StatusBadge
+                          value={item.type}
+                          className="px-2.5"
+                        />
+                        <span className="text-xs text-slate-400">
+                          {new Date(
+                            item.createdAt
+                          ).toLocaleString()}
+                        </span>
+                      </div>
+
+                      <p className="mt-3 font-medium text-slate-900">
+                        {item.subject}
+                      </p>
+
+                      <p className="mt-1 text-sm text-slate-500">
+                        {item.description ||
+                          "No details added"}
+                      </p>
+
+                      {item.createdBy
+                        ?.name && (
+                        <p className="mt-2 text-xs text-slate-400">
+                          By{" "}
+                          {
+                            item
+                              .createdBy
+                              .name
+                          }
+                        </p>
+                      )}
+                    </div>
+                  )
+                )
+              )}
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <h3 className="text-lg font-semibold text-slate-900">
+              Related Tasks
+            </h3>
+
+            <div className="mt-5 space-y-3">
+              {lead.tasks.length ===
+              0 ? (
+                <p className="text-sm text-slate-500">
+                  No tasks linked to this lead.
+                </p>
+              ) : (
+                lead.tasks.map(
+                  (task) => (
+                    <Link
+                      key={task.id}
+                      to={appRoutes.crmTaskDetails(
+                        task.id
+                      )}
+                      className="block rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-slate-300"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className="font-medium text-slate-900">
+                            {task.title}
+                          </p>
+                          <p className="mt-1 text-sm text-slate-500">
+                            Due{" "}
+                            {new Date(
+                              task.dueDate
+                            ).toLocaleDateString()}{" "}
+                            with{" "}
+                            {task.assignedUser
+                              ?.name ||
+                              "Unassigned"}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <StatusBadge
+                            value={task.priority}
+                          />
+                          <StatusBadge
+                            value={task.status}
+                          />
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                )
+              )}
+            </div>
           </section>
         </div>
 
@@ -256,8 +468,39 @@ const LeadDetailsPage = () => {
                   {lead.designation || "-"}
                 </p>
               </div>
+
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm text-slate-400">
+                  Notes
+                </p>
+                <p className="mt-1 text-sm font-medium text-slate-900">
+                  {lead.notes ||
+                    "No notes available"}
+                </p>
+              </div>
             </div>
           </section>
+
+          <EmailComposer
+            title="Send Lead Email"
+            entityIds={{
+              leadId: lead.id,
+            }}
+            initialToEmail={
+              lead.email || ""
+            }
+            onSubmit={
+              handleEmailSubmit
+            }
+            loading={emailLoading}
+          />
+
+          <EmailConversationList
+            conversations={
+              lead.emailConversations ||
+              []
+            }
+          />
         </div>
       </div>
     </div>

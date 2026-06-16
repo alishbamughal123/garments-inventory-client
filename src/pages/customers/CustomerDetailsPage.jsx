@@ -14,79 +14,74 @@ import {
   MapPin,
   Pencil,
   Phone,
-  Plus,
   UserRound,
 } from "lucide-react";
 import {
-  addInteraction,
   getCustomerById,
-  getInteractions,
 } from "../../services/customer.service";
-import Button from "../../components/ui/Button";
+import {
+  createActivity,
+} from "../../services/activity.service";
+import {
+  sendEmail,
+} from "../../services/email.service";
 import StatusBadge from "../../components/ui/StatusBadge";
-
-const inputClass =
-  "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white";
+import ActivityComposer from "../../components/crm/ActivityComposer";
+import EmailComposer from "../../components/crm/EmailComposer";
+import EmailConversationList from "../../components/crm/EmailConversationList";
+import { appRoutes } from "../../config/routes";
 
 const CustomerDetailsPage = () => {
   const { id } = useParams();
   const [customer, setCustomer] =
     useState(null);
-  const [
-    interactions,
-    setInteractions,
-  ] = useState([]);
   const [loading, setLoading] =
     useState(true);
-  const [interactionForm,
-    setInteractionForm] =
-    useState({
-      type: "NOTE",
-      subject: "",
-      description: "",
-    });
+  const [
+    activityLoading,
+    setActivityLoading,
+  ] = useState(false);
+  const [
+    emailLoading,
+    setEmailLoading,
+  ] = useState(false);
 
-  const loadInteractions =
-    async () => {
-      try {
-        const response =
-          await getInteractions(id);
+  const loadCustomer = async () => {
+    try {
+      const response =
+        await getCustomerById(id);
 
-        setInteractions(
-          response.data
-        );
-      } catch {
-        return null;
-      }
-    };
+      setCustomer(
+        response.data
+      );
+    } catch {
+      toast.error(
+        "Failed to load customer"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
 
     (async () => {
       try {
-        const [
-          customerResponse,
-          interactionsResponse,
-        ] = await Promise.all([
-          getCustomerById(id),
-          getInteractions(id),
-        ]);
+        const response =
+          await getCustomerById(id);
 
-        if (!isMounted) {
-          return;
+        if (isMounted) {
+          setCustomer(
+            response.data
+          );
         }
-
-        setCustomer(
-          customerResponse.data
-        );
-        setInteractions(
-          interactionsResponse.data
-        );
       } catch {
-        toast.error(
-          "Failed to load customer"
-        );
+        if (isMounted) {
+          toast.error(
+            "Failed to load customer"
+          );
+        }
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -99,31 +94,49 @@ const CustomerDetailsPage = () => {
     };
   }, [id]);
 
-  const handleAddInteraction =
-    async (e) => {
-      e.preventDefault();
-
+  const handleActivitySubmit =
+    async (payload) => {
       try {
-        await addInteraction(
-          id,
-          interactionForm
+        setActivityLoading(
+          true
         );
-
+        await createActivity(
+          payload
+        );
         toast.success(
-          "Interaction added"
+          "Activity logged"
         );
-
-        setInteractionForm({
-          type: "NOTE",
-          subject: "",
-          description: "",
-        });
-
-        loadInteractions();
-      } catch {
+        await loadCustomer();
+      } catch (error) {
         toast.error(
-          "Failed to add interaction"
+          error?.response?.data
+            ?.message ||
+            "Failed to log activity"
         );
+      } finally {
+        setActivityLoading(
+          false
+        );
+      }
+    };
+
+  const handleEmailSubmit =
+    async (payload) => {
+      try {
+        setEmailLoading(true);
+        await sendEmail(payload);
+        toast.success(
+          "Email sent successfully"
+        );
+        await loadCustomer();
+      } catch (error) {
+        toast.error(
+          error?.response?.data
+            ?.message ||
+            "Failed to send email"
+        );
+      } finally {
+        setEmailLoading(false);
       }
     };
 
@@ -157,22 +170,22 @@ const CustomerDetailsPage = () => {
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Customer Profile
+              Customer profile with unified activity and email history.
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link
-              to={`/crm/customers/edit/${customer.id}`}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800"
-            >
-              <Pencil size={16} />
-              Edit
-            </Link>
-          </div>
+          <Link
+            to={appRoutes.crmCustomerEdit(
+              customer.id
+            )}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800"
+          >
+            <Pencil size={16} />
+            Edit
+          </Link>
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-2xl bg-slate-50 p-4">
             <p className="text-sm text-slate-500">
               Total Orders
@@ -201,14 +214,32 @@ const CustomerDetailsPage = () => {
             <div className="mt-2">
               <StatusBadge
                 value={customer.status}
-                className="text-sm"
               />
             </div>
+          </div>
+
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-sm text-slate-500">
+              Open Tasks
+            </p>
+            <p className="mt-2 text-2xl font-semibold text-slate-900">
+              {
+                customer.tasks.filter(
+                  (task) =>
+                    ![
+                      "COMPLETED",
+                      "CANCELLED",
+                    ].includes(
+                      task.status
+                    )
+                ).length
+              }
+            </p>
           </div>
         </div>
       </section>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
         <div className="space-y-6">
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h3 className="text-lg font-semibold text-slate-900">
@@ -266,140 +297,128 @@ const CustomerDetailsPage = () => {
             </div>
           </section>
 
+          <ActivityComposer
+            title="Log Customer Activity"
+            entityIds={{
+              customerId:
+                customer.id,
+            }}
+            onSubmit={
+              handleActivitySubmit
+            }
+            loading={
+              activityLoading
+            }
+          />
+
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h3 className="text-lg font-semibold text-slate-900">
-              Add Interaction
+              Unified Activity Timeline
             </h3>
 
-            <form
-              onSubmit={
-                handleAddInteraction
-              }
-              className="mt-5 grid gap-4"
-            >
-              <select
-                value={
-                  interactionForm.type
-                }
-                onChange={(e) =>
-                  setInteractionForm({
-                    ...interactionForm,
-                    type:
-                      e.target.value,
-                  })
-                }
-                className={inputClass}
-              >
-                <option value="CALL">
-                  Call
-                </option>
-                <option value="MEETING">
-                  Meeting
-                </option>
-                <option value="NOTE">
-                  Note
-                </option>
-                <option value="FOLLOW_UP">
-                  Follow Up
-                </option>
-              </select>
+            <div className="mt-5 space-y-4">
+              {customer.activityTimeline
+                ?.length === 0 ? (
+                <p className="text-sm text-slate-500">
+                  No activity recorded yet.
+                </p>
+              ) : (
+                customer.activityTimeline.map(
+                  (item) => (
+                    <div
+                      key={`${item.source}-${item.id}`}
+                      className="rounded-2xl border border-slate-200 p-4"
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <StatusBadge
+                          value={item.type}
+                          className="px-2.5"
+                        />
+                        <span className="text-xs text-slate-400">
+                          {new Date(
+                            item.createdAt
+                          ).toLocaleString()}
+                        </span>
+                      </div>
 
-              <input
-                placeholder="Subject"
-                value={
-                  interactionForm.subject
-                }
-                onChange={(e) =>
-                  setInteractionForm({
-                    ...interactionForm,
-                    subject:
-                      e.target.value,
-                  })
-                }
-                className={inputClass}
-              />
+                      <p className="mt-3 font-medium text-slate-900">
+                        {item.subject}
+                      </p>
 
-              <textarea
-                rows="4"
-                placeholder="Description"
-                value={
-                  interactionForm.description
-                }
-                onChange={(e) =>
-                  setInteractionForm({
-                    ...interactionForm,
-                    description:
-                      e.target.value,
-                  })
-                }
-                className={inputClass}
-              />
+                      <p className="mt-1 text-sm text-slate-500">
+                        {item.description ||
+                          "No details added"}
+                      </p>
 
-              <Button
-                type="submit"
-                className="w-full sm:w-fit"
-              >
-                <Plus size={16} />
-                Add Interaction
-              </Button>
-            </form>
+                      {item.createdBy
+                        ?.name && (
+                        <p className="mt-2 text-xs text-slate-400">
+                          By{" "}
+                          {
+                            item
+                              .createdBy
+                              .name
+                          }
+                        </p>
+                      )}
+                    </div>
+                  )
+                )
+              )}
+            </div>
           </section>
 
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h3 className="text-lg font-semibold text-slate-900">
-              Purchase History
+              Related Tasks
             </h3>
 
-            {customer.sales?.length ? (
-              <div className="mt-5 overflow-x-auto">
-                <table className="min-w-full text-sm">
-                  <thead className="text-slate-500">
-                    <tr>
-                      <th className="py-3 pr-4 text-left font-medium">
-                        Invoice
-                      </th>
-                      <th className="py-3 pr-4 text-left font-medium">
-                        Amount
-                      </th>
-                      <th className="py-3 text-left font-medium">
-                        Date
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {customer.sales.map(
-                      (sale) => (
-                        <tr
-                          key={sale.id}
-                          className="border-t border-slate-100 text-slate-700"
-                        >
-                          <td className="py-3 pr-4">
-                            {
-                              sale.invoiceNumber
-                            }
-                          </td>
-                          <td className="py-3 pr-4 font-medium text-slate-900">
-                            Rs.
-                            {
-                              sale.grandTotal
-                            }
-                          </td>
-                          <td className="py-3">
+            <div className="mt-5 space-y-3">
+              {customer.tasks.length ===
+              0 ? (
+                <p className="text-sm text-slate-500">
+                  No tasks linked to this customer.
+                </p>
+              ) : (
+                customer.tasks.map(
+                  (task) => (
+                    <Link
+                      key={task.id}
+                      to={appRoutes.crmTaskDetails(
+                        task.id
+                      )}
+                      className="block rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-slate-300"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className="font-medium text-slate-900">
+                            {task.title}
+                          </p>
+                          <p className="mt-1 text-sm text-slate-500">
+                            Due{" "}
                             {new Date(
-                              sale.createdAt
-                            ).toLocaleDateString()}
-                          </td>
-                        </tr>
-                      )
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p className="mt-4 text-sm text-slate-500">
-                No purchase history
-              </p>
-            )}
+                              task.dueDate
+                            ).toLocaleDateString()}{" "}
+                            with{" "}
+                            {task.assignedUser
+                              ?.name ||
+                              "Unassigned"}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <StatusBadge
+                            value={task.priority}
+                          />
+                          <StatusBadge
+                            value={task.status}
+                          />
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                )
+              )}
+            </div>
           </section>
         </div>
 
@@ -445,7 +464,9 @@ const CustomerDetailsPage = () => {
                   Customer Type
                 </p>
                 <p className="mt-1 font-medium">
-                  {customer.customerType}
+                  {
+                    customer.customerType
+                  }
                 </p>
               </div>
 
@@ -460,48 +481,27 @@ const CustomerDetailsPage = () => {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-            <h3 className="text-lg font-semibold text-slate-900">
-              Activity Timeline
-            </h3>
+          <EmailComposer
+            title="Send Customer Email"
+            entityIds={{
+              customerId:
+                customer.id,
+            }}
+            initialToEmail={
+              customer.email || ""
+            }
+            onSubmit={
+              handleEmailSubmit
+            }
+            loading={emailLoading}
+          />
 
-            <div className="mt-5 space-y-4">
-              {interactions.length === 0 && (
-                <p className="text-sm text-slate-500">
-                  No interactions yet.
-                </p>
-              )}
-
-              {interactions.map(
-                (item) => (
-                  <div
-                    key={item.id}
-                    className="rounded-2xl border border-slate-200 p-4"
-                  >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <StatusBadge
-                        value={item.type}
-                        className="px-2.5"
-                      />
-                      <span className="text-xs text-slate-400">
-                        {new Date(
-                          item.createdAt
-                        ).toLocaleString()}
-                      </span>
-                    </div>
-
-                    <p className="mt-3 font-medium text-slate-900">
-                      {item.subject}
-                    </p>
-
-                    <p className="mt-1 text-sm text-slate-500">
-                      {item.description}
-                    </p>
-                  </div>
-                )
-              )}
-            </div>
-          </section>
+          <EmailConversationList
+            conversations={
+              customer.emailConversations ||
+              []
+            }
+          />
         </div>
       </div>
     </div>

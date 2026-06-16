@@ -5,6 +5,7 @@ import {
   FiBox,
   FiFileText,
   FiGrid,
+  FiList,
   FiRepeat,
   FiShoppingCart,
   FiUsers,
@@ -59,16 +60,24 @@ export const sidebarNavigation = [
         name: "Pipeline",
         path: appRoutes.crmLeadPipeline,
       },
+      {
+        name: "Tasks",
+        path: appRoutes.crmTasks,
+      },
+      {
+        name: "Reports",
+        path: appRoutes.crmReports,
+      },
     ],
   },
   {
     name: "Returns",
-    path: "/returns",
+    path: appRoutes.returns,
     icon: FiRepeat,
   },
   {
     name: "Low Stock",
-    path: "/low-stock",
+    path: appRoutes.lowStock,
     icon: FiAlertTriangle,
   },
   {
@@ -107,6 +116,16 @@ export const crmPrimaryNavigation = [
       appRoutes.crmLeadPipeline,
       appRoutes.crmLegacyPipeline,
       "/crm/leads/",
+    ],
+  },
+  {
+    name: "Tasks",
+    to: appRoutes.crmTasks,
+    icon: FiList,
+    matchPaths: [
+      appRoutes.crmTasks,
+      appRoutes.crmTaskCalendar,
+      "/crm/tasks/",
     ],
   },
 ];

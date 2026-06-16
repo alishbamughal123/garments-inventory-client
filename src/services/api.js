@@ -21,6 +21,37 @@ api.interceptors.request.use(
   }
 );
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      error?.response?.status ===
+        401 &&
+      !error?.config?.url?.includes(
+        "/auth/login"
+      )
+    ) {
+      localStorage.removeItem(
+        "token"
+      );
+      localStorage.removeItem(
+        "user"
+      );
+
+      if (
+        window.location.pathname !==
+        "/login"
+      ) {
+        window.location.assign(
+          "/login"
+        );
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export const buildQueryParams = (
   filters = {}
 ) =>

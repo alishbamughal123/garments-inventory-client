@@ -283,6 +283,7 @@
 
 // export default DashboardPage;
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import {
   FiBox,
@@ -295,10 +296,12 @@ import {
 import MainLayout from "../../layouts/MainLayout";
 import StatCard from "../../components/dashboard/StatCard";
 import LowStockTable from "../../components/dashboard/LowStockTable";
+import TaskSummaryCards from "../../components/tasks/TaskSummaryCards";
 
 import {
   getDashboardData,
 } from "../../services/dashboard.service";
+import { getTasks } from "../../services/task.service";
 
 const DashboardPage = () => {
   const [loading, setLoading] =
@@ -306,19 +309,56 @@ const DashboardPage = () => {
 
   const [dashboard, setDashboard] =
     useState(null);
+  const [taskSummary, setTaskSummary] =
+    useState(null);
 
   useEffect(() => {
     let isMounted = true;
 
     (async () => {
       try {
-        const response =
-          await getDashboardData();
+        const [
+          dashboardResult,
+          tasksResult,
+        ] = await Promise.allSettled([
+          getDashboardData(),
+          getTasks({
+            includeSummary:
+              "true",
+          }),
+        ]);
 
         if (isMounted) {
-          setDashboard(
-            response.data
-          );
+          if (
+            dashboardResult.status ===
+            "fulfilled"
+          ) {
+            setDashboard(
+              dashboardResult
+                .value.data
+            );
+          } else {
+            toast.error(
+              "Failed to load dashboard data"
+            );
+          }
+
+          if (
+            tasksResult.status ===
+            "fulfilled"
+          ) {
+            setTaskSummary(
+              tasksResult.value
+                .data.summary
+            );
+          } else {
+            console.log(
+              tasksResult.reason
+            );
+            toast.error(
+              "Failed to load task summary"
+            );
+          }
         }
       } catch (error) {
         console.log(error);
@@ -344,6 +384,16 @@ const DashboardPage = () => {
     );
   }
 
+  if (!dashboard) {
+    return (
+      <MainLayout>
+        <div className="p-10">
+          Unable to load dashboard right now.
+        </div>
+      </MainLayout>
+    );
+  }
+
   return (
     <MainLayout>
 
@@ -355,6 +405,12 @@ const DashboardPage = () => {
         <p className="text-slate-500">
           Nordic Prowear Overview
         </p>
+      </div>
+
+      <div className="mb-8">
+        <TaskSummaryCards
+          summary={taskSummary}
+        />
       </div>
 
       {/* KPI Cards */}

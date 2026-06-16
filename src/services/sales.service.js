@@ -32,3 +32,13 @@ export const getSaleById =
 
     return response.data;
   };
+
+export const deleteSale = async (id) => {
+  const response = await api.delete(`${salesEndpoint}/${id}`);
+  return response.data;
+};
+
+export const updateSale = async (id, payload) => {
+  const response = await api.put(`${salesEndpoint}/${id}`, payload);
+  return response.data;
+};

@@ -16,6 +16,10 @@ export const appRoutes = {
     `/products/barcode/${id}`,
   stockIn: "/stock-in",
   stockOut: "/stock-out",
+  returns: "/returns",
+  returnsProcess: "/returns/process",
+  returnDetails: (id = ":id") => `/returns/${id}`,
+  lowStock: "/low-stock",
   transactions: "/transactions",
   sales: "/sales",
   salesCreate: "/sales/create",
@@ -37,5 +41,21 @@ export const appRoutes = {
     `/crm/leads/edit/${id}`,
   crmLeadPipeline:
     "/crm/leads/pipeline",
+  crmTasks: "/crm/tasks",
+  crmTasksCreate:
+    "/crm/tasks/create",
+  crmTaskDetails: (id = ":id") =>
+    `/crm/tasks/${id}`,
+  crmTaskEdit: (id = ":id") =>
+    `/crm/tasks/edit/${id}`,
+  crmTaskCalendar:
+    "/crm/tasks/calendar",
   crmLegacyPipeline: "/crm/pipeline",
+  crmReports: "/crm/reports",
+  crmReportsLeads:
+    "/crm/reports/leads",
+  crmReportsCustomers:
+    "/crm/reports/customers",
+  crmReportsRevenue:
+    "/crm/reports/revenue",
 };

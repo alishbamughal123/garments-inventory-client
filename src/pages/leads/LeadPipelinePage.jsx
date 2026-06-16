@@ -115,8 +115,7 @@ const LeadPipelinePage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Lead Pipeline"
-        description="Drag leads between stages. The board now scales better on smaller screens and keeps each column readable."
+        title="Lead Pipeline Board"
       />
 
       <DragDropContext

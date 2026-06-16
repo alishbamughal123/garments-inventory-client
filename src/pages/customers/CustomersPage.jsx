@@ -16,6 +16,7 @@ import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
 import StatusBadge from "../../components/ui/StatusBadge";
 import SurfaceCard from "../../components/ui/SurfaceCard";
+import DeleteModal from "../../components/common/DeleteModal";
 import { appRoutes } from "../../config/routes";
 import toast from "react-hot-toast";
 import {
@@ -36,6 +37,8 @@ const CustomersPage = () => {
   ] = useState("");
   const [status, setStatus] =
     useState("");
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   async function fetchCustomers() {
       try {
@@ -68,22 +71,23 @@ const CustomersPage = () => {
     status,
   ]);
 
-  const handleDelete =
-    async (id) => {
-      const confirmDelete =
-        window.confirm(
-          "Delete customer?"
-        );
+  const openDeleteModal = (customer) => {
+    setSelectedCustomer(customer);
+    setDeleteModalOpen(true);
+  };
 
-      if (!confirmDelete)
-        return;
+  const handleDelete =
+    async () => {
+      if (!selectedCustomer) return;
 
       try {
-        await deleteCustomer(id);
+        await deleteCustomer(selectedCustomer.id);
         toast.success(
           "Customer deleted"
         );
         fetchCustomers();
+        setDeleteModalOpen(false);
+        setSelectedCustomer(null);
       } catch {
         toast.error(
           "Delete failed"
@@ -95,7 +99,6 @@ const CustomersPage = () => {
     <div className="space-y-6">
       <PageHeader
         title="Customers"
-        description="Search, segment, and manage CRM contacts from one responsive list."
         action={
           <Button
             as={Link}
@@ -272,8 +275,8 @@ const CustomersPage = () => {
 
                 <button
                   onClick={() =>
-                    handleDelete(
-                      customer.id
+                    openDeleteModal(
+                      customer
                     )
                   }
                   className="inline-flex items-center gap-2 rounded-full border border-red-200 px-3 py-2 text-sm font-medium text-red-600"
@@ -393,8 +396,8 @@ const CustomersPage = () => {
                           </Link>
                           <button
                             onClick={() =>
-                              handleDelete(
-                                customer.id
+                              openDeleteModal(
+                                customer
                               )
                             }
                             className="rounded-full border border-red-200 p-2 text-red-600 transition hover:bg-red-50"
@@ -429,6 +432,17 @@ const CustomersPage = () => {
           </p>
         )}
       </section>
+
+      <DeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setSelectedCustomer(null);
+        }}
+        onConfirm={handleDelete}
+        title="Delete Customer"
+        message={`Are you sure you want to delete ${selectedCustomer?.fullName}? This action cannot be undone.`}
+      />
     </div>
   );
 };

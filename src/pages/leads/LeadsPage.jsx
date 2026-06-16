@@ -14,6 +14,7 @@ import {
 import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
 import StatusBadge from "../../components/ui/StatusBadge";
+import DeleteModal from "../../components/common/DeleteModal";
 import { appRoutes } from "../../config/routes";
 import toast from "react-hot-toast";
 import {
@@ -26,6 +27,8 @@ const LeadsPage = () => {
     useState([]);
   const [loading, setLoading] =
     useState(true);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState(null);
 
   async function fetchLeads() {
       try {
@@ -50,21 +53,23 @@ const LeadsPage = () => {
     fetchLeads();
   }, []);
 
+  const openDeleteModal = (lead) => {
+    setSelectedLead(lead);
+    setDeleteModalOpen(true);
+  };
+
   const handleDelete =
-    async (id) => {
-      if (
-        !window.confirm(
-          "Delete Lead?"
-        )
-      )
-        return;
+    async () => {
+      if (!selectedLead) return;
 
       try {
-        await deleteLead(id);
+        await deleteLead(selectedLead.id);
         toast.success(
           "Lead deleted"
         );
         fetchLeads();
+        setDeleteModalOpen(false);
+        setSelectedLead(null);
       } catch {
         toast.error(
           "Delete failed"
@@ -76,7 +81,6 @@ const LeadsPage = () => {
     <div className="space-y-6">
       <PageHeader
         title="Leads"
-        description="Manage opportunities, track status, and act on leads from any screen size."
         action={
           <Button
             as={Link}
@@ -170,8 +174,8 @@ const LeadsPage = () => {
 
               <button
                 onClick={() =>
-                  handleDelete(
-                    lead.id
+                  openDeleteModal(
+                    lead
                   )
                 }
                 className="inline-flex items-center gap-2 rounded-full border border-red-200 px-3 py-2 text-sm font-medium text-red-600"
@@ -291,8 +295,8 @@ const LeadsPage = () => {
 
                         <button
                           onClick={() =>
-                            handleDelete(
-                              lead.id
+                            openDeleteModal(
+                              lead
                             )
                           }
                           className="rounded-full border border-red-200 p-2 text-red-600 transition hover:bg-red-50"
@@ -310,6 +314,17 @@ const LeadsPage = () => {
           </table>
         </div>
       </div>
+
+      <DeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setSelectedLead(null);
+        }}
+        onConfirm={handleDelete}
+        title="Delete Lead"
+        message={`Are you sure you want to delete lead ${selectedLead?.fullName}? This action cannot be undone.`}
+      />
     </div>
   );
 };

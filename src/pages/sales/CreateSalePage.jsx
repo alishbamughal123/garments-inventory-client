@@ -284,7 +284,6 @@ const CreateSalePage = () => {
       <div className="space-y-6">
         <PageHeader
           title="Create Sale"
-          description="Build an order with shared controls, consistent buttons, and reusable form styling."
         />
 
         <div

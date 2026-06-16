@@ -144,7 +144,6 @@ const ProductsPage = () => {
       <div className="space-y-6">
         <PageHeader
           title="Articles"
-          description="Browse, search, and manage Nordic Prowear article variants with style-aware inventory metadata."
           action={
             <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap">
               <SearchBar
@@ -161,7 +160,7 @@ const ProductsPage = () => {
                 size="lg"
                 className="w-full sm:w-auto"
               >
-                <FiPlus size={18} />
+                <FiPlus size={20} />
                 Add Article
               </Button>
             </div>

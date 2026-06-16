@@ -11,6 +11,10 @@ import CategoriesPage from "../pages/categories/CategoriesPage";
 import AddCategoryPage from "../pages/categories/AddCategoryPage";
 import EditCategoryPage from "../pages/categories/EditCategoryPage";
 import CRMLayout from "../pages/crm/CRMLayout";
+import CRMReportsPage from "../pages/crm/CRMReportsPage";
+import CustomerAnalyticsPage from "../pages/crm/CustomerAnalyticsPage";
+import LeadAnalyticsPage from "../pages/crm/LeadAnalyticsPage";
+import RevenueAnalyticsPage from "../pages/crm/RevenueAnalyticsPage";
 import CustomersPage from "../pages/customers/CustomersPage";
 import CreateCustomerPage from "../pages/customers/CreateCustomerPage";
 import CustomerDetailsPage from "../pages/customers/CustomerDetailsPage";
@@ -18,6 +22,11 @@ import EditCustomerPage from "../pages/customers/EditCustomerPage";
 import DashboardPage from "../pages/dashboard/DashboardPage";
 import StockInPage from "../pages/inventory/StockInPage";
 import StockOutPage from "../pages/inventory/StockOutPage";
+import ReturnsPage from "../pages/inventory/ReturnsPage";
+import ProcessReturnPage from "../pages/inventory/ProcessReturnPage";
+import EditReturnPage from "../pages/inventory/EditReturnPage";
+import ReturnDetailsPage from "../pages/inventory/ReturnDetailsPage";
+import LowStockPage from "../pages/inventory/LowStockPage";
 import TransactionsPage from "../pages/inventory/TransactionsPage";
 import CreateLeadPage from "../pages/leads/CreateLeadPage";
 import EditLeadPage from "../pages/leads/EditLeadPage";
@@ -30,8 +39,14 @@ import EditProductPage from "../pages/products/EditProductPage";
 import ProductDetailsPage from "../pages/products/ProductDetailsPage";
 import ProductsPage from "../pages/products/ProductsPage";
 import CreateSalePage from "../pages/sales/CreateSalePage";
+import EditSalePage from "../pages/sales/EditSalePage";
 import SaleDetailsPage from "../pages/sales/SaleDetailsPage";
 import SalesPage from "../pages/sales/SalesPage";
+import CreateTaskPage from "../pages/tasks/CreateTaskPage";
+import EditTaskPage from "../pages/tasks/EditTaskPage";
+import TaskCalendarPage from "../pages/tasks/TaskCalendarPage";
+import TaskDetailsPage from "../pages/tasks/TaskDetailsPage";
+import TasksPage from "../pages/tasks/TasksPage";
 
 const protectedElement = (
   element
@@ -129,6 +144,36 @@ const AppRouter = () => {
           )}
         />
         <Route
+          path={appRoutes.returns}
+          element={protectedElement(
+            <ReturnsPage />
+          )}
+        />
+        <Route
+          path={appRoutes.returnsProcess}
+          element={protectedElement(
+            <ProcessReturnPage />
+          )}
+        />
+        <Route
+          path="/returns/edit/:id"
+          element={protectedElement(
+            <EditReturnPage />
+          )}
+        />
+        <Route
+          path={appRoutes.returnDetails()}
+          element={protectedElement(
+            <ReturnDetailsPage />
+          )}
+        />
+        <Route
+          path={appRoutes.lowStock}
+          element={protectedElement(
+            <LowStockPage />
+          )}
+        />
+        <Route
           path={appRoutes.transactions}
           element={protectedElement(
             <TransactionsPage />
@@ -145,6 +190,12 @@ const AppRouter = () => {
           path={appRoutes.salesCreate}
           element={protectedElement(
             <CreateSalePage />
+          )}
+        />
+        <Route
+          path="/sales/edit/:id"
+          element={protectedElement(
+            <EditSalePage />
           )}
         />
         <Route
@@ -219,6 +270,58 @@ const AppRouter = () => {
                 to="../leads/pipeline"
                 replace
               />
+            }
+          />
+
+          <Route
+            path="tasks"
+            element={<TasksPage />}
+          />
+          <Route
+            path="tasks/create"
+            element={
+              <CreateTaskPage />
+            }
+          />
+          <Route
+            path="tasks/calendar"
+            element={
+              <TaskCalendarPage />
+            }
+          />
+          <Route
+            path="tasks/edit/:id"
+            element={
+              <EditTaskPage />
+            }
+          />
+          <Route
+            path="tasks/:id"
+            element={
+              <TaskDetailsPage />
+            }
+          />
+
+          <Route
+            path="reports"
+            element={<CRMReportsPage />}
+          />
+          <Route
+            path="reports/leads"
+            element={
+              <LeadAnalyticsPage />
+            }
+          />
+          <Route
+            path="reports/customers"
+            element={
+              <CustomerAnalyticsPage />
+            }
+          />
+          <Route
+            path="reports/revenue"
+            element={
+              <RevenueAnalyticsPage />
             }
           />
         </Route>
