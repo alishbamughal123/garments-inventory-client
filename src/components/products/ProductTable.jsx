@@ -147,7 +147,7 @@ const ProductTable = ({
         })}
       </div>
 
-      <div className="hidden overflow-x-auto lg:block">
+      <div className="hidden overflow-x-auto lg:block no-scrollbar">
         <table className="min-w-[960px] w-full">
           <thead>
             <tr className="border-b">

@@ -407,6 +407,22 @@ const ProductForm = ({
             className={formControlClass}
           />
         </div>
+
+        <div>
+          <label className={formLabelClass}>
+            Supplier / External Barcode
+          </label>
+          <input
+            type="text"
+            name="supplierBarcode"
+            value={
+              formData.supplierBarcode || ""
+            }
+            onChange={handleChange}
+            placeholder="Scan manufacturer barcode..."
+            className={`${formControlClass} border-blue-200 focus:border-blue-500`}
+          />
+        </div>
       </div>
 
       <div className="mt-5">

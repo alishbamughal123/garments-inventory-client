@@ -71,7 +71,7 @@ const SaleDetailsPage = () => {
                 onClick={() => navigate(`/sales/edit/${id}`)}
                 variant="secondary"
               >
-                <FiPencil />
+                <FiEdit />
                 Edit Remarks
               </Button>
               <Button

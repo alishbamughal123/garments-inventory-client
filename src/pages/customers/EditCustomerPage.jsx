@@ -38,10 +38,6 @@ const EditCustomerPage = () => {
       status: "ACTIVE",
     });
 
-  useEffect(() => {
-    loadCustomer();
-  }, [id]);
-
   const loadCustomer =
     async () => {
       try {
@@ -89,6 +85,10 @@ const EditCustomerPage = () => {
         setLoading(false);
       }
     };
+
+  useEffect(() => {
+    loadCustomer();
+  }, [id]);
 
   const handleChange = (
     e

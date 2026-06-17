@@ -39,61 +39,25 @@ const ProductsPage = () => {
     useState(null);
 
   useEffect(() => {
-    let isMounted = true;
-
-    (async () => {
+    const timeout = setTimeout(async () => {
       try {
-        const response =
-          await getProducts();
-
-        if (isMounted) {
-          setProducts(
-            response.data
-          );
+        setLoading(true);
+        if (!search.trim()) {
+          const response = await getProducts();
+          setProducts(response.data || []);
+          return;
         }
+
+        const response = await searchProducts(search);
+        setProducts(response.data || []);
       } catch (error) {
         console.log(error);
       } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
-    })();
+    }, 500);
 
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    const timeout =
-      setTimeout(async () => {
-        try {
-          if (!search.trim()) {
-            const response =
-              await getProducts();
-            setProducts(
-              response.data
-            );
-
-            return;
-          }
-
-          const response =
-            await searchProducts(
-              search
-            );
-
-          setProducts(
-            response.data
-          );
-        } catch (error) {
-          console.log(error);
-        }
-      }, 500);
-
-    return () =>
-      clearTimeout(timeout);
+    return () => clearTimeout(timeout);
   }, [search]);
 
   const openDeleteModal = (

@@ -10,11 +10,13 @@ import {
   Pencil,
   Plus,
   Trash2,
+  Search,
 } from "lucide-react";
 import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
 import StatusBadge from "../../components/ui/StatusBadge";
 import DeleteModal from "../../components/common/DeleteModal";
+import SurfaceCard from "../../components/ui/SurfaceCard";
 import { appRoutes } from "../../config/routes";
 import toast from "react-hot-toast";
 import {
@@ -27,15 +29,16 @@ const LeadsPage = () => {
     useState([]);
   const [loading, setLoading] =
     useState(true);
+  const [search, setSearch] = useState("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
 
-  async function fetchLeads() {
+  async function fetchLeads(currentSearch = search) {
       try {
         setLoading(true);
 
         const response =
-          await getLeads();
+          await getLeads(currentSearch);
 
         setLeads(
           response.data || []
@@ -50,8 +53,12 @@ const LeadsPage = () => {
     }
 
   useEffect(() => {
-    fetchLeads();
-  }, []);
+    const timeout = setTimeout(() => {
+      fetchLeads();
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   const openDeleteModal = (lead) => {
     setSelectedLead(lead);
@@ -91,6 +98,29 @@ const LeadsPage = () => {
           </Button>
         }
       />
+
+      <SurfaceCard className="p-4 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <label className="relative flex-1">
+            <Search
+              size={16}
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+            />
+
+            <input
+              type="text"
+              placeholder="Search leads by name, email, or company..."
+              value={search}
+              onChange={(e) =>
+                setSearch(
+                  e.target.value
+                )
+              }
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white"
+            />
+          </label>
+        </div>
+      </SurfaceCard>
 
       <div className="grid gap-4 lg:hidden">
         {loading && (

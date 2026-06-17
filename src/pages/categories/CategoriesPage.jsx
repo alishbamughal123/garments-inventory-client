@@ -10,6 +10,7 @@ import {
 import toast from "react-hot-toast";
 import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
+import SearchBar from "../../components/products/SearchBar";
 
 import {
   FiPlus,
@@ -36,40 +37,33 @@ const CategoriesPage = () => {
   const [categories, setCategories] =
     useState([]);
 
+  const [search, setSearch] =
+    useState("");
+
   const [deleteModal, setDeleteModal] =
     useState(false);
 
   const [selectedId, setSelectedId] =
     useState(null);
 
+  const fetchCategories = async (currentSearch = search) => {
+    try {
+      const response = await getCategories(currentSearch);
+      setCategories(response.data || []);
+    } catch {
+      toast.error("Failed to load categories");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    let isMounted = true;
+    const timeout = setTimeout(() => {
+      fetchCategories();
+    }, 500);
 
-    (async () => {
-      try {
-        const response =
-          await getCategories();
-
-        if (isMounted) {
-          setCategories(
-            response.data
-          );
-        }
-      } catch {
-        toast.error(
-          "Failed to load categories"
-        );
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   const openDeleteModal = (
     id
@@ -90,11 +84,7 @@ const CategoriesPage = () => {
         );
 
         setDeleteModal(false);
-        const response =
-          await getCategories();
-        setCategories(
-          response.data
-        );
+        fetchCategories();
       } catch (error) {
         toast.error(
           error?.response?.data
@@ -120,17 +110,23 @@ const CategoriesPage = () => {
       <PageHeader
         title="Categories"
         action={
-          <Button
-            onClick={() =>
-              navigate(
-                "/categories/add"
-              )
-            }
-            size="lg"
-          >
-            <FiPlus />
-            Add Category
-          </Button>
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+            <SearchBar
+              search={search}
+              setSearch={setSearch}
+            />
+            <Button
+              onClick={() =>
+                navigate(
+                  "/categories/add"
+                )
+              }
+              size="lg"
+            >
+              <FiPlus />
+              Add Category
+            </Button>
+          </div>
         }
       />
 
@@ -147,13 +143,18 @@ const CategoriesPage = () => {
           Loading...
         </div>
       ) : (
-        <CategoryTable
-          categories={categories}
-          onEdit={handleEdit}
-          onDelete={
-            openDeleteModal
-          }
-        />
+        <div className="space-y-4">
+           <p className="text-sm text-slate-500">
+            Total Categories: {categories.length}
+          </p>
+          <CategoryTable
+            categories={categories}
+            onEdit={handleEdit}
+            onDelete={
+              openDeleteModal
+            }
+          />
+        </div>
       )}
 
       <DeleteModal

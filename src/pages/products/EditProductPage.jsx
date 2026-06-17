@@ -186,6 +186,13 @@ const EditProductPage = () => {
 
           description:
             product.description || "",
+
+          supplierBarcode:
+            product.barcodes?.find(
+              (b) =>
+                b.barcodeSource ===
+                "SUPPLIER"
+            )?.barcodeValue || "",
         }}
         onSubmit={handleSubmit}
         submitLabel="Update Article"

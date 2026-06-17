@@ -18,10 +18,6 @@ const TransactionsPage = () => {
   const [loading, setLoading] =
     useState(true);
 
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
-
   const fetchTransactions =
     async () => {
       try {
@@ -29,7 +25,7 @@ const TransactionsPage = () => {
           await getTransactions();
 
         setTransactions(
-          response.data
+          response.data || []
         );
       } catch (error) {
         console.log(error);
@@ -37,6 +33,10 @@ const TransactionsPage = () => {
         setLoading(false);
       }
     };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
 
   return (
     <MainLayout>

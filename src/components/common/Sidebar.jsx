@@ -76,22 +76,32 @@ const Sidebar = () => {
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 flex h-screen w-64 max-w-[85vw] flex-col overflow-hidden bg-white transition-transform duration-500 lg:max-w-none lg:translate-x-0 shadow-[10px_0_40px_-15px_rgba(0,0,0,0.1)]",
+          "fixed left-0 top-0 z-50 flex h-screen w-64 max-w-[85vw] flex-col overflow-hidden bg-white transition-transform duration-500 lg:max-w-none lg:translate-x-0 border-r border-slate-100",
           open
             ? "translate-x-0"
-            : "-translate-x-full"
+            : "-translate-x-full shadow-none"
         )}
       >
-        <div className="flex h-16 flex-shrink-0 items-center justify-center overflow-visible px-0 bg-white/80 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] transition-all duration-300">
-          <img
-            src={logo}
-            alt="Nordic Prowear"
-            className="w-[30%] max-w-none h-auto object-contain transition-transform duration-500 hover:scale-[1.05] drop-shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
-          />
+        <div className="flex h-16 flex-shrink-0 items-center px-4 border-b border-slate-100 bg-white">
+          <div className="flex h-24 w-100 items-center justify-start transition-transform hover:scale-105 duration-300">
+            <img
+              src={logo}
+              alt="Logo"
+              className="h-full w-full object-contain object-left"
+            />
+          </div>
+          <div className="flex flex-col min-w-0 -ml-8">
+            <span className="text-[13px] font-black tracking-tighter text-slate-900 leading-none truncate uppercase">
+              Nordic
+            </span>
+            <span className="text-[13px] font-black tracking-tighter text-slate-900 leading-none truncate uppercase mt-0.5">
+              Prowear
+            </span>
+          </div>
         </div>
 
-        <nav className="sidebar-scroll flex-1 overflow-y-auto px-6 py-4">
-          <ul className="space-y-2">
+        <nav className="sidebar-scroll flex-1 overflow-y-auto px-4 py-6">
+          <ul className="space-y-1.5">
             {sidebarNavigation.map(
               (menu) => {
                 const Icon =

@@ -40,36 +40,31 @@ const CustomersPage = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
-  async function fetchCustomers() {
-      try {
-        setLoading(true);
+  async function fetchCustomers(currentSearch = search) {
+    try {
+      setLoading(true);
 
-        const response =
-          await getCustomers(
-            search,
-            customerType,
-            status
-          );
+      const response = await getCustomers(
+        currentSearch,
+        customerType,
+        status
+      );
 
-        setCustomers(
-          response.data
-        );
-      } catch {
-        toast.error(
-          "Failed to load customers"
-        );
-      } finally {
-        setLoading(false);
-      }
+      setCustomers(response.data || []);
+    } catch {
+      toast.error("Failed to load customers");
+    } finally {
+      setLoading(false);
     }
+  }
 
   useEffect(() => {
-    fetchCustomers();
-  }, [
-    search,
-    customerType,
-    status,
-  ]);
+    const timeout = setTimeout(() => {
+      fetchCustomers();
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [search, customerType, status]);
 
   const openDeleteModal = (customer) => {
     setSelectedCustomer(customer);

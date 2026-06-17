@@ -1,10 +1,13 @@
 import api from "./api";
 
 export const getCategories =
-  async () => {
+  async (search = "") => {
     const response =
       await api.get(
-        "/categories"
+        "/categories",
+        {
+          params: { search },
+        }
       );
 
     return response.data;

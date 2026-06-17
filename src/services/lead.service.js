@@ -3,10 +3,13 @@ import api from "./api";
 const leadsEndpoint = "/leads";
 
 export const getLeads =
-  async () => {
+  async (search = "") => {
     const response =
       await api.get(
-        leadsEndpoint
+        leadsEndpoint,
+        {
+          params: { search },
+        }
       );
 
     return response.data;
