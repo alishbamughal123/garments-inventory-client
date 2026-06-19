@@ -297,6 +297,7 @@ import MainLayout from "../../layouts/MainLayout";
 import StatCard from "../../components/dashboard/StatCard";
 import LowStockTable from "../../components/dashboard/LowStockTable";
 import TaskSummaryCards from "../../components/tasks/TaskSummaryCards";
+import Loader from "../../components/ui/Loader";
 
 import {
   getDashboardData,
@@ -377,9 +378,7 @@ const DashboardPage = () => {
   if (loading) {
     return (
       <MainLayout>
-        <div className="p-10">
-          Loading Dashboard...
-        </div>
+        <Loader message="Syncing operational metrics..." />
       </MainLayout>
     );
   }

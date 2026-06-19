@@ -19,6 +19,7 @@ import SurfaceCard from "../../components/ui/SurfaceCard";
 import DeleteModal from "../../components/common/DeleteModal";
 import { appRoutes } from "../../config/routes";
 import toast from "react-hot-toast";
+import Loader from "../../components/ui/Loader";
 import {
   deleteCustomer,
   getCustomers,
@@ -171,7 +172,10 @@ const CustomersPage = () => {
         </div>
       </SurfaceCard>
 
-      <section className="space-y-4">
+      {loading ? (
+        <Loader message="Syncing customer directory..." />
+      ) : (
+        <section className="space-y-4">
         <div className="grid gap-4 lg:hidden">
           {customers.map((customer) => (
             <article
@@ -421,12 +425,8 @@ const CustomersPage = () => {
           </div>
         </div>
 
-        {loading && (
-          <p className="text-sm text-slate-500">
-            Loading customers...
-          </p>
-        )}
-      </section>
+        </section>
+      )}
 
       <DeleteModal
         isOpen={deleteModalOpen}

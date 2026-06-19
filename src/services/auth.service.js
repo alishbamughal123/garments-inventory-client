@@ -41,3 +41,35 @@ export const getUsers =
 
     return response.data;
   };
+
+export const updateProfile =
+  async (data) => {
+    const response =
+      await api.put(
+        "/auth/profile",
+        data
+      );
+
+    return response.data;
+  };
+
+export const updateUser =
+  async (id, data) => {
+    const response =
+      await api.put(
+        `/auth/users/${id}`,
+        data
+      );
+
+    return response.data;
+  };
+
+export const deleteUser =
+  async (id) => {
+    const response =
+      await api.delete(
+        `/auth/users/${id}`
+      );
+
+    return response.data;
+  };

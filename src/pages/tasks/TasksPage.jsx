@@ -21,6 +21,7 @@ import StatusBadge from "../../components/ui/StatusBadge";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import DeleteModal from "../../components/common/DeleteModal";
 import TaskSummaryCards from "../../components/tasks/TaskSummaryCards";
+import Loader from "../../components/ui/Loader";
 import {
   taskPriorityOptions,
   taskStatusOptions,
@@ -384,7 +385,11 @@ const TasksPage = () => {
         </div>
       </SurfaceCard>
 
-      <section className="grid gap-4 lg:hidden">
+      {loading ? (
+        <Loader message="Syncing operational tasks..." />
+      ) : (
+        <>
+          <section className="grid gap-4 lg:hidden">
         {tasks.map((task) => (
           <article
             key={task.id}
@@ -657,6 +662,8 @@ const TasksPage = () => {
           </table>
         </div>
       </div>
+    </>
+  )}
 
       <DeleteModal
         isOpen={deleteModalOpen}
@@ -668,12 +675,6 @@ const TasksPage = () => {
         title="Delete Task"
         message={`Are you sure you want to delete task "${selectedTask?.title}"? This action cannot be undone.`}
       />
-
-      {loading && (
-        <p className="text-sm text-slate-500">
-          Loading tasks...
-        </p>
-      )}
     </div>
   );
 };

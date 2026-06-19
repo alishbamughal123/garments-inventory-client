@@ -20,6 +20,7 @@ import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import DeleteModal from "../../components/common/DeleteModal";
+import Loader from "../../components/ui/Loader";
 import { formControlClass } from "../../components/ui/formStyles";
 import {
   getSales,
@@ -88,9 +89,7 @@ const SalesPage = () => {
   if (loading && sales.length === 0) {
     return (
       <MainLayout>
-        <div className="flex h-[60vh] items-center justify-center">
-          <p className="animate-pulse text-slate-500">Loading sales records...</p>
-        </div>
+        <Loader message="Syncing invoice sales records..." />
       </MainLayout>
     );
   }

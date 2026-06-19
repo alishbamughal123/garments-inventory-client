@@ -19,6 +19,7 @@ import DeleteModal from "../../components/common/DeleteModal";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import { appRoutes } from "../../config/routes";
 import toast from "react-hot-toast";
+import Loader from "../../components/ui/Loader";
 import {
   deleteLead,
   getLeads,
@@ -122,12 +123,11 @@ const LeadsPage = () => {
         </div>
       </SurfaceCard>
 
-      <div className="grid gap-4 lg:hidden">
-        {loading && (
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
-            Loading leads...
-          </div>
-        )}
+      {loading ? (
+        <Loader message="Syncing CRM leads..." />
+      ) : (
+        <>
+          <div className="grid gap-4 lg:hidden">
 
         {!loading &&
           leads.length === 0 && (
@@ -245,16 +245,6 @@ const LeadsPage = () => {
             </thead>
 
             <tbody>
-              {loading && (
-                <tr>
-                  <td
-                    colSpan="6"
-                    className="p-10 text-center text-sm text-slate-500"
-                  >
-                    Loading leads...
-                  </td>
-                </tr>
-              )}
 
               {!loading &&
                 leads.length === 0 && (
@@ -344,6 +334,8 @@ const LeadsPage = () => {
           </table>
         </div>
       </div>
+    </>
+  )}
 
       <DeleteModal
         isOpen={deleteModalOpen}

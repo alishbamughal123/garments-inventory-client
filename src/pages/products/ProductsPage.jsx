@@ -14,6 +14,7 @@ import PageHeader from "../../components/ui/PageHeader";
 import DeleteModal from "../../components/common/DeleteModal";
 import SearchBar from "../../components/products/SearchBar";
 import ProductTable from "../../components/products/ProductTable";
+import Loader from "../../components/ui/Loader";
 import {
   deleteProduct,
   getProducts,
@@ -132,35 +133,19 @@ const ProductsPage = () => {
         />
 
       {loading ? (
-        <div className="
-          bg-white
-          rounded-2xl
-          border
-          border-slate-200
-          p-6
-        ">
-          Loading Articles...
-        </div>
+        <Loader message="Loading apparel articles..." />
       ) : (
         <>
-          <p className="mb-4 text-slate-500">
-            Total Articles:{" "}
-            {products.length}
-          </p>
+          <div className="flex items-center justify-between mb-2 px-1 sm:px-0">
+            <p className="text-sm text-slate-500">
+              Total Articles: <span className="font-semibold text-slate-900">{products.length}</span>
+            </p>
+          </div>
 
-          <div className="
-            bg-white
-            rounded-2xl
-            border
-            border-slate-200
-            shadow-sm
-            p-6
-          ">
+          <div className="bg-transparent sm:bg-white rounded-2xl border-0 sm:border border-slate-200 shadow-none sm:shadow-sm p-0 sm:p-6">
             <ProductTable
               products={products}
-              onDelete={
-                openDeleteModal
-              }
+              onDelete={openDeleteModal}
             />
           </div>
         </>

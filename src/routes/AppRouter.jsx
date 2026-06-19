@@ -15,6 +15,9 @@ import CRMReportsPage from "../pages/crm/CRMReportsPage";
 import CustomerAnalyticsPage from "../pages/crm/CustomerAnalyticsPage";
 import LeadAnalyticsPage from "../pages/crm/LeadAnalyticsPage";
 import RevenueAnalyticsPage from "../pages/crm/RevenueAnalyticsPage";
+import SupportTicketsPage from "../pages/crm/support/SupportTicketsPage";
+import CreateTicketPage from "../pages/crm/support/CreateTicketPage";
+import TicketDetailsPage from "../pages/crm/support/TicketDetailsPage";
 import CustomersPage from "../pages/customers/CustomersPage";
 import CreateCustomerPage from "../pages/customers/CreateCustomerPage";
 import CustomerDetailsPage from "../pages/customers/CustomerDetailsPage";
@@ -47,11 +50,14 @@ import EditTaskPage from "../pages/tasks/EditTaskPage";
 import TaskCalendarPage from "../pages/tasks/TaskCalendarPage";
 import TaskDetailsPage from "../pages/tasks/TaskDetailsPage";
 import TasksPage from "../pages/tasks/TasksPage";
+import UsersPage from "../pages/users/UsersPage";
+import SettingsPage from "../pages/settings/SettingsPage";
 
 const protectedElement = (
-  element
+  element,
+  roles
 ) => (
-  <ProtectedRoute>
+  <ProtectedRoute roles={roles}>
     {element}
   </ProtectedRoute>
 );
@@ -303,6 +309,23 @@ const AppRouter = () => {
           />
 
           <Route
+            path="support"
+            element={<SupportTicketsPage />}
+          />
+          <Route
+            path="support/create"
+            element={<CreateTicketPage />}
+          />
+          <Route
+            path="support/:id"
+            element={<TicketDetailsPage />}
+          />
+          <Route
+            path="support/edit/:id"
+            element={<TicketDetailsPage />}
+          />
+
+          <Route
             path="reports"
             element={<CRMReportsPage />}
           />
@@ -325,6 +348,20 @@ const AppRouter = () => {
             }
           />
         </Route>
+
+        <Route
+          path={appRoutes.users}
+          element={protectedElement(
+            <UsersPage />,
+            ["ADMIN"]
+          )}
+        />
+        <Route
+          path={appRoutes.settings}
+          element={protectedElement(
+            <SettingsPage />
+          )}
+        />
       </Routes>
     </BrowserRouter>
   );

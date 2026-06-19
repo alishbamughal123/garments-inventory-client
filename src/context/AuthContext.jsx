@@ -40,6 +40,11 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUser = (userData) => {
+    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData);
+  };
+
   useEffect(() => {
     let isMounted = true;
     const token =
@@ -98,6 +103,7 @@ export const AuthProvider = ({ children }) => {
         authReady,
         login,
         logout,
+        updateUser,
       }}
     >
       {children}

@@ -19,8 +19,8 @@ import {
 import MainLayout from "../../layouts/MainLayout";
 
 import CategoryTable from "../../components/categories/CategoryTable";
-
 import DeleteModal from "../../components/common/DeleteModal";
+import Loader from "../../components/ui/Loader";
 
 import {
   getCategories,
@@ -131,17 +131,7 @@ const CategoriesPage = () => {
       />
 
       {loading ? (
-        <div
-          className="
-            bg-white
-            rounded-2xl
-            border
-            border-slate-200
-            p-6
-          "
-        >
-          Loading...
-        </div>
+        <Loader message="Syncing apparel categories..." />
       ) : (
         <div className="space-y-4">
            <p className="text-sm text-slate-500">

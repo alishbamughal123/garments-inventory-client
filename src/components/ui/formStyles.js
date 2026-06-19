@@ -3,3 +3,6 @@ export const formControlClass =
 
 export const formLabelClass =
   "mb-2 block text-sm font-medium text-slate-700";
+
+export const inputStyles = formControlClass;
+export const labelStyles = formLabelClass;

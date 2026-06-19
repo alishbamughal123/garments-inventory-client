@@ -58,4 +58,10 @@ export const appRoutes = {
     "/crm/reports/customers",
   crmReportsRevenue:
     "/crm/reports/revenue",
+  crmSupport: "/crm/support",
+  crmSupportCreate: "/crm/support/create",
+  crmSupportDetails: (id = ":id") => `/crm/support/${id}`,
+  crmSupportEdit: (id = ":id") => `/crm/support/edit/${id}`,
+  users: "/users",
+  settings: "/settings",
 };

@@ -1,26 +1,30 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
+import Loader from "../ui/Loader";
 
 const ProtectedRoute = ({
   children,
+  roles,
 }) => {
-  const { authReady } = useAuth();
+  const { authReady, user } = useAuth();
   const token =
     localStorage.getItem(
       "token"
     );
 
   if (!authReady) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 text-sm text-slate-500">
-        Checking session...
-      </div>
-    );
+    return <Loader message="Verifying secure session..." fullPage={true} />;
   }
 
   if (!token) {
     return (
       <Navigate to="/login" />
+    );
+  }
+
+  if (roles && !roles.includes(user?.role)) {
+    return (
+      <Navigate to="/dashboard" />
     );
   }
 

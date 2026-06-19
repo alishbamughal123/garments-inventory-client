@@ -9,9 +9,12 @@ import {
   FiRepeat,
   FiShoppingCart,
   FiUsers,
+  FiUser,
+  FiSettings,
 } from "react-icons/fi";
 import {
   LayoutGrid,
+  LifeBuoy,
   Target,
   Users,
 } from "lucide-react";
@@ -65,6 +68,10 @@ export const sidebarNavigation = [
         path: appRoutes.crmTasks,
       },
       {
+        name: "Support",
+        path: appRoutes.crmSupport,
+      },
+      {
         name: "Reports",
         path: appRoutes.crmReports,
       },
@@ -94,6 +101,17 @@ export const sidebarNavigation = [
     name: "Categories",
     path: appRoutes.categories,
     icon: FiGrid,
+  },
+  {
+    name: "User Management",
+    path: appRoutes.users,
+    icon: FiUser,
+    roles: ["ADMIN"],
+  },
+  {
+    name: "Settings",
+    path: appRoutes.settings,
+    icon: FiSettings,
   },
 ];
 
@@ -126,6 +144,15 @@ export const crmPrimaryNavigation = [
       appRoutes.crmTasks,
       appRoutes.crmTaskCalendar,
       "/crm/tasks/",
+    ],
+  },
+  {
+    name: "Support",
+    to: appRoutes.crmSupport,
+    icon: LifeBuoy,
+    matchPaths: [
+      appRoutes.crmSupport,
+      "/crm/support/",
     ],
   },
 ];

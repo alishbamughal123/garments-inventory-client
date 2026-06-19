@@ -15,6 +15,7 @@ import {
 import logo from "../../assets/logo.png";
 import { sidebarNavigation } from "../../config/navigation";
 import { cn } from "../../utils/cn";
+import { useAuth } from "../../context/useAuth";
 
 const isPathActive = (
   pathname,
@@ -24,6 +25,7 @@ const isPathActive = (
   pathname.startsWith(`${path}/`);
 
 const Sidebar = () => {
+  const { user } = useAuth();
   const [open, setOpen] =
     useState(false);
   const location =
@@ -102,8 +104,12 @@ const Sidebar = () => {
 
         <nav className="sidebar-scroll flex-1 overflow-y-auto px-4 py-6">
           <ul className="space-y-1.5">
-            {sidebarNavigation.map(
-              (menu) => {
+            {sidebarNavigation
+              .filter((menu) => {
+                if (!menu.roles) return true;
+                return menu.roles.includes(user?.role);
+              })
+              .map((menu) => {
                 const Icon =
                   menu.icon;
                 const hasChildren =
