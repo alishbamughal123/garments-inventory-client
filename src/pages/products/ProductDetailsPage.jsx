@@ -14,6 +14,7 @@ import SurfaceCard from "../../components/ui/SurfaceCard";
 import Loader from "../../components/ui/Loader";
 import {
   getProductById,
+  getPriceHistory,
 } from "../../services/products.service";
 
 const ProductDetailsPage = () => {
@@ -29,20 +30,22 @@ const ProductDetailsPage = () => {
   const [product, setProduct] =
     useState(null);
 
+  const [priceHistory, setPriceHistory] =
+    useState([]);
+
   useEffect(() => {
     let isMounted = true;
 
     (async () => {
       try {
-        const response =
-          await getProductById(
-            id
-          );
+        const [productRes, historyRes] = await Promise.all([
+          getProductById(id),
+          getPriceHistory(id).catch(() => ({ data: [] })),
+        ]);
 
         if (isMounted) {
-          setProduct(
-            response.data
-          );
+          setProduct(productRes.data);
+          setPriceHistory(historyRes?.data || []);
         }
       } catch (error) {
         console.log(error);
@@ -197,6 +200,61 @@ const ProductDetailsPage = () => {
             <p className="text-sm text-slate-600 leading-relaxed bg-slate-50/40 rounded-xl border border-slate-100 p-4">
               {product.description || "No description provided for this article."}
             </p>
+          </div>
+
+          {/* PRICE HISTORY AUDIT LOG */}
+          <div className="mt-8 border-t border-slate-100 pt-6">
+            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wider mb-3">
+              Price Revision & Audit History
+            </h3>
+            {priceHistory.length === 0 ? (
+              <p className="text-xs text-slate-500 bg-slate-50/40 rounded-xl border border-slate-100 p-4">
+                No historical price changes recorded for this article.
+              </p>
+            ) : (
+              <div className="overflow-x-auto rounded-xl border border-slate-100">
+                <table className="w-full text-left text-xs text-slate-600">
+                  <thead className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-semibold border-b border-slate-100">
+                    <tr>
+                      <th className="p-3">Date & Time</th>
+                      <th className="p-3">Old Sale Price</th>
+                      <th className="p-3">New Sale Price</th>
+                      <th className="p-3">Old Cost</th>
+                      <th className="p-3">New Cost</th>
+                      <th className="p-3">Changed By</th>
+                      <th className="p-3">Reason</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {priceHistory.map((item) => (
+                      <tr key={item.id} className="hover:bg-slate-50/50">
+                        <td className="p-3 whitespace-nowrap text-slate-700 font-medium">
+                          {new Date(item.createdAt).toLocaleString()}
+                        </td>
+                        <td className="p-3 whitespace-nowrap text-slate-500">
+                          Rs. {Number(item.oldSalePrice).toFixed(2)}
+                        </td>
+                        <td className="p-3 whitespace-nowrap font-bold text-emerald-600">
+                          Rs. {Number(item.newSalePrice).toFixed(2)}
+                        </td>
+                        <td className="p-3 whitespace-nowrap text-slate-500">
+                          {item.oldPurchasePrice ? `Rs. ${Number(item.oldPurchasePrice).toFixed(2)}` : "-"}
+                        </td>
+                        <td className="p-3 whitespace-nowrap font-medium text-slate-700">
+                          {item.newPurchasePrice ? `Rs. ${Number(item.newPurchasePrice).toFixed(2)}` : "-"}
+                        </td>
+                        <td className="p-3 whitespace-nowrap text-slate-600 font-medium">
+                          {item.changedBy?.name || "System"}
+                        </td>
+                        <td className="p-3 text-slate-500">
+                          {item.reason || "Price update"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </SurfaceCard>
       </div>
