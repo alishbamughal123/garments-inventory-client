@@ -1,8 +1,12 @@
 import axios from "axios";
 
+const apiBaseURL =
+  import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes("railway")
+    ? import.meta.env.VITE_API_URL
+    : "https://garments-inventory-server.onrender.com/api/v1";
+
 const api = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_URL,
+  baseURL: apiBaseURL,
 });
 
 api.interceptors.request.use(
