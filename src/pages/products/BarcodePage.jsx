@@ -17,7 +17,9 @@ import {
 } from "../../services/products.service";
 
 const API_URL =
-  import.meta.env.VITE_API_URL;
+  import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes("railway")
+    ? import.meta.env.VITE_API_URL
+    : "https://garments-inventory-server.onrender.com/api/v1";
 
 const BarcodePage = () => {
   const { id } =
@@ -52,12 +54,13 @@ const BarcodePage = () => {
         );
 
         const primaryBarcode =
-          productData.barcodes?.find(
+          productData?.barcodes?.find(
             (b) => b.isPrimary
-          );
+          ) || productData?.barcodes?.[0];
 
         setBarcode(
           primaryBarcode?.barcodeValue ||
+            productData?.sku ||
             ""
         );
       } catch (error) {
@@ -99,7 +102,7 @@ const BarcodePage = () => {
           </p>
 
           <p className="font-semibold text-lg">
-            {product.productName}
+            {product?.productName}
           </p>
         </div>
 
@@ -109,23 +112,27 @@ const BarcodePage = () => {
           </p>
 
           <p className="font-mono text-lg">
-            {barcode}
+            {barcode || "No Barcode Value"}
           </p>
         </div>
 
-        <div
-          className="
-            border
-            rounded-xl
-            p-6
-            inline-block
-          "
-        >
-          <img
-            src={`${API_URL}/products/barcode/${barcode}`}
-            alt="Barcode"
-          />
-        </div>
+        {barcode && (
+          <div
+            className="
+              border
+              rounded-xl
+              p-6
+              inline-block
+              bg-white
+            "
+          >
+            <img
+              src={`${API_URL}/products/barcode/${encodeURIComponent(barcode)}`}
+              alt="Barcode"
+              className="max-w-full h-auto min-h-[60px]"
+            />
+          </div>
+        )}
 
         <div className="mt-6">
           <Button
