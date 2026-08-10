@@ -16,6 +16,7 @@ import logo from "../../assets/logo.png";
 import { sidebarNavigation } from "../../config/navigation";
 import { cn } from "../../utils/cn";
 import { useAuth } from "../../context/useAuth";
+import { useLanguage } from "../../context/LanguageContext";
 
 const isPathActive = (
   pathname,
@@ -24,54 +25,64 @@ const isPathActive = (
   pathname === path ||
   pathname.startsWith(`${path}/`);
 
+const nameKeyMap = {
+  "Dashboard": "dashboard",
+  "Articles": "articles",
+  "Stock In": "stockIn",
+  "Stock Out": "stockOut",
+  "Transactions": "transactions",
+  "CRM": "crm",
+  "Customers": "customers",
+  "Leads": "leads",
+  "Pipeline": "pipeline",
+  "Tasks": "tasks",
+  "Support": "support",
+  "Reports": "reports",
+  "Returns": "returns",
+  "Low Stock": "lowStock",
+  "Sales & POS": "sales",
+  "B2B Customer Orders": "b2bOrders",
+  "Categories": "categories",
+  "User Management": "users",
+  "Settings": "settings"
+};
+
 const Sidebar = () => {
   const { user } = useAuth();
-  const [open, setOpen] =
-    useState(false);
-  const location =
-    useLocation();
-  const [expandedMenus, setExpandedMenus] =
-    useState({});
+  const { t } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const [expandedMenus, setExpandedMenus] = useState({});
 
   useEffect(() => {
     setOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
-    document.body.style.overflow =
-      open ? "hidden" : "";
-
+    document.body.style.overflow = open ? "hidden" : "";
     return () => {
-      document.body.style.overflow =
-        "";
+      document.body.style.overflow = "";
     };
   }, [open]);
+
+  const getMenuLabel = (name) => {
+    const key = nameKeyMap[name];
+    return key ? t(key) : name;
+  };
 
   return (
     <>
       <button
-        onClick={() =>
-          setOpen(!open)
-        }
+        onClick={() => setOpen(!open)}
         className="fixed left-4 top-[14px] z-[60] rounded-lg border border-slate-100 bg-white p-2 text-slate-500 shadow-md transition-all hover:bg-slate-50 hover:text-slate-900 active:scale-95 lg:hidden"
-        aria-label={
-          open
-            ? "Close sidebar"
-            : "Open sidebar"
-        }
+        aria-label={open ? "Close sidebar" : "Open sidebar"}
       >
-        {open ? (
-          <FiX size={18} />
-        ) : (
-          <FiMenu size={18} />
-        )}
+        {open ? <FiX size={18} /> : <FiMenu size={18} />}
       </button>
 
       {open && (
         <div
-          onClick={() =>
-            setOpen(false)
-          }
+          onClick={() => setOpen(false)}
           className="fixed inset-0 z-40 bg-slate-900/35 backdrop-blur-[1px] lg:hidden"
         />
       )}
@@ -79,9 +90,7 @@ const Sidebar = () => {
       <aside
         className={cn(
           "fixed left-0 top-0 z-50 flex h-screen w-64 max-w-[85vw] flex-col overflow-hidden bg-white transition-transform duration-500 lg:max-w-none lg:translate-x-0 border-r border-slate-100",
-          open
-            ? "translate-x-0"
-            : "-translate-x-full shadow-none"
+          open ? "translate-x-0" : "-translate-x-full shadow-none"
         )}
       >
         <div className="flex h-16 flex-shrink-0 items-center px-4 border-b border-slate-100 bg-white">
@@ -110,24 +119,14 @@ const Sidebar = () => {
                 return menu.roles.includes(user?.role);
               })
               .map((menu) => {
-                const Icon =
-                  menu.icon;
-                const hasChildren =
-                  menu.children
-                    ?.length > 0;
+                const Icon = menu.icon;
+                const hasChildren = menu.children?.length > 0;
                 const childActive =
                   hasChildren &&
-                  menu.children.some(
-                    (item) =>
-                      isPathActive(
-                        location.pathname,
-                        item.path
-                      )
+                  menu.children.some((item) =>
+                    isPathActive(location.pathname, item.path)
                   );
-                const isExpanded =
-                  expandedMenus[
-                    menu.path
-                  ] ?? childActive;
+                const isExpanded = expandedMenus[menu.path] ?? childActive;
 
                 return (
                   <li key={menu.path}>
@@ -135,50 +134,31 @@ const Sidebar = () => {
                       <button
                         type="button"
                         onClick={() =>
-                          setExpandedMenus(
-                            (prev) => ({
-                              ...prev,
-                              [menu.path]:
-                                !(
-                                  prev[
-                                    menu.path
-                                  ] ??
-                                  childActive
-                                ),
-                            })
-                          )
+                          setExpandedMenus((prev) => ({
+                            ...prev,
+                            [menu.path]: !(prev[menu.path] ?? childActive),
+                          }))
                         }
                         className={cn(
                           "group flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-medium transition-all duration-200",
-                          childActive ||
-                            isExpanded
+                          childActive || isExpanded
                             ? "bg-[var(--color-primary-soft)] text-[var(--color-primary-ink)]"
                             : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                         )}
                       >
                         <Icon size={18} />
-                        <span>{menu.name}</span>
+                        <span>{getMenuLabel(menu.name)}</span>
                         {isExpanded ? (
-                          <FiChevronDown
-                            className="ml-auto opacity-60"
-                            size={15}
-                          />
+                          <FiChevronDown className="ml-auto opacity-60" size={15} />
                         ) : (
-                          <FiChevronLeft
-                            className="ml-auto rotate-[-90deg] opacity-50"
-                            size={15}
-                          />
+                          <FiChevronLeft className="ml-auto rotate-[-90deg] opacity-50" size={15} />
                         )}
                       </button>
                     ) : (
                       <NavLink
                         to={menu.path}
-                        onClick={() =>
-                          setOpen(false)
-                        }
-                        className={({
-                          isActive,
-                        }) =>
+                        onClick={() => setOpen(false)}
+                        className={({ isActive }) =>
                           cn(
                             "group flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium transition-all duration-200",
                             isActive
@@ -188,49 +168,35 @@ const Sidebar = () => {
                         }
                       >
                         <Icon size={18} />
-                        <span>{menu.name}</span>
+                        <span>{getMenuLabel(menu.name)}</span>
                       </NavLink>
                     )}
 
-                    {hasChildren &&
-                      isExpanded && (
+                    {hasChildren && isExpanded && (
                       <ul className="mt-1 space-y-1 pl-4">
-                        {menu.children.map(
-                          (item) => (
-                            <li
-                              key={item.path}
+                        {menu.children.map((item) => (
+                          <li key={item.path}>
+                            <NavLink
+                              to={item.path}
+                              onClick={() => setOpen(false)}
+                              className={({ isActive }) =>
+                                cn(
+                                  "flex items-center rounded-xl px-3 py-2.5 text-sm transition-colors",
+                                  isActive
+                                    ? "bg-[var(--color-primary)] text-white"
+                                    : "text-slate-500 hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary-ink)]"
+                                )
+                              }
                             >
-                              <NavLink
-                                to={
-                                  item.path
-                                }
-                                onClick={() =>
-                                  setOpen(
-                                    false
-                                  )
-                                }
-                                className={({
-                                  isActive,
-                                }) =>
-                                  cn(
-                                    "flex items-center rounded-xl px-3 py-2.5 text-sm transition-colors",
-                                    isActive
-                                      ? "bg-[var(--color-primary)] text-white"
-                                      : "text-slate-500 hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary-ink)]"
-                                  )
-                                }
-                              >
-                                {item.name}
-                              </NavLink>
-                            </li>
-                          )
-                        )}
+                              {getMenuLabel(item.name)}
+                            </NavLink>
+                          </li>
+                        ))}
                       </ul>
                     )}
                   </li>
                 );
-              }
-            )}
+              })}
           </ul>
         </nav>
       </aside>

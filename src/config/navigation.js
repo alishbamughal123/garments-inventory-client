@@ -88,13 +88,13 @@ export const sidebarNavigation = [
     icon: FiAlertTriangle,
   },
   {
-    name: "Sales",
+    name: "Sales & POS",
     path: appRoutes.sales,
     icon: FiShoppingCart,
   },
   {
-    name: "Create Sale",
-    path: appRoutes.salesCreate,
+    name: "B2B Customer Orders",
+    path: appRoutes.b2bAdminOrders,
     icon: FiFileText,
   },
   {

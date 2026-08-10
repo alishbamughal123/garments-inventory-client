@@ -1,588 +1,238 @@
-import {
-  useEffect,
-  useState,
-} from "react";
-import {
-  Link,
-} from "react-router-dom";
-import {
-  Activity,
-  BadgeDollarSign,
-  BriefcaseBusiness,
-  ChartSpline,
-  CircleDollarSign,
-  ShoppingBag,
-  Target,
-  TrendingUp,
-  Users,
-  XCircle,
-} from "lucide-react";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import PageHeader from "../../components/ui/PageHeader";
-import ReportKpiCard from "../../components/reports/ReportKpiCard";
-import ReportChartCard from "../../components/reports/ReportChartCard";
-import ReportFilters from "../../components/reports/ReportFilters";
-import ReportTabs from "../../components/reports/ReportTabs";
+import SurfaceCard from "../../components/ui/SurfaceCard";
+import { useLanguage } from "../../context/LanguageContext";
+import api from "../../services/api";
 import {
-  formatCurrency,
-  formatNumber,
-  formatPercentage,
-  formatLabel,
-  reportChartColors,
-} from "../../components/reports/reportFormatters";
-import { appRoutes } from "../../config/routes";
-import {
-  getCrmOverview,
-  getLeadAnalytics,
-  getCustomerAnalytics,
-  getRevenueAnalytics,
-  getSalesAnalytics,
-} from "../../services/reports.service";
-
-const initialFilters = {
-  from: "",
-  to: "",
-  customerType: "",
-  leadSource: "",
-};
+  FileSpreadsheet, Printer, Filter, Box, ArrowDownCircle, ArrowUpCircle,
+  FileText, Repeat, AlertTriangle, ShoppingCart, Clock, Search
+} from "lucide-react";
+import * as XLSX from "xlsx";
 
 const CRMReportsPage = () => {
-  const [filters, setFilters] =
-    useState(initialFilters);
-  const [loading, setLoading] =
-    useState(true);
-  const [overview, setOverview] =
-    useState(null);
-  const [leadAnalytics, setLeadAnalytics] =
-    useState(null);
-  const [
-    customerAnalytics,
-    setCustomerAnalytics,
-  ] = useState(null);
-  const [
-    revenueAnalytics,
-    setRevenueAnalytics,
-  ] = useState(null);
-  const [salesAnalytics, setSalesAnalytics] =
-    useState(null);
+  const { t, lang } = useLanguage();
 
-  useEffect(() => {
-    let isMounted = true;
+  const [activeTab, setActiveTab] = useState("inventory"); // inventory, stockIn, stockOut, customerOrders, productMovement, lowStock, customerPurchases, openOrders
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [reportData, setReportData] = useState(null);
 
-    const loadReports =
-      async () => {
-        try {
-          setLoading(true);
+  const fetchReport = async () => {
+    try {
+      setLoading(true);
+      const params = { from: fromDate, to: toDate };
+      let endpoint = "/reports/inventory";
 
-          const [
-            overviewResponse,
-            leadResponse,
-            customerResponse,
-            revenueResponse,
-            salesResponse,
-          ] = await Promise.all([
-            getCrmOverview(filters),
-            getLeadAnalytics(filters),
-            getCustomerAnalytics(filters),
-            getRevenueAnalytics(filters),
-            getSalesAnalytics(filters),
-          ]);
+      if (activeTab === "stockIn") endpoint = "/reports/stock-in";
+      if (activeTab === "stockOut") endpoint = "/reports/stock-out";
+      if (activeTab === "customerOrders") endpoint = "/reports/customer-orders";
+      if (activeTab === "productMovement") endpoint = "/reports/product-movement";
+      if (activeTab === "lowStock") endpoint = "/reports/low-stock";
+      if (activeTab === "customerPurchases") endpoint = "/reports/customer-purchases";
+      if (activeTab === "openOrders") endpoint = "/reports/open-orders";
 
-          if (!isMounted) {
-            return;
-          }
-
-          setOverview(
-            overviewResponse.data
-          );
-          setLeadAnalytics(
-            leadResponse.data
-          );
-          setCustomerAnalytics(
-            customerResponse.data
-          );
-          setRevenueAnalytics(
-            revenueResponse.data
-          );
-          setSalesAnalytics(
-            salesResponse.data
-          );
-        } catch (error) {
-          if (isMounted) {
-            toast.error(
-              error?.response?.data
-                ?.message ||
-                "Failed to load CRM reports"
-            );
-          }
-        } finally {
-          if (isMounted) {
-            setLoading(false);
-          }
-        }
-      };
-
-    loadReports();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [filters]);
-
-  const handleFilterChange = (
-    key,
-    value
-  ) => {
-    setFilters((current) => ({
-      ...current,
-      [key]: value,
-    }));
+      const res = await api.get(endpoint, { params });
+      setReportData(res.data.data || null);
+    } catch {
+      toast.error(lang === "no" ? "Kunne ikke hente rapport" : "Failed to load report");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const quickLinks = [
-    {
-      title: "Lead Analytics",
-      description:
-        "Track source mix, monthly lead creation, and stage movement.",
-      to: appRoutes.crmReportsLeads,
-      icon: Target,
-    },
-    {
-      title:
-        "Customer Analytics",
-      description:
-        "Review growth, segmentation, and top customer contribution.",
-      to: appRoutes.crmReportsCustomers,
-      icon: Users,
-    },
-    {
-      title:
-        "Revenue Analytics",
-      description:
-        "Compare expected pipeline value against closed revenue.",
-      to: appRoutes.crmReportsRevenue,
-      icon:
-        CircleDollarSign,
-    },
-  ];
+  useEffect(() => {
+    fetchReport();
+  }, [activeTab]);
+
+  const handleApplyFilter = (e) => {
+    e.preventDefault();
+    fetchReport();
+  };
+
+  // EXPORT CURRENT REPORT TO EXCEL (.xlsx)
+  const exportToExcel = () => {
+    if (!reportData || !reportData.items || reportData.items.length === 0) {
+      toast.error(lang === "no" ? "Ingen rapportdata å eksportere" : "No report data to export");
+      return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(reportData.items);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, activeTab.toUpperCase());
+    XLSX.writeFile(workbook, `Nordic_Prowear_${activeTab}_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    toast.success(lang === "no" ? "Rapport eksportert til Excel" : "Report exported to Excel (.xlsx)");
+  };
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Reporting & Dashboard"
-      />
+        title={t("reportsHub")}
+        description={lang === "no" ? "Sanntidsrapporter for lager, varemottak, vareutgang, B2B-ordrer og pakkevekt med eksport til Excel og PDF." : "Flexible system reports for inventory, stock in/out, B2B orders, and parcel weights."}
+        action={
+          <div className="flex items-center gap-3">
+            <button
+              onClick={exportToExcel}
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition"
+            >
+              <FileSpreadsheet size={16} />
+              <span>{t("exportExcel")}</span>
+            </button>
 
-      <ReportTabs />
-
-      <ReportFilters
-        filters={filters}
-        onChange={handleFilterChange}
-        onReset={() =>
-          setFilters(initialFilters)
+            <button
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition"
+            >
+              <Printer size={16} />
+              <span>{t("exportPdf")}</span>
+            </button>
+          </div>
         }
-        showCustomerType
-        showLeadSource
       />
 
+      {/* REPORT CATEGORY TABS */}
+      <div className="flex border-b border-slate-200 gap-2 overflow-x-auto text-xs font-bold">
+        <button
+          onClick={() => setActiveTab("inventory")}
+          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "inventory" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
+        >
+          <Box size={16} /> {t("reportInventory")}
+        </button>
+
+        <button
+          onClick={() => setActiveTab("stockIn")}
+          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "stockIn" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
+        >
+          <ArrowDownCircle size={16} /> {t("reportStockIn")}
+        </button>
+
+        <button
+          onClick={() => setActiveTab("stockOut")}
+          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "stockOut" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
+        >
+          <ArrowUpCircle size={16} /> {t("reportStockOut")}
+        </button>
+
+        <button
+          onClick={() => setActiveTab("customerOrders")}
+          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "customerOrders" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
+        >
+          <FileText size={16} /> {t("reportCustomerOrders")}
+        </button>
+
+        <button
+          onClick={() => setActiveTab("productMovement")}
+          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "productMovement" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
+        >
+          <Repeat size={16} /> {t("reportProductMovement")}
+        </button>
+
+        <button
+          onClick={() => setActiveTab("lowStock")}
+          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "lowStock" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
+        >
+          <AlertTriangle size={16} /> {t("reportLowStock")}
+        </button>
+
+        <button
+          onClick={() => setActiveTab("customerPurchases")}
+          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "customerPurchases" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
+        >
+          <ShoppingCart size={16} /> {t("reportCustomerPurchases")}
+        </button>
+
+        <button
+          onClick={() => setActiveTab("openOrders")}
+          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "openOrders" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
+        >
+          <Clock size={16} /> {t("reportOpenOrders")}
+        </button>
+      </div>
+
+      {/* DATE FILTERS */}
+      <SurfaceCard className="p-4">
+        <form onSubmit={handleApplyFilter} className="flex flex-wrap items-center gap-4 text-xs font-semibold">
+          <div className="flex items-center gap-2">
+            <span className="text-slate-500">{t("fromDate")}:</span>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 outline-none"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-slate-500">{t("toDate")}:</span>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 outline-none"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition"
+          >
+            <Filter size={14} />
+            <span>{t("filterBtn")}</span>
+          </button>
+        </form>
+      </SurfaceCard>
+
+      {/* SUMMARY KPI BANNER */}
+      {reportData?.summary && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Object.entries(reportData.summary).map(([key, val]) => (
+            <div key={key} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                {key.replace(/([A-Z])/g, " $1")}
+              </span>
+              <span className="text-xl font-extrabold text-slate-900 mt-1 block">
+                {typeof val === "number" ? val.toLocaleString() : val}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* REPORT DATA TABLE */}
       {loading ? (
-        <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
-          Loading CRM reports...
+        <div className="p-12 text-center text-xs text-slate-400">Loading report data...</div>
+      ) : !reportData || !reportData.items || reportData.items.length === 0 ? (
+        <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-xs text-slate-400">
+          No items found for the selected report filters.
         </div>
       ) : (
-        <>
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <ReportKpiCard
-              title="Total Customers"
-              value={formatNumber(
-                overview?.totalCustomers
-              )}
-              subtitle="Customer records in selected range"
-              icon={Users}
-              tone="blue"
-            />
-            <ReportKpiCard
-              title="Total Leads"
-              value={formatNumber(
-                overview?.totalLeads
-              )}
-              subtitle="Opportunities currently tracked"
-              icon={BriefcaseBusiness}
-              tone="teal"
-            />
-            <ReportKpiCard
-              title="Conversion Rate"
-              value={formatPercentage(
-                overview?.conversionRate
-              )}
-              subtitle={`${formatNumber(
-                overview?.wonLeads
-              )} won vs ${formatNumber(
-                overview?.totalLeads
-              )} total`}
-              icon={TrendingUp}
-              tone="emerald"
-            />
-            <ReportKpiCard
-              title="Revenue Generated"
-              value={formatCurrency(
-                overview?.revenueGenerated
-              )}
-              subtitle="Closed sales in selected period"
-              icon={BadgeDollarSign}
-              tone="violet"
-            />
-            <ReportKpiCard
-              title="New Leads"
-              value={formatNumber(
-                overview?.newLeads
-              )}
-              subtitle="Fresh opportunities to nurture"
-              icon={Activity}
-              tone="amber"
-            />
-            <ReportKpiCard
-              title="Won Leads"
-              value={formatNumber(
-                overview?.wonLeads
-              )}
-              subtitle="Converted and closed"
-              icon={Target}
-              tone="emerald"
-            />
-            <ReportKpiCard
-              title="Lost Leads"
-              value={formatNumber(
-                overview?.lostLeads
-              )}
-              subtitle="Opportunities not converted"
-              icon={XCircle}
-              tone="rose"
-            />
-            <ReportKpiCard
-              title="Expected Revenue"
-              value={formatCurrency(
-                overview?.expectedRevenue
-              )}
-              subtitle="Open pipeline value"
-              icon={ChartSpline}
-              tone="blue"
-            />
-          </section>
-
-          <section className="grid gap-4 xl:grid-cols-3">
-            {quickLinks.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-950">
-                        {item.title}
-                      </h3>
-                      <p className="mt-2 text-sm text-slate-500">
-                        {item.description}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl bg-[var(--color-primary-soft)] p-3 text-[var(--color-primary-ink)]">
-                      <Icon size={20} />
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </section>
-
-          <section className="grid gap-5 xl:grid-cols-2">
-            <ReportChartCard
-              title="Monthly Sales Trend"
-              description="Closed sales performance by month"
-            >
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={
-                      salesAnalytics?.monthlySalesTrend ||
-                      []
-                    }
-                  >
-                    <defs>
-                      <linearGradient
-                        id="salesTrendFill"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="#2563eb"
-                          stopOpacity={0.28}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#2563eb"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#e2e8f0"
-                    />
-                    <XAxis
-                      dataKey="month"
-                      stroke="#64748b"
-                    />
-                    <YAxis
-                      stroke="#64748b"
-                    />
-                    <Tooltip
-                      formatter={(value) =>
-                        formatCurrency(value)
-                      }
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="sales"
-                      stroke="#2563eb"
-                      fill="url(#salesTrendFill)"
-                      strokeWidth={3}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </ReportChartCard>
-
-            <ReportChartCard
-              title="Lead Conversion Funnel"
-              description="Volume progression from new lead to closed win"
-            >
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={
-                      leadAnalytics?.leadConversionFunnel ||
-                      []
-                    }
-                    layout="vertical"
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#e2e8f0"
-                    />
-                    <XAxis
-                      type="number"
-                      stroke="#64748b"
-                    />
-                    <YAxis
-                      dataKey="stage"
-                      type="category"
-                      width={120}
-                      tickFormatter={formatLabel}
-                      stroke="#64748b"
-                    />
-                    <Tooltip />
-                    <Bar
-                      dataKey="count"
-                      radius={[
-                        0, 12, 12, 0,
-                      ]}
-                    >
-                      {(
-                        leadAnalytics?.leadConversionFunnel ||
-                        []
-                      ).map(
-                        (
-                          entry,
-                          index
-                        ) => (
-                          <Cell
-                            key={
-                              entry.stage
-                            }
-                            fill={
-                              reportChartColors[
-                                index %
-                                  reportChartColors.length
-                              ]
-                            }
-                          />
-                        )
-                      )}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </ReportChartCard>
-
-            <ReportChartCard
-              title="Customers by Type"
-              description="Current customer mix across CRM segments"
-            >
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={
-                        customerAnalytics?.customersByType ||
-                        []
-                      }
-                      dataKey="count"
-                      nameKey="type"
-                      innerRadius={75}
-                      outerRadius={110}
-                      paddingAngle={3}
-                    >
-                      {(
-                        customerAnalytics?.customersByType ||
-                        []
-                      ).map(
-                        (
-                          entry,
-                          index
-                        ) => (
-                          <Cell
-                            key={
-                              entry.type
-                            }
-                            fill={
-                              reportChartColors[
-                                index %
-                                  reportChartColors.length
-                              ]
-                            }
-                          />
-                        )
-                      )}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </ReportChartCard>
-
-            <ReportChartCard
-              title="Revenue by Customer Type"
-              description="Closed revenue contribution by segment"
-            >
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={
-                      revenueAnalytics?.revenueByCustomerType ||
-                      []
-                    }
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#e2e8f0"
-                    />
-                    <XAxis
-                      dataKey="type"
-                      tickFormatter={formatLabel}
-                      stroke="#64748b"
-                    />
-                    <YAxis
-                      stroke="#64748b"
-                    />
-                    <Tooltip
-                      formatter={(value) =>
-                        formatCurrency(value)
-                      }
-                    />
-                    <Bar
-                      dataKey="revenue"
-                      radius={[
-                        12, 12, 0, 0,
-                      ]}
-                    >
-                      {(
-                        revenueAnalytics?.revenueByCustomerType ||
-                        []
-                      ).map(
-                        (
-                          entry,
-                          index
-                        ) => (
-                          <Cell
-                            key={
-                              entry.type
-                            }
-                            fill={
-                              reportChartColors[
-                                index %
-                                  reportChartColors.length
-                              ]
-                            }
-                          />
-                        )
-                      )}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </ReportChartCard>
-          </section>
-
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <ReportKpiCard
-              title="Total Sales"
-              value={formatCurrency(
-                salesAnalytics?.totalSales
-              )}
-              subtitle="Gross sales volume"
-              icon={ShoppingBag}
-              tone="blue"
-            />
-            <ReportKpiCard
-              title="Total Orders"
-              value={formatNumber(
-                salesAnalytics?.totalOrders
-              )}
-              subtitle="Completed sale count"
-              icon={ShoppingBag}
-              tone="teal"
-            />
-            <ReportKpiCard
-              title="Average Order Value"
-              value={formatCurrency(
-                salesAnalytics?.averageOrderValue
-              )}
-              subtitle="Revenue per order"
-              icon={CircleDollarSign}
-              tone="amber"
-            />
-            <ReportKpiCard
-              title="Active Customers"
-              value={formatNumber(
-                customerAnalytics?.summary
-                  ?.totalActiveCustomers
-              )}
-              subtitle="Currently active CRM accounts"
-              icon={Users}
-              tone="emerald"
-            />
-          </section>
-        </>
+        <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm print:border-none print:shadow-none">
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-xs">
+              <thead className="bg-slate-50 text-slate-500 font-bold uppercase border-b border-slate-200">
+                <tr>
+                  {Object.keys(reportData.items[0]).map((col) => (
+                    <th key={col} className="px-4 py-3.5 text-left whitespace-nowrap">
+                      {col.replace(/([A-Z])/g, " $1")}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {reportData.items.map((row, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50/80 transition">
+                    {Object.entries(row).map(([k, v], cIdx) => (
+                      <td key={cIdx} className="px-4 py-3 text-slate-700 whitespace-nowrap font-medium">
+                        {typeof v === "boolean" ? (v ? "Yes" : "No") : v != null ? String(v) : "-"}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </div>
   );

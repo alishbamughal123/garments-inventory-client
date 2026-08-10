@@ -9,21 +9,17 @@ import App from "./App";
 import { Toaster } from "react-hot-toast";
 
 import { AuthProvider } from "./context/AuthContext";
+import { LanguageProvider } from "./context/LanguageContext";
 
 ReactDOM.createRoot(
   document.getElementById("root")
 ).render(
   <React.StrictMode>
-
     <AuthProvider>
-
-      <App />
-
-      <Toaster
-        position="top-right"
-      />
-
+      <LanguageProvider>
+        <App />
+        <Toaster position="top-right" />
+      </LanguageProvider>
     </AuthProvider>
-
   </React.StrictMode>
 );

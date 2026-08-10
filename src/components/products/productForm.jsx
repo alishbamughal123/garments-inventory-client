@@ -102,6 +102,9 @@ const ProductForm = ({
 
     onSubmit({
       ...formData,
+      weightInKg: Number(
+        formData.weightInKg || 0
+      ),
       purchasePrice: Number(
         formData.purchasePrice
       ),
@@ -327,6 +330,21 @@ const ProductForm = ({
             onChange={handleChange}
             placeholder="220gsm"
             className={formControlClass}
+          />
+        </div>
+
+        <div>
+          <label className={formLabelClass}>
+            Weight per Article (kg)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            name="weightInKg"
+            value={formData.weightInKg || ""}
+            onChange={handleChange}
+            placeholder="0.45 kg"
+            className={`${formControlClass} border-indigo-200 focus:border-indigo-500 font-bold text-indigo-900`}
           />
         </div>
 

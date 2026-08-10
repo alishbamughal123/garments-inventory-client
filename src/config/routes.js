@@ -64,4 +64,8 @@ export const appRoutes = {
   crmSupportEdit: (id = ":id") => `/crm/support/edit/${id}`,
   users: "/users",
   settings: "/settings",
+  portalCatalog: "/portal/catalog",
+  portalCart: "/portal/cart",
+  portalOrders: "/portal/orders",
+  b2bAdminOrders: "/sales/b2b-orders",
 };

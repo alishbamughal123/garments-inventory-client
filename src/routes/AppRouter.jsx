@@ -52,6 +52,11 @@ import TaskDetailsPage from "../pages/tasks/TaskDetailsPage";
 import TasksPage from "../pages/tasks/TasksPage";
 import UsersPage from "../pages/users/UsersPage";
 import SettingsPage from "../pages/settings/SettingsPage";
+import B2BPortalLayout from "../pages/portal/B2BPortalLayout";
+import PortalCatalogPage from "../pages/portal/PortalCatalogPage";
+import PortalCartPage from "../pages/portal/PortalCartPage";
+import PortalOrdersPage from "../pages/portal/PortalOrdersPage";
+import B2BOrdersPage from "../pages/sales/B2BOrdersPage";
 
 const protectedElement = (
   element,
@@ -210,6 +215,24 @@ const AppRouter = () => {
             <SaleDetailsPage />
           )}
         />
+
+        <Route
+          path={appRoutes.b2bAdminOrders}
+          element={protectedElement(
+            <B2BOrdersPage />
+          )}
+        />
+
+        {/* B2B Customer Portal Routes */}
+        <Route
+          path="/portal"
+          element={protectedElement(<B2BPortalLayout />)}
+        >
+          <Route index element={<Navigate to="/portal/catalog" replace />} />
+          <Route path="catalog" element={<PortalCatalogPage />} />
+          <Route path="cart" element={<PortalCartPage />} />
+          <Route path="orders" element={<PortalOrdersPage />} />
+        </Route>
 
         <Route
           path={appRoutes.crm}
