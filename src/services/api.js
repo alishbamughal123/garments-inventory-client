@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiBaseURL =
-  import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+  import.meta.env.VITE_API_URL || "https://garments-inventory-server.onrender.com/api/v1";
 
 const api = axios.create({
   baseURL: apiBaseURL,
