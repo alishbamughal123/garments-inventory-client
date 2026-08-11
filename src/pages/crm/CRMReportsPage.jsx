@@ -7,7 +7,7 @@ import api from "../../services/api";
 import logoImg from "../../assets/logo.png";
 import {
   FileSpreadsheet, Printer, Filter, Box, ArrowDownCircle, ArrowUpCircle,
-  FileText, Repeat, AlertTriangle, ShoppingCart, Clock, Download
+  FileText, Repeat, AlertTriangle, ShoppingCart, Clock, Download, FileDown
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
@@ -250,11 +250,12 @@ const CRMReportsPage = () => {
             </button>
 
             <button
+              type="button"
               onClick={exportToPdf}
-              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition"
+              className="inline-flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 text-xs font-bold shadow-md transition active:scale-95 cursor-pointer"
             >
-              <Download size={16} />
-              <span>Export PDF</span>
+              <FileDown size={18} />
+              <span>Download PDF (.pdf)</span>
             </button>
 
             <button
