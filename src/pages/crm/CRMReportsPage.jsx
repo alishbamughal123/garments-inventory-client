@@ -4,16 +4,19 @@ import PageHeader from "../../components/ui/PageHeader";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import { useLanguage } from "../../context/LanguageContext";
 import api from "../../services/api";
+import logoImg from "../../assets/logo.png";
 import {
   FileSpreadsheet, Printer, Filter, Box, ArrowDownCircle, ArrowUpCircle,
-  FileText, Repeat, AlertTriangle, ShoppingCart, Clock, Search
+  FileText, Repeat, AlertTriangle, ShoppingCart, Clock, Download
 } from "lucide-react";
 import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const CRMReportsPage = () => {
   const { t, lang } = useLanguage();
 
-  const [activeTab, setActiveTab] = useState("inventory"); // inventory, stockIn, stockOut, customerOrders, productMovement, lowStock, customerPurchases, openOrders
+  const [activeTab, setActiveTab] = useState("inventory");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [loading, setLoading] = useState(false);
@@ -65,13 +68,179 @@ const CRMReportsPage = () => {
     toast.success(lang === "no" ? "Rapport eksportert til Excel" : "Report exported to Excel (.xlsx)");
   };
 
+  // EXPORT BEAUTIFUL PDF REPORT WITH NORDIC LOGO
+  const exportToPdf = async () => {
+    if (!reportData || !reportData.items || reportData.items.length === 0) {
+      toast.error(lang === "no" ? "Ingen rapportdata å eksportere" : "No report data to export");
+      return;
+    }
+
+    try {
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+
+      // Top Dark Header Banner
+      doc.setFillColor(15, 23, 42); // #0F172A Dark Slate
+      doc.rect(0, 0, pageWidth, 28, "F");
+
+      doc.setFillColor(37, 99, 235); // #2563EB Royal Blue Accent Line
+      doc.rect(0, 28, pageWidth, 2, "F");
+
+      // Embed Nordic Logo
+      try {
+        const img = new Image();
+        img.src = logoImg;
+        await new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+        doc.addImage(img, "PNG", 12, 4, 38, 20);
+      } catch {
+        doc.setTextColor(255, 255, 255);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
+        doc.text("NORDIC PROWEAR", 14, 18);
+      }
+
+      // Title & Date Header Text
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      const reportTitle = `${activeTab.replace(/([A-Z])/g, " $1").toUpperCase()} REPORT`;
+      doc.text(reportTitle, pageWidth - 14, 14, { align: "right" });
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(203, 213, 225);
+      doc.text(`Generated: ${new Date().toLocaleString()}`, pageWidth - 14, 21, { align: "right" });
+
+      // Report Metadata Info
+      let startY = 36;
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text("Executive Summary & Report Parameters", 14, startY);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(71, 85, 105);
+      const dateText = `Filter Period: ${fromDate || "All Time"} to ${toDate || "Present"}`;
+      const countText = `Total Items: ${reportData.items.length}`;
+      doc.text(`${dateText}  |  ${countText}`, 14, startY + 5);
+
+      startY += 12;
+
+      // Summary Cards Grid (if summary metrics exist)
+      if (reportData.summary && Object.keys(reportData.summary).length > 0) {
+        const entries = Object.entries(reportData.summary);
+        const cardWidth = Math.min(65, (pageWidth - 28) / entries.length);
+
+        entries.forEach(([k, v], idx) => {
+          const x = 14 + idx * (cardWidth + 4);
+          if (x + cardWidth <= pageWidth - 14) {
+            doc.setFillColor(248, 250, 252);
+            doc.setDrawColor(226, 232, 240);
+            doc.roundedRect(x, startY, cardWidth, 14, 2, 2, "FD");
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(7);
+            doc.setTextColor(100, 116, 139);
+            const label = k.replace(/([A-Z])/g, " $1").toUpperCase();
+            doc.text(label.slice(0, 28), x + 4, startY + 5);
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(9.5);
+            doc.setTextColor(15, 23, 42);
+            const valStr = typeof v === "number" ? v.toLocaleString() : String(v);
+            doc.text(valStr, x + 4, startY + 11);
+          }
+        });
+        startY += 20;
+      }
+
+      // Styled AutoTable
+      const headers = Object.keys(reportData.items[0]).map((col) =>
+        col.replace(/([A-Z])/g, " $1").toUpperCase()
+      );
+
+      const rows = reportData.items.map((item) =>
+        Object.values(item).map((val) =>
+          typeof val === "boolean" ? (val ? "Yes" : "No") : val != null ? String(val) : "-"
+        )
+      );
+
+      autoTable(doc, {
+        startY: startY,
+        head: [headers],
+        body: rows,
+        theme: "grid",
+        headStyles: {
+          fillColor: [30, 41, 59], // #1E293B
+          textColor: [255, 255, 255],
+          fontSize: 8,
+          fontStyle: "bold",
+          halign: "left",
+        },
+        bodyStyles: {
+          fontSize: 7.5,
+          textColor: [51, 65, 85],
+        },
+        alternateRowStyles: {
+          fillColor: [248, 250, 252], // #F8FAFC
+        },
+        margin: { left: 14, right: 14, bottom: 18 },
+        didDrawPage: (data) => {
+          // Page Footer
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(148, 163, 184);
+          doc.text("Nordic Prowear - Confidential Business Report", 14, pageHeight - 8);
+          doc.text(
+            `Page ${data.pageNumber} of ${doc.internal.getNumberOfPages()}`,
+            pageWidth - 14,
+            pageHeight - 8,
+            { align: "right" }
+          );
+        },
+      });
+
+      const fileName = `Nordic_Prowear_${activeTab}_Report_${new Date().toISOString().slice(0, 10)}.pdf`;
+      doc.save(fileName);
+      toast.success(lang === "no" ? "Rapport eksportert til PDF" : "Report exported to PDF (.pdf)");
+    } catch (err) {
+      console.error("PDF Export Error:", err);
+      toast.error("Failed to generate PDF report");
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* PRINT-ONLY LOGO & BRANDING HEADER */}
+      <div className="hidden print:flex items-center justify-between border-b-2 border-slate-900 pb-4 mb-6">
+        <div className="flex items-center gap-3">
+          <img src={logoImg} alt="Nordic Prowear Logo" className="h-12 object-contain" />
+          <div>
+            <h1 className="text-xl font-black uppercase text-slate-900 tracking-tight">Nordic Prowear</h1>
+            <p className="text-xs text-slate-500 font-bold">System Management & CRM Reports</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <span className="text-sm font-extrabold uppercase text-slate-900 block">{activeTab} Report</span>
+          <span className="text-xs text-slate-500">Date: {new Date().toLocaleDateString()}</span>
+        </div>
+      </div>
+
       <PageHeader
         title={t("reportsHub")}
-        description={lang === "no" ? "Sanntidsrapporter for lager, varemottak, vareutgang, B2B-ordrer og pakkevekt med eksport til Excel og PDF." : "Flexible system reports for inventory, stock in/out, B2B orders, and parcel weights."}
+        description={lang === "no" ? "Sanntidsrapporter for lager, varemottak, vareutgang, B2B-ordrer og pakkevekt med eksport til Excel og PDF med Nordic-logo." : "Flexible system reports for inventory, stock in/out, B2B orders, and parcel weights with Nordic branding PDF export."}
         action={
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 print:hidden">
             <button
               onClick={exportToExcel}
               className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition"
@@ -81,18 +250,26 @@ const CRMReportsPage = () => {
             </button>
 
             <button
+              onClick={exportToPdf}
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition"
+            >
+              <Download size={16} />
+              <span>Export PDF</span>
+            </button>
+
+            <button
               onClick={() => window.print()}
               className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition"
             >
               <Printer size={16} />
-              <span>{t("exportPdf")}</span>
+              <span>Print</span>
             </button>
           </div>
         }
       />
 
       {/* REPORT CATEGORY TABS */}
-      <div className="flex border-b border-slate-200 gap-2 overflow-x-auto text-xs font-bold">
+      <div className="flex border-b border-slate-200 gap-2 overflow-x-auto text-xs font-bold print:hidden">
         <button
           onClick={() => setActiveTab("inventory")}
           className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "inventory" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
@@ -151,7 +328,7 @@ const CRMReportsPage = () => {
       </div>
 
       {/* DATE FILTERS */}
-      <SurfaceCard className="p-4">
+      <SurfaceCard className="p-4 print:hidden">
         <form onSubmit={handleApplyFilter} className="flex flex-wrap items-center gap-4 text-xs font-semibold">
           <div className="flex items-center gap-2">
             <span className="text-slate-500">{t("fromDate")}:</span>
@@ -239,3 +416,4 @@ const CRMReportsPage = () => {
 };
 
 export default CRMReportsPage;
+
