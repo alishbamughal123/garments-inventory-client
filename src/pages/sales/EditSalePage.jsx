@@ -95,7 +95,7 @@ const EditSalePage = () => {
               </div>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Grand Total</p>
-                <p className="text-sm font-bold text-slate-900">Rs. {sale?.grandTotal}</p>
+                <p className="text-sm font-bold text-slate-900">NOK {sale?.grandTotal}</p>
               </div>
             </div>
 
@@ -109,8 +109,11 @@ const EditSalePage = () => {
                 required
               >
                 <option value="CASH">Cash</option>
-                <option value="CARD">Bank Card</option>
-                <option value="TRANSFER">Bank Transfer</option>
+                <option value="CARD">Bank Card / POS Terminal</option>
+                <option value="BANK_TRANSFER">Bank Transfer</option>
+                <option value="INVOICE">Corporate B2B Invoice</option>
+                <option value="JAZZCASH">JazzCash</option>
+                <option value="EASYPAISA">EasyPaisa</option>
                 <option value="WHATSAPP_PAY">WhatsApp Pay</option>
               </select>
             </div>

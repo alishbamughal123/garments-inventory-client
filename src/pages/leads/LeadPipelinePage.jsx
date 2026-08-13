@@ -197,7 +197,7 @@ const LeadPipelinePage = () => {
                                   </p>
 
                                   <p className="font-medium text-emerald-700">
-                                    Rs.{" "}
+                                    NOK{" "}
                                     {Number(
                                       lead.expectedDealValue ||
                                         0

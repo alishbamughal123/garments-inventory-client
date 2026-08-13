@@ -12,7 +12,7 @@ export const reportChartColors = [
 export const formatCurrency = (
   value
 ) =>
-  `Rs. ${Number(
+  `NOK ${Number(
     value || 0
   ).toLocaleString()}`;
 

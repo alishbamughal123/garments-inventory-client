@@ -186,7 +186,7 @@ const SalesPage = () => {
                     Total
                   </dt>
                   <dd className="mt-1 font-medium text-slate-700">
-                    Rs. {sale.grandTotal}
+                    NOK {sale.grandTotal}
                   </dd>
                 </div>
                 <div>
@@ -265,7 +265,7 @@ const SalesPage = () => {
                           "Walk-in Customer"}
                       </td>
                       <td className="p-5 font-bold text-slate-900">
-                        Rs.{" "}
+                        NOK{" "}
                         {
                           sale.grandTotal
                         }

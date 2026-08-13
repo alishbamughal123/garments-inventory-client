@@ -282,7 +282,7 @@ const BarcodePage = () => {
                 <SpecBox label="Fabric Weight" value={product.fabricWeight} />
                 <SpecBox
                   label="Sale Price"
-                  value={product.salePrice ? `Rs. ${product.salePrice}` : "-"}
+                  value={product.salePrice ? `NOK ${product.salePrice}` : "-"}
                   highlight
                 />
                 <SpecBox label="Stock Quantity" value={`${product.stockQuantity} units`} />

@@ -14,7 +14,7 @@ const LeadCard = ({
       </p>
 
       <p>
-        Rs.
+        NOK{" "}
         {
           lead.expectedDealValue
         }

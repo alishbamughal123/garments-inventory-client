@@ -39,7 +39,7 @@ const CreateSalePage = () => {
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [discount, setDiscount] = useState(0);
-  const [tax, setTax] = useState(0);
+  const [customTax, setCustomTax] = useState(null); // null = auto 25% VAT
   const [loading, setLoading] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
 
@@ -177,6 +177,8 @@ const CreateSalePage = () => {
   };
 
   const subtotal = cart.reduce((acc, item) => acc + item.totalPrice, 0);
+  const autoTax = Math.round(Math.max(0, subtotal - Number(discount)) * 0.25 * 100) / 100; // 25% VAT MVA
+  const tax = customTax !== null ? customTax : autoTax;
   const grandTotal = Math.max(0, subtotal - Number(discount) + Number(tax));
 
   const handleSubmit = async () => {
@@ -220,7 +222,7 @@ const CreateSalePage = () => {
       setCart([]);
       setSelectedCustomer("");
       setDiscount(0);
-      setTax(0);
+      setCustomTax(null);
     } catch (error) {
       toast.error(
         error?.response?.data?.message || "Failed to create sale"
@@ -432,12 +434,23 @@ const CreateSalePage = () => {
             </div>
 
             <div>
-              <label className={formLabelClass}>Tax / MVA (NOK)</label>
+              <div className="flex justify-between items-center mb-1">
+                <label className={formLabelClass}>VAT / MVA 25% (NOK)</label>
+                {customTax !== null && (
+                  <button
+                    type="button"
+                    onClick={() => setCustomTax(null)}
+                    className="text-[10px] text-teal-600 hover:underline font-bold"
+                  >
+                    Reset 25% VAT
+                  </button>
+                )}
+              </div>
               <input
                 type="number"
                 min="0"
                 value={tax}
-                onChange={(e) => setTax(e.target.value)}
+                onChange={(e) => setCustomTax(Number(e.target.value))}
                 className={formControlClass}
               />
             </div>

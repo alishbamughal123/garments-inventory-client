@@ -204,7 +204,7 @@ const LeadDetailsPage = () => {
             </p>
             <div className="mt-2 flex items-center gap-2 text-xl font-semibold text-emerald-700">
               <DollarSign size={18} />
-              Rs.
+              NOK{" "}
               {Number(
                 lead.expectedDealValue || 0
               ).toLocaleString()}

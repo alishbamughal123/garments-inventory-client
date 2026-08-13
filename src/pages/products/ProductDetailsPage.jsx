@@ -212,12 +212,12 @@ const ProductDetailsPage = () => {
 
             <Info
               label="Purchase Price"
-              value={product.purchasePrice ? `Rs. ${product.purchasePrice}` : null}
+              value={product.purchasePrice ? `NOK ${product.purchasePrice}` : null}
             />
 
             <Info
               label="Sale Price"
-              value={product.salePrice ? `Rs. ${product.salePrice}` : null}
+              value={product.salePrice ? `NOK ${product.salePrice}` : null}
             />
 
             <Info
@@ -270,16 +270,16 @@ const ProductDetailsPage = () => {
                           {new Date(item.createdAt).toLocaleString()}
                         </td>
                         <td className="p-3 whitespace-nowrap text-slate-500">
-                          Rs. {Number(item.oldSalePrice).toFixed(2)}
+                          NOK {Number(item.oldSalePrice).toFixed(2)}
                         </td>
                         <td className="p-3 whitespace-nowrap font-bold text-emerald-600">
-                          Rs. {Number(item.newSalePrice).toFixed(2)}
+                          NOK {Number(item.newSalePrice).toFixed(2)}
                         </td>
                         <td className="p-3 whitespace-nowrap text-slate-500">
-                          {item.oldPurchasePrice ? `Rs. ${Number(item.oldPurchasePrice).toFixed(2)}` : "-"}
+                          {item.oldPurchasePrice ? `NOK ${Number(item.oldPurchasePrice).toFixed(2)}` : "-"}
                         </td>
                         <td className="p-3 whitespace-nowrap font-medium text-slate-700">
-                          {item.newPurchasePrice ? `Rs. ${Number(item.newPurchasePrice).toFixed(2)}` : "-"}
+                          {item.newPurchasePrice ? `NOK ${Number(item.newPurchasePrice).toFixed(2)}` : "-"}
                         </td>
                         <td className="p-3 whitespace-nowrap text-slate-600 font-medium">
                           {item.changedBy?.name || "System"}

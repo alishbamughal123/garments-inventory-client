@@ -43,7 +43,7 @@ const SettingsPage = () => {
   const [storeData, setStoreData] = useState({
     storeName: "Nordic Prowear Garments",
     warehouseLocation: "Oslo Central Warehouse",
-    currency: "PKR (Rs.)",
+    currency: "NOK (kr)",
     contactEmail: user?.email || "support@nordicprowear.com",
     contactPhone: "+92 300 1234567",
   });
@@ -385,9 +385,9 @@ const SettingsPage = () => {
                     value={storeData.currency}
                     onChange={handleStoreChange}
                   >
-                    <option value="PKR (Rs.)">PKR - Pakistani Rupee (Rs.)</option>
-                    <option value="USD ($)">USD - US Dollar ($)</option>
+                    <option value="NOK (kr)">NOK - Norwegian Krone (kr)</option>
                     <option value="EUR (€)">EUR - Euro (€)</option>
+                    <option value="USD ($)">USD - US Dollar ($)</option>
                   </select>
                 </div>
 

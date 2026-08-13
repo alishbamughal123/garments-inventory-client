@@ -86,7 +86,7 @@ const ProductTable = ({
                   </div>
                   <div>
                     <dt className="text-slate-400 font-medium">Price</dt>
-                    <dd className="mt-0.5 font-semibold text-slate-900 font-mono text-[13px]">Rs.{product.salePrice}</dd>
+                    <dd className="mt-0.5 font-semibold text-slate-900 font-mono text-[13px]">NOK {product.salePrice}</dd>
                   </div>
                 </dl>
               </div>
@@ -188,7 +188,7 @@ const ProductTable = ({
                     {product.stockQuantity}
                   </td>
                   <td className="px-4 py-4 text-sm text-slate-900 font-semibold font-mono">
-                    Rs.{product.salePrice}
+                    NOK {product.salePrice}
                   </td>
                   <td className="px-4 py-4 text-sm">
                     <span

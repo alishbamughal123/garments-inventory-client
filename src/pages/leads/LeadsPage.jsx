@@ -173,7 +173,7 @@ const LeadsPage = () => {
                   Value
                 </dt>
                 <dd className="mt-1 font-medium text-emerald-700">
-                  Rs.
+                  NOK{" "}
                   {Number(
                     lead.expectedDealValue || 0
                   ).toLocaleString()}
@@ -286,7 +286,7 @@ const LeadsPage = () => {
                     </td>
 
                     <td className="p-4 font-semibold text-emerald-700">
-                      Rs.
+                      NOK{" "}
                       {Number(
                         lead.expectedDealValue ||
                           0

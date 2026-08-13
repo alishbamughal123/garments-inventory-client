@@ -117,19 +117,19 @@ const SaleDetailsPage = () => {
             <div className="space-y-4">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500 font-medium">Subtotal</span>
-                <span className="font-bold text-slate-900">Rs. {sale.subtotal}</span>
+                <span className="font-bold text-slate-900">NOK {sale.subtotal}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500 font-medium">Discount</span>
-                <span className="font-bold text-emerald-600">- Rs. {sale.discount}</span>
+                <span className="font-bold text-emerald-600">- NOK {sale.discount}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500 font-medium">Tax</span>
-                <span className="font-bold text-slate-900">Rs. {sale.tax}</span>
+                <span className="text-slate-500 font-medium">Tax / MVA</span>
+                <span className="font-bold text-slate-900">NOK {sale.tax}</span>
               </div>
               <div className="flex justify-between text-2xl font-bold pt-4 border-t border-slate-100">
                 <span className="text-slate-900">Grand Total</span>
-                <span className="text-blue-600">Rs. {sale.grandTotal}</span>
+                <span className="text-blue-600">NOK {sale.grandTotal}</span>
               </div>
             </div>
           </SurfaceCard>
@@ -159,11 +159,11 @@ const SaleDetailsPage = () => {
                   </div>
                   <div>
                     <dt className="text-slate-400 font-medium">Unit Price</dt>
-                    <dd className="mt-1 font-bold text-slate-700">Rs. {item.price}</dd>
+                    <dd className="mt-1 font-bold text-slate-700">NOK {item.price}</dd>
                   </div>
                   <div className="col-span-2 border-t pt-2">
                     <dt className="text-slate-400 font-medium text-xs uppercase">Total</dt>
-                    <dd className="mt-1 font-extrabold text-slate-900 text-lg">Rs. {item.total}</dd>
+                    <dd className="mt-1 font-extrabold text-slate-900 text-lg">NOK {item.total}</dd>
                   </div>
                 </dl>
               </article>
@@ -188,8 +188,8 @@ const SaleDetailsPage = () => {
                       <div className="text-xs text-slate-500">SKU: {item.product.sku}</div>
                     </td>
                     <td className="p-5 text-center font-bold text-slate-700">{item.quantity}</td>
-                    <td className="p-5 text-right font-semibold text-slate-600">Rs. {item.price}</td>
-                    <td className="p-5 text-right font-extrabold text-slate-900">Rs. {item.total}</td>
+                    <td className="p-5 text-right font-semibold text-slate-600">NOK {item.price}</td>
+                    <td className="p-5 text-right font-extrabold text-slate-900">NOK {item.total}</td>
                   </tr>
                 ))}
               </tbody>
