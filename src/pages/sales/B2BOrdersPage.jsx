@@ -298,17 +298,17 @@ const B2BOrdersPage = () => {
 
                         <button
                           onClick={() => generateDeliveryNotePdf(order)}
-                          className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow transition active:scale-95"
+                          className="bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-red-500/20 transition active:scale-95"
                         >
-                          <FileText size={14} className="text-teal-400" />
+                          <FileText size={14} className="text-white" />
                           <span>Download Delivery Note PDF</span>
                         </button>
 
                         <button
                           onClick={() => downloadEhfXml(order)}
-                          className="bg-teal-950 hover:bg-teal-900 text-teal-200 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 border border-teal-800 transition active:scale-95"
+                          className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-teal-500/20 transition active:scale-95"
                         >
-                          <Download size={14} />
+                          <Download size={14} className="text-white" />
                           <span>EHF XML</span>
                         </button>
                       </div>
