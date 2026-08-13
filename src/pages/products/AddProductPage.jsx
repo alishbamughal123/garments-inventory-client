@@ -1,32 +1,16 @@
-import {
-  useEffect,
-  useState,
-} from "react";
-
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import toast from "react-hot-toast";
 import MainLayout from "../../layouts/MainLayout";
 import PageHeader from "../../components/ui/PageHeader";
 import ProductForm from "../../components/products/productForm";
-
-import {
-  createProduct,
-} from "../../services/products.service";
-
-import {
-  getCategories,
-} from "../../services/category.service";
+import { createProduct, uploadProductImages } from "../../services/products.service";
+import { getCategories } from "../../services/category.service";
 
 const AddProductPage = () => {
-  const navigate =
-    useNavigate();
-
-  const [loading, setLoading] =
-    useState(false);
-
-  const [categories, setCategories] =
-    useState([]);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -58,12 +42,22 @@ const AddProductPage = () => {
       try {
         setLoading(true);
 
-        await createProduct(
-          data
-        );
+        const { articleImageFile, washingImageFile, ...productData } = data;
+
+        const createdRes = await createProduct(productData);
+        const newProductId = createdRes.data?.id;
+
+        if (newProductId && (articleImageFile || washingImageFile)) {
+          const formData = new FormData();
+          if (articleImageFile) formData.append("articleImage", articleImageFile);
+          if (washingImageFile) formData.append("washingImage", washingImageFile);
+          if (data.washingInstructions) formData.append("washingInstructions", data.washingInstructions);
+
+          await uploadProductImages(newProductId, formData);
+        }
 
         toast.success(
-          "Product created successfully"
+          "Product & images saved successfully"
         );
 
         navigate("/products");

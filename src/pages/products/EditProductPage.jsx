@@ -20,6 +20,7 @@ import {
 import {
   getProductById,
   updateProduct,
+  uploadProductImages,
 } from "../../services/products.service";
 
 const EditProductPage = () => {
@@ -86,13 +87,24 @@ const EditProductPage = () => {
     try {
       setLoading(true);
 
+      const { articleImageFile, washingImageFile, ...productData } = data;
+
       await updateProduct(
         id,
-        data
+        productData
       );
 
+      if (articleImageFile || washingImageFile) {
+        const formData = new FormData();
+        if (articleImageFile) formData.append("articleImage", articleImageFile);
+        if (washingImageFile) formData.append("washingImage", washingImageFile);
+        if (data.washingInstructions) formData.append("washingInstructions", data.washingInstructions);
+
+        await uploadProductImages(id, formData);
+      }
+
       toast.success(
-        "Product updated successfully"
+        "Product & images updated successfully"
       );
 
       navigate("/products");
@@ -186,6 +198,15 @@ const EditProductPage = () => {
 
           description:
             product.description || "",
+
+          imageUrl:
+            product.imageUrl || "",
+
+          washingInstructionsImageUrl:
+            product.washingInstructionsImageUrl || "",
+
+          washingInstructions:
+            product.washingInstructions || "",
 
           supplierBarcode:
             product.barcodes?.find(

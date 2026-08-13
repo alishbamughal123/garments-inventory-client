@@ -57,6 +57,7 @@ import PortalCatalogPage from "../pages/portal/PortalCatalogPage";
 import PortalCartPage from "../pages/portal/PortalCartPage";
 import PortalOrdersPage from "../pages/portal/PortalOrdersPage";
 import B2BOrdersPage from "../pages/sales/B2BOrdersPage";
+import PunchoutPage from "../pages/portal/PunchoutPage";
 
 const protectedElement = (
   element,
@@ -222,6 +223,9 @@ const AppRouter = () => {
             <B2BOrdersPage />
           )}
         />
+
+        {/* PunchOut External Portal Landing Route */}
+        <Route path="/punchout" element={<PunchoutPage />} />
 
         {/* B2B Customer Portal Routes */}
         <Route

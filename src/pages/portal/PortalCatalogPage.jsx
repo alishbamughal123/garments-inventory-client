@@ -127,13 +127,54 @@ const PortalCatalogPage = () => {
                     )}
                   </div>
 
+                  {/* Images & Visual Cards */}
+                  <div className="grid grid-cols-2 gap-2 my-3">
+                    {/* Article Photo */}
+                    <div className="relative group/img bg-slate-100 rounded-2xl overflow-hidden aspect-square border border-slate-200 flex flex-col items-center justify-center p-1 text-center">
+                      <img
+                        src={product.imageUrl ? (product.imageUrl.startsWith("http") ? product.imageUrl : `http://localhost:8000${product.imageUrl}`) : "http://localhost:8000/uploads/placeholders/default-article.svg"}
+                        alt={product.productName}
+                        className="w-full h-full object-contain group-hover/img:scale-105 transition duration-300"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "http://localhost:8000/uploads/placeholders/default-article.svg";
+                        }}
+                      />
+                      <span className="absolute bottom-1 bg-slate-900/80 text-[9px] font-semibold text-white px-2 py-0.5 rounded-full backdrop-blur-sm">
+                        Article Photo
+                      </span>
+                    </div>
+
+                    {/* Washing Instructions Photo */}
+                    <div className="relative group/img bg-slate-100 rounded-2xl overflow-hidden aspect-square border border-slate-200 flex flex-col items-center justify-center p-1 text-center">
+                      <img
+                        src={product.washingInstructionsImageUrl ? (product.washingInstructionsImageUrl.startsWith("http") ? product.washingInstructionsImageUrl : `http://localhost:8000${product.washingInstructionsImageUrl}`) : "http://localhost:8000/uploads/placeholders/default-washing.svg"}
+                        alt="Washing Instructions"
+                        className="w-full h-full object-contain group-hover/img:scale-105 transition duration-300"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "http://localhost:8000/uploads/placeholders/default-washing.svg";
+                        }}
+                      />
+                      <span className="absolute bottom-1 bg-blue-900/80 text-[9px] font-semibold text-blue-100 px-2 py-0.5 rounded-full backdrop-blur-sm">
+                        Washing Care
+                      </span>
+                    </div>
+                  </div>
+
                   {/* Title & Specs */}
                   <h3 className="text-base font-bold text-slate-900 group-hover:text-teal-600 transition leading-snug">
                     {product.productName}
                   </h3>
                   <p className="text-xs text-slate-400 font-mono mt-0.5">SKU: {product.sku}</p>
 
-                  <div className="my-4 grid grid-cols-2 gap-2 text-[11px] bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  {/* Washing Care Text */}
+                  <div className="mt-2 text-[10px] text-slate-600 bg-blue-50/70 border border-blue-100 p-2 rounded-xl flex items-center gap-1.5">
+                    <span className="font-bold text-blue-700">Washing:</span>
+                    <span className="truncate">{product.washingInstructions || "40°C Standard Wash - Gentle Cycle"}</span>
+                  </div>
+
+                  <div className="my-3 grid grid-cols-2 gap-2 text-[11px] bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
                     <div>
                       <span className="text-slate-400 block font-medium">Color / Size:</span>
                       <span className="font-bold text-slate-800">{product.color} / {product.size || "OS"}</span>

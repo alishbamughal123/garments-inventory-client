@@ -39,3 +39,12 @@ export const getPriceHistory = async (id) => {
   const response = await api.get(`/products/${id}/price-history`);
   return response.data;
 };
+
+export const uploadProductImages = async (id, formData) => {
+  const response = await api.post(`/products/${id}/images`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};

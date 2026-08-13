@@ -96,6 +96,44 @@ const ProductDetailsPage = () => {
         />
 
         <SurfaceCard className="p-5 sm:p-8">
+          {/* Article & Washing Images Section */}
+          <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-6 p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
+            {/* Article Photo */}
+            <div className="flex flex-col items-center">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Article Photo</span>
+              <div className="w-full h-56 bg-white border border-slate-200 rounded-xl overflow-hidden p-2 flex items-center justify-center shadow-sm">
+                <img
+                  src={product.imageUrl ? (product.imageUrl.startsWith("http") ? product.imageUrl : `http://localhost:8000${product.imageUrl}`) : "http://localhost:8000/uploads/placeholders/default-article.svg"}
+                  alt={product.productName}
+                  className="max-h-full max-w-full object-contain"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "http://localhost:8000/uploads/placeholders/default-article.svg";
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Washing Instructions Photo */}
+            <div className="flex flex-col items-center">
+              <span className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-2">Washing Care Label & Instructions</span>
+              <div className="w-full h-56 bg-white border border-slate-200 rounded-xl overflow-hidden p-2 flex items-center justify-center shadow-sm">
+                <img
+                  src={product.washingInstructionsImageUrl ? (product.washingInstructionsImageUrl.startsWith("http") ? product.washingInstructionsImageUrl : `http://localhost:8000${product.washingInstructionsImageUrl}`) : "http://localhost:8000/uploads/placeholders/default-washing.svg"}
+                  alt="Washing Instructions"
+                  className="max-h-full max-w-full object-contain"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "http://localhost:8000/uploads/placeholders/default-washing.svg";
+                  }}
+                />
+              </div>
+              <p className="mt-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-lg w-full text-center">
+                <strong>Care Instructions:</strong> {product.washingInstructions || "40°C Standard Wash. Do Not Bleach. Tumble Dry Low."}
+              </p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             <Info
               label="Variant Style No"

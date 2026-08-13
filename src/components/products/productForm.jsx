@@ -17,6 +17,11 @@ const ProductForm = ({
   initialData,
   submitLabel,
 }) => {
+  const [articleImageFile, setArticleImageFile] = useState(null);
+  const [washingImageFile, setWashingImageFile] = useState(null);
+  const [articlePreview, setArticlePreview] = useState(initialData?.imageUrl || "");
+  const [washingPreview, setWashingPreview] = useState(initialData?.washingInstructionsImageUrl || "");
+
   const [formData, setFormData] =
     useState(
       initialData || {
@@ -117,6 +122,8 @@ const ProductForm = ({
       minStockAlert: Number(
         formData.minStockAlert
       ),
+      articleImageFile,
+      washingImageFile,
     });
   };
 
@@ -443,12 +450,109 @@ const ProductForm = ({
         </div>
       </div>
 
+      {/* Image Upload Pickers */}
+      <div className="mt-6 p-5 bg-slate-50 border border-slate-200/80 rounded-2xl grid gap-6 md:grid-cols-2">
+        {/* Article Photo Picker */}
+        <div>
+          <label className={`${formLabelClass} flex items-center justify-between`}>
+            <span>Article Photo (Product Image)</span>
+            <span className="text-[10px] text-teal-600 font-bold uppercase">PNG, JPG, WEBP, SVG</span>
+          </label>
+
+          <div className="mt-2 flex flex-col sm:flex-row items-center gap-4 bg-white border-2 border-dashed border-slate-300 hover:border-teal-500 rounded-2xl p-4 transition cursor-pointer group">
+            <div className="w-24 h-24 bg-slate-100 border border-slate-200 rounded-xl overflow-hidden flex items-center justify-center shrink-0">
+              <img
+                src={articlePreview || (formData.imageUrl ? (formData.imageUrl.startsWith("http") ? formData.imageUrl : `http://localhost:8000${formData.imageUrl}`) : "http://localhost:8000/uploads/placeholders/default-article.svg")}
+                alt="Article Preview"
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "http://localhost:8000/uploads/placeholders/default-article.svg";
+                }}
+              />
+            </div>
+            <div className="flex-1 text-center sm:text-left space-y-1">
+              <span className="text-xs font-bold text-slate-800 block">
+                {articleImageFile ? articleImageFile.name : "Choose Article Photo"}
+              </span>
+              <span className="text-[11px] text-slate-400 block">Click to browse or replace photo</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    setArticleImageFile(file);
+                    setArticlePreview(URL.createObjectURL(file));
+                  }
+                }}
+                className="mt-2 block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Washing Care Photo Picker */}
+        <div>
+          <label className={`${formLabelClass} flex items-center justify-between`}>
+            <span>Washing Care Label Photo</span>
+            <span className="text-[10px] text-blue-600 font-bold uppercase">Care Label / Symbols</span>
+          </label>
+
+          <div className="mt-2 flex flex-col sm:flex-row items-center gap-4 bg-white border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-2xl p-4 transition cursor-pointer group">
+            <div className="w-24 h-24 bg-slate-100 border border-slate-200 rounded-xl overflow-hidden flex items-center justify-center shrink-0">
+              <img
+                src={washingPreview || (formData.washingInstructionsImageUrl ? (formData.washingInstructionsImageUrl.startsWith("http") ? formData.washingInstructionsImageUrl : `http://localhost:8000${formData.washingInstructionsImageUrl}`) : "http://localhost:8000/uploads/placeholders/default-washing.svg")}
+                alt="Washing Instructions Preview"
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "http://localhost:8000/uploads/placeholders/default-washing.svg";
+                }}
+              />
+            </div>
+            <div className="flex-1 text-center sm:text-left space-y-1">
+              <span className="text-xs font-bold text-slate-800 block">
+                {washingImageFile ? washingImageFile.name : "Choose Care Label Photo"}
+              </span>
+              <span className="text-[11px] text-slate-400 block">Click to browse or replace care label</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    setWashingImageFile(file);
+                    setWashingPreview(URL.createObjectURL(file));
+                  }
+                }}
+                className="mt-2 block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-5">
+        <label className={formLabelClass}>
+          Washing Care Text & Instructions
+        </label>
+        <input
+          type="text"
+          name="washingInstructions"
+          value={formData.washingInstructions || ""}
+          onChange={handleChange}
+          placeholder="40°C Standard Wash. Do Not Bleach. Tumble Dry Low."
+          className={formControlClass}
+        />
+      </div>
+
       <div className="mt-5">
         <label className={formLabelClass}>
           Description / Notes
         </label>
         <textarea
-          rows="4"
+          rows="3"
           name="description"
           value={
             formData.description
