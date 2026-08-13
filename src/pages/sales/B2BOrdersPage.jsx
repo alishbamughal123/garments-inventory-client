@@ -6,7 +6,9 @@ import MainLayout from "../../layouts/MainLayout";
 import PageHeader from "../../components/ui/PageHeader";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import StatusBadge from "../../components/ui/StatusBadge";
-import { CheckCircle, Truck, Package, Weight, Clock, Building2, Phone, Calendar } from "lucide-react";
+import { CheckCircle, Truck, Package, Weight, Clock, Building2, Phone, Calendar, FileText, Download } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const B2BOrdersPage = () => {
   const { t, lang } = useLanguage();
@@ -44,6 +46,114 @@ const B2BOrdersPage = () => {
       toast.error(error?.response?.data?.message || "Order fulfillment failed");
     } finally {
       setFulfillingId(null);
+    }
+  };
+
+  // Generate Delivery Note PDF (Pakkeseddel)
+  const generateDeliveryNotePdf = (order) => {
+    try {
+      const doc = new jsPDF();
+      const dnNumber = order.deliveryNote?.deliveryNoteNumber || `DN-${order.orderNumber}`;
+
+      // Header Banner
+      doc.setFillColor(15, 23, 42); // slate-900
+      doc.rect(0, 0, 210, 40, "F");
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.text("NORDIC PROWEAR AS", 14, 18);
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text("ELECTRONIC DELIVERY NOTE / PAKKESEDDEL 3.0", 14, 26);
+      doc.text(`Document Ref: ${dnNumber}`, 14, 33);
+
+      doc.text(`Issue Date: ${new Date().toLocaleDateString()}`, 140, 18);
+      doc.text(`Order Number: ${order.orderNumber}`, 140, 26);
+      doc.text(`Customer Code: ${order.customer?.customerCode || 'WHOLESALE'}`, 140, 33);
+
+      // Customer Details Box
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.text("DELIVERY CUSTOMER / MOTTAKER:", 14, 52);
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Company: ${order.customer?.companyName || order.customer?.fullName}`, 14, 60);
+      doc.text(`Contact Person: ${order.customer?.fullName}`, 14, 66);
+      doc.text(`Phone: ${order.customer?.phoneNumber || 'N/A'}`, 14, 72);
+      doc.text(`VAT / Org Nr: ${order.customer?.vatNumber || 'NO 940 029 191'}`, 14, 78);
+
+      // Supplier Info
+      doc.setFont("helvetica", "bold");
+      doc.text("SUPPLIER / AVSENDER:", 120, 52);
+      doc.setFont("helvetica", "normal");
+      doc.text("Nordic Prowear AS", 120, 60);
+      doc.text("Storgt. 15, 1607 Fredrikstad", 120, 66);
+      doc.text("Org Nr: NO 999 888 777 MVA", 120, 72);
+      doc.text("Email: post@nordicprowear.no", 120, 78);
+
+      // Line items table
+      const tableData = (order.orderItems || []).map((it, idx) => [
+        idx + 1,
+        it.product?.sku || 'NP-ART',
+        `${it.product?.productName || 'Garment Article'} ${it.customNote || it.selectedLogo ? `[${it.customNote || it.selectedLogo}]` : ''}`,
+        it.quantity,
+        `NOK ${Number(it.unitPrice).toFixed(2)}`,
+        `NOK ${Number(it.totalPrice).toFixed(2)}`
+      ]);
+
+      autoTable(doc, {
+        startY: 88,
+        head: [["#", "SKU / Part ID", "Article Description & Logo Customization", "Qty", "Unit Price", "Total Price"]],
+        body: tableData,
+        headStyles: { fillColor: [13, 148, 136] }, // teal-600
+        styles: { fontSize: 9 },
+      });
+
+      const finalY = (doc).lastAutoTable?.finalY ? (doc).lastAutoTable.finalY + 10 : 150;
+
+      // Parcel Weight & EHF Summary
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text("PARCEL & SHIPMENT WEIGHT SUMMARY:", 14, finalY);
+      doc.setFont("helvetica", "normal");
+      doc.text(`• Total Parcel Weight: ${order.totalParcelWeight?.toFixed(2) || '0.20'} kg`, 14, finalY + 7);
+      doc.text(`• Garment Net Weight: ${order.garmentWeightKg?.toFixed(2) || '0.00'} kg`, 14, finalY + 13);
+      doc.text(`• Packaging Weight: ${order.packagingWeightKg?.toFixed(2) || '0.20'} kg`, 14, finalY + 19);
+
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(9);
+      doc.text("This electronic delivery note complies with EHF Pakkeseddel 3.0 (Peppol BIS Despatch Advice 3.0).", 14, finalY + 30);
+
+      doc.save(`DeliveryNote_${dnNumber}.pdf`);
+      toast.success("Delivery Note PDF downloaded!");
+    } catch (err) {
+      toast.error("Failed to generate Delivery Note PDF");
+    }
+  };
+
+  // Download EHF XML Despatch Advice
+  const downloadEhfXml = async (order) => {
+    try {
+      const res = await api.get(`/ehf/orders/${order.id}/despatch-advice`, {
+        headers: { Accept: "application/xml" }
+      });
+      const xmlData = typeof res.data === "string" ? res.data : (res.data?.data?.xml || "");
+      const blob = new Blob([xmlData], { type: "application/xml" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `EHF_Pakkeseddel_${order.orderNumber}.xml`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("EHF Pakkeseddel 3.0 XML downloaded!");
+    } catch (e) {
+      toast.error("Failed to download EHF XML");
     }
   };
 
@@ -180,10 +290,28 @@ const B2BOrdersPage = () => {
                   {/* Fulfillment Status & Action Footer */}
                   <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                     {order.deliveryNote ? (
-                      <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200 flex items-center gap-1.5">
-                        <CheckCircle size={15} />
-                        <span>Fulfilled • {order.deliveryNote.deliveryNoteNumber}</span>
-                      </span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200 flex items-center gap-1.5">
+                          <CheckCircle size={15} />
+                          <span>Fulfilled • {order.deliveryNote.deliveryNoteNumber}</span>
+                        </span>
+
+                        <button
+                          onClick={() => generateDeliveryNotePdf(order)}
+                          className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow transition active:scale-95"
+                        >
+                          <FileText size={14} className="text-teal-400" />
+                          <span>Download Delivery Note PDF</span>
+                        </button>
+
+                        <button
+                          onClick={() => downloadEhfXml(order)}
+                          className="bg-teal-950 hover:bg-teal-900 text-teal-200 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 border border-teal-800 transition active:scale-95"
+                        >
+                          <Download size={14} />
+                          <span>EHF XML</span>
+                        </button>
+                      </div>
                     ) : (
                       <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-3 py-2 rounded-xl border border-amber-200 flex items-center gap-1.5">
                         <span>⚠️ Pending Stock Out Fulfillment</span>
@@ -213,3 +341,4 @@ const B2BOrdersPage = () => {
 };
 
 export default B2BOrdersPage;
+
