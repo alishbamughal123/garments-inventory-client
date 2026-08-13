@@ -2,6 +2,7 @@ import {
   FiAlertTriangle,
   FiArrowDownCircle,
   FiArrowUpCircle,
+  FiBarChart2,
   FiBox,
   FiFileText,
   FiGrid,
@@ -71,11 +72,12 @@ export const sidebarNavigation = [
         name: "Support",
         path: appRoutes.crmSupport,
       },
-      {
-        name: "Reports",
-        path: appRoutes.crmReports,
-      },
     ],
+  },
+  {
+    name: "Reports",
+    path: appRoutes.crmReports,
+    icon: FiBarChart2,
   },
   {
     name: "Returns",
