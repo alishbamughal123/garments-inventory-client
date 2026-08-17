@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
   User,
@@ -15,6 +16,8 @@ import {
   Building2,
   Sliders,
   Sparkles,
+  Users,
+  UserPlus,
 } from "lucide-react";
 import MainLayout from "../../layouts/MainLayout";
 import PageHeader from "../../components/ui/PageHeader";
@@ -25,6 +28,7 @@ import { updateProfile } from "../../services/auth.service";
 import { inputStyles, labelStyles } from "../../components/ui/formStyles";
 
 const SettingsPage = () => {
+  const navigate = useNavigate();
   const { user, updateUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("profile"); // 'profile' | 'store' | 'notifications'
@@ -318,16 +322,42 @@ const SettingsPage = () => {
 
             {/* SIDE ROLES & ACCESS SUMMARY */}
             <div className="md:col-span-4 space-y-6">
+              {/* TEAM & USER MANAGEMENT DIRECT SHORTCUT CARD */}
+              <SurfaceCard className="p-6 space-y-4 border border-blue-100 bg-gradient-to-br from-blue-50/60 to-white shadow-sm">
+                <div className="flex items-center gap-3 border-b border-blue-100 pb-3">
+                  <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-sm shadow-blue-200">
+                    <Users className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm">Add / Manage Users</h4>
+                    <p className="text-[11px] text-slate-500">Create staff email & passwords</p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  New staff, managers ya cashiers ko system mein add karne aur unko <strong>Email aur Login Password</strong> assign karne ke liye <strong>User Management</strong> page use karein.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => navigate("/users")}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs py-2.5 shadow-sm transition"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>Open User Management (+ Add User)</span>
+                </button>
+              </SurfaceCard>
+
               <SurfaceCard className="p-6 space-y-4">
                 <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
-                  <Shield className="w-5 h-5 text-indigo-600" />
+                  <Shield className="w-5 h-5 text-blue-600" />
                   <h4 className="font-bold text-slate-900 text-sm">Role & Permissions</h4>
                 </div>
 
                 <div className="space-y-3 text-xs">
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                     <span className="text-slate-600 font-medium">Role Level</span>
-                    <span className="font-bold text-indigo-600 uppercase">{user?.role || "ADMIN"}</span>
+                    <span className="font-bold text-blue-600 uppercase">{user?.role || "ADMIN"}</span>
                   </div>
 
                   <div className="space-y-2 pt-2">
