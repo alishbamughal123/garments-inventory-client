@@ -20,107 +20,11 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { resolveProductImageUrl, getColorHex } from "../../utils/imageHelper";
-
-/**
- * Standard ISO 3758 / Nordic Textile Care Symbols & Descriptions
- */
-const DEFAULT_SYMBOLS = [
-  {
-    id: "wash",
-    titleNo: "Vaskes på 40 °C",
-    titleEn: "Machine Wash 40°C",
-    descNo: "Normal maskinvask på maks 40 °C.",
-    descEn: "Standard machine wash at max 40°C.",
-    status: "allowed",
-    iconType: "wash40",
-  },
-  {
-    id: "bleach",
-    titleNo: "Ikke klorblek",
-    titleEn: "Do Not Bleach",
-    descNo: "Ikke bruk klorblekemiddel.",
-    descEn: "Do not use chlorine bleach.",
-    status: "prohibited",
-    iconType: "noBleach",
-  },
-  {
-    id: "tumble",
-    titleNo: "Lav tørketrommel",
-    titleEn: "Tumble Dry Low",
-    descNo: "Tørketrommel på lav varme.",
-    descEn: "Tumble dry at low heat.",
-    status: "warning",
-    iconType: "tumbleLow",
-  },
-  {
-    id: "iron",
-    titleNo: "Lav stryking",
-    titleEn: "Iron Low (Max 110°C)",
-    descNo: "Strykes på lav temp (maks 110–150 °C).",
-    descEn: "Iron low setting (max 110–150 °C).",
-    status: "allowed",
-    iconType: "ironLow",
-  },
-  {
-    id: "dryclean",
-    titleNo: "Ikke renses",
-    titleEn: "Do Not Dry Clean",
-    descNo: "Tåler ikke kjemisk rens.",
-    descEn: "Do not chemically dry clean.",
-    status: "prohibited",
-    iconType: "noDryClean",
-  },
-];
-
-/**
- * Crisp SVG Care Icon for Front-of-Card Display
- */
-const CareIcon = ({ type }) => {
-  switch (type) {
-    case "wash40":
-      return (
-        <svg viewBox="0 0 48 48" className="w-6 h-6 stroke-slate-800 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M6 16 L10 38 Q10 42 14 42 L34 42 Q38 42 38 38 L42 16" />
-          <path d="M6 19 Q12 15 18 19 T30 19 T42 19" strokeWidth="2" strokeDasharray="1 0" />
-          <text x="24" y="33" textAnchor="middle" fill="currentColor" stroke="none" className="text-[11px] font-extrabold font-mono" style={{ fill: "#1e293b" }}>40°</text>
-        </svg>
-      );
-    case "noBleach":
-      return (
-        <svg viewBox="0 0 48 48" className="w-6 h-6 stroke-rose-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="24,8 6,40 42,40" />
-          <line x1="12" y1="18" x2="36" y2="38" className="stroke-rose-600" strokeWidth="2.5" />
-          <line x1="36" y1="18" x2="12" y2="38" className="stroke-rose-600" strokeWidth="2.5" />
-        </svg>
-      );
-    case "tumbleLow":
-      return (
-        <svg viewBox="0 0 48 48" className="w-6 h-6 stroke-amber-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="8" y="8" width="32" height="32" rx="4" />
-          <circle cx="24" cy="24" r="12" />
-          <circle cx="24" cy="24" r="2.5" className="fill-amber-600 stroke-none" />
-        </svg>
-      );
-    case "ironLow":
-      return (
-        <svg viewBox="0 0 48 48" className="w-6 h-6 stroke-slate-800 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M8 36 L40 36 C42 36 43 34 41 30 C37 22 28 20 22 20 L10 20 C8 20 8 26 8 36 Z" />
-          <path d="M12 20 L12 14 C12 12 14 10 16 10 L34 10" />
-          <circle cx="24" cy="28" r="2" className="fill-slate-800 stroke-none" />
-        </svg>
-      );
-    case "noDryClean":
-      return (
-        <svg viewBox="0 0 48 48" className="w-6 h-6 stroke-rose-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="24" cy="24" r="16" />
-          <line x1="12" y1="12" x2="36" y2="36" className="stroke-rose-600" strokeWidth="2.5" />
-          <line x1="36" y1="12" x2="12" y2="36" className="stroke-rose-600" strokeWidth="2.5" />
-        </svg>
-      );
-    default:
-      return <ShieldCheck className="w-6 h-6 text-blue-600" />;
-  }
-};
+import {
+  STYLE_10101_SYMBOLS,
+  DEFAULT_WORKWEAR_SYMBOLS,
+  CareIcon,
+} from "../../components/products/WashingCareCard";
 
 const PortalCatalogPage = () => {
   const { t, lang } = useLanguage();
@@ -274,12 +178,21 @@ const PortalCatalogPage = () => {
               (product.styleNumber ? product.styleNumber.split("-")[0] : "");
             const garmentImg = resolveProductImageUrl(product.imageUrl, baseStyle, product.color);
 
+            const isStyle10101 =
+              String(baseStyle).startsWith("10101") ||
+              (product.washingInstructions && product.washingInstructions.includes("separat"));
+
+            const symbolsList = isStyle10101
+              ? STYLE_10101_SYMBOLS
+              : DEFAULT_WORKWEAR_SYMBOLS;
+
             const careText = isNo
-              ? product.washingInstructions && product.washingInstructions.includes("Vaskes")
-                ? product.washingInstructions
-                : norwegianCareFull
-              : product.washingInstructions && !product.washingInstructions.includes("Vaskes")
-              ? product.washingInstructions
+              ? product.washingInstructions ||
+                (isStyle10101
+                  ? "Vask 40°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt"
+                  : norwegianCareFull)
+              : isStyle10101
+              ? "Wash 40°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed"
               : englishCareFull;
 
             return (
@@ -467,9 +380,15 @@ const PortalCatalogPage = () => {
                     </span>
                   </div>
 
-                  {/* 5 VECTOR CARE SYMBOL TILES (FULL ROW) */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
-                    {DEFAULT_SYMBOLS.map((s) => {
+                  {/* VECTOR CARE SYMBOL TILES (FULL ROW - 6 TILES FOR 10101, 5 FOR WORKWEAR) */}
+                  <div
+                    className={`grid gap-2.5 ${
+                      symbolsList.length === 6
+                        ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-6"
+                        : "grid-cols-2 sm:grid-cols-3 md:grid-cols-5"
+                    }`}
+                  >
+                    {symbolsList.map((s) => {
                       const isProhibited = s.status === "prohibited";
                       const isWarning = s.status === "warning";
 

@@ -448,6 +448,7 @@ const ProductDetailsPage = () => {
 
         {/* 🌟 VECTOR ISO 3758 NORWEGIAN TEXTILE CARE CARD */}
         <WashingCareCard
+          styleNumber={baseStyleNo}
           fabric={activeVariant.fabric || product.fabric}
           customInstructions={activeVariant.washingInstructions || product.washingInstructions}
           brand={product.brand || "Nordic Prowear"}
