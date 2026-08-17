@@ -35,7 +35,7 @@ const ProductTable = ({
           const barcode = product.barcodes?.find((b) => b.isPrimary) || product.barcodes?.[0];
           const lowStock = product.stockQuantity <= product.minStockAlert;
           const baseStyle = product.baseStyleNumber || (product.styleNumber ? product.styleNumber.split("-")[0] : "");
-          const imgUrl = resolveProductImageUrl(product.imageUrl, baseStyle);
+          const imgUrl = resolveProductImageUrl(product.imageUrl, baseStyle, product.color);
 
           return (
             <article
@@ -189,7 +189,7 @@ const ProductTable = ({
               const barcode = product.barcodes?.find((b) => b.isPrimary) || product.barcodes?.[0];
               const lowStock = product.stockQuantity <= product.minStockAlert;
               const baseStyle = product.baseStyleNumber || (product.styleNumber ? product.styleNumber.split("-")[0] : "");
-              const imgUrl = resolveProductImageUrl(product.imageUrl, baseStyle);
+              const imgUrl = resolveProductImageUrl(product.imageUrl, baseStyle, product.color);
 
               return (
                 <tr

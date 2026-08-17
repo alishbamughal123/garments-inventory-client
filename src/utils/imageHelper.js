@@ -22,9 +22,9 @@ export const getColorHex = (colorName = "") => {
 };
 
 /**
- * Resolves product garment image URL cleanly
+ * Resolves product garment image URL cleanly with color-specific variants
  */
-export const resolveProductImageUrl = (imageUrl, baseStyleNumber = "") => {
+export const resolveProductImageUrl = (imageUrl, baseStyleNumber = "", colorName = "") => {
   if (imageUrl) {
     if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://") || imageUrl.startsWith("data:")) {
       return imageUrl;
@@ -38,8 +38,18 @@ export const resolveProductImageUrl = (imageUrl, baseStyleNumber = "") => {
     return imageUrl;
   }
 
-  // Built-in style image mapping
-  if (baseStyleNumber === "10124" || baseStyleNumber.startsWith("10124")) {
+  const baseStyle = String(baseStyleNumber || "").trim();
+  const col = String(colorName || "").toLowerCase();
+
+  // Style #10101 (Basic S/S Tee)
+  if (baseStyle === "10101" || baseStyle.startsWith("10101")) {
+    if (col.includes("white")) return "/images/10101-white.jpg";
+    if (col.includes("navy")) return "/images/10101-navy.jpg";
+    return "/images/10101-black.png";
+  }
+
+  // Style #10124 (Oslo - Workwear Trousers)
+  if (baseStyle === "10124" || baseStyle.startsWith("10124")) {
     return "/images/10124.png";
   }
 
@@ -63,8 +73,14 @@ export const resolveWashingImageUrl = (washingImageUrl, baseStyleNumber = "") =>
     return washingImageUrl;
   }
 
-  // Built-in washing instruction image mapping
-  if (baseStyleNumber === "10124" || baseStyleNumber.startsWith("10124")) {
+  const baseStyle = String(baseStyleNumber || "").trim();
+
+  // Built-in washing instruction image mappings
+  if (baseStyle === "10101" || baseStyle.startsWith("10101")) {
+    return "/images/washing-instructions10101.png";
+  }
+
+  if (baseStyle === "10124" || baseStyle.startsWith("10124")) {
     return "/images/washing-instructions10124.png";
   }
 

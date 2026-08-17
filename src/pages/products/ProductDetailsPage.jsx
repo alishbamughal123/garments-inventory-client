@@ -149,7 +149,8 @@ const ProductDetailsPage = () => {
   // Resolve current garment photo URL
   const displayedImageUrl = resolveProductImageUrl(
     activeVariant?.imageUrl || activeColorGroup?.imageUrl || product?.imageUrl,
-    baseStyleNo
+    baseStyleNo,
+    activeColorGroup?.colorName
   );
 
   const handleExportArticleExcel = async () => {
@@ -297,7 +298,7 @@ const ProductDetailsPage = () => {
                   const grp = colorGroups[colorName];
                   const isSelected = activeColorKey === colorName;
                   const hex = getColorHex(colorName);
-                  const colorImg = resolveProductImageUrl(grp.imageUrl, baseStyleNo);
+                  const colorImg = resolveProductImageUrl(grp.imageUrl, baseStyleNo, colorName);
 
                   return (
                     <button

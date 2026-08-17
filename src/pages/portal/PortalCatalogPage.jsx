@@ -272,7 +272,7 @@ const PortalCatalogPage = () => {
             const baseStyle =
               product.baseStyleNumber ||
               (product.styleNumber ? product.styleNumber.split("-")[0] : "");
-            const garmentImg = resolveProductImageUrl(product.imageUrl, baseStyle);
+            const garmentImg = resolveProductImageUrl(product.imageUrl, baseStyle, product.color);
 
             const careText = isNo
               ? product.washingInstructions && product.washingInstructions.includes("Vaskes")
