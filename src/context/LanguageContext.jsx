@@ -143,6 +143,19 @@ const translations = {
     weightPerArticle: "Weight per Article (kg)",
     missingWeightBadge: "Weight Missing",
 
+    // Apparel & Care Labels
+    fullCareText: "Full Care Instructions:",
+    fullCareTextDefault: "Machine Wash at 40 °C • Do Not Use Chlorine Bleach • Tumble Dry Low Heat or Air Dry • Iron at Low Temperature (Max 110–150 °C) • Do Not Dry Clean (Unless Permitted)",
+    careLabelHeader: "Washing & Care Instructions",
+    careLabelSubtitle: "Official Nordic textile care standards for workwear & apparel",
+    fabricComposition: "Fabric Composition",
+    fabricWeight: "Fabric Weight",
+    fabricLabel: "Fabric",
+    availableColors: "Available Garment Colours",
+    availableSizes: "Available Sizes in",
+    articleSpecifications: "Full Article Specifications",
+    priceRevisionHistory: "Price Revision History",
+
     // Common
     search: "Search...",
     cancel: "Cancel",
@@ -295,6 +308,19 @@ const translations = {
     parcelWeightCalculator: "Forsendelsesvekt-kalkulator",
     weightPerArticle: "Vekt per artikkel (kg)",
     missingWeightBadge: "Vekt mangler",
+
+    // Apparel & Care Labels
+    fullCareText: "Full Vaskeanvisning:",
+    fullCareTextDefault: "Vaskes på 40 °C • Ikke bruk klorblekemiddel • Tørketrommel på lav varme eller lufttørkes • Strykes på lav temperatur (maks 110–150 °C) • Ikke renses (med mindre etiketten tillater det)",
+    careLabelHeader: "Vaskeanvisning & Vedlikehold",
+    careLabelSubtitle: "Offisielle nordiske vaskesymboler for arbeidstøy og tekstiler",
+    fabricComposition: "Stoffsammensetning",
+    fabricWeight: "Stoffvekt",
+    fabricLabel: "Stoff",
+    availableColors: "Tilgjengelige farger",
+    availableSizes: "Tilgjengelige størrelser i",
+    articleSpecifications: "Komplette artikkelspesifikasjoner",
+    priceRevisionHistory: "Prisendringshistorikk",
 
     // Common
     search: "Søk...",

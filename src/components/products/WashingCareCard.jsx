@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { ShieldCheck, Info, Check, X, Sparkles, Globe } from "lucide-react";
+import React from "react";
+import { ShieldCheck, Check, X } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 
 /**
- * Standard ISO 3758 / Nordic Textile Care Symbols & Norwegian Descriptions
+ * Standard ISO 3758 / Nordic Textile Care Symbols & Dual-Language Descriptions
  */
 const DEFAULT_SYMBOLS = [
   {
@@ -27,8 +28,8 @@ const DEFAULT_SYMBOLS = [
     id: "tumble",
     titleNo: "Lav tørketrommel",
     titleEn: "Tumble Dry Low",
-    descNo: "Tørketrommel på lav varme eller hengetørkes.",
-    descEn: "Tumble dry at low heat or hang dry in shade.",
+    descNo: "Tørketrommel på lav varme eller lufttørkes.",
+    descEn: "Tumble dry at low heat or air dry in shade.",
     status: "warning",
     iconType: "tumbleLow",
   },
@@ -45,8 +46,8 @@ const DEFAULT_SYMBOLS = [
     id: "dryclean",
     titleNo: "Ikke renses",
     titleEn: "Do Not Dry Clean",
-    descNo: "Tåler ikke kjemisk rens med løsemidler.",
-    descEn: "Do not chemically dry clean unless labeled.",
+    descNo: "Ikke renses (med mindre etiketten tillater det).",
+    descEn: "Do not dry clean (unless label allows it).",
     status: "prohibited",
     iconType: "noDryClean",
   },
@@ -59,18 +60,40 @@ const CareIcon = ({ type }) => {
   switch (type) {
     case "wash40":
       return (
-        <svg viewBox="0 0 48 48" className="w-8 h-8 stroke-slate-800 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          viewBox="0 0 48 48"
+          className="w-8 h-8 stroke-slate-800 fill-none"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           {/* Tub */}
           <path d="M6 16 L10 38 Q10 42 14 42 L34 42 Q38 42 38 38 L42 16" />
           {/* Water wave */}
           <path d="M6 19 Q12 15 18 19 T30 19 T42 19" strokeWidth="2" strokeDasharray="1 0" />
           {/* 40°C text */}
-          <text x="24" y="33" textAnchor="middle" fill="currentColor" stroke="none" className="text-[11px] font-extrabold font-mono" style={{ fill: "#1e293b" }}>40°</text>
+          <text
+            x="24"
+            y="33"
+            textAnchor="middle"
+            fill="currentColor"
+            stroke="none"
+            className="text-[11px] font-extrabold font-mono"
+            style={{ fill: "#1e293b" }}
+          >
+            40°
+          </text>
         </svg>
       );
     case "noBleach":
       return (
-        <svg viewBox="0 0 48 48" className="w-8 h-8 stroke-rose-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          viewBox="0 0 48 48"
+          className="w-8 h-8 stroke-rose-600 fill-none"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           {/* Triangle */}
           <polygon points="24,8 6,40 42,40" />
           {/* Prohibited X cross */}
@@ -80,7 +103,13 @@ const CareIcon = ({ type }) => {
       );
     case "tumbleLow":
       return (
-        <svg viewBox="0 0 48 48" className="w-8 h-8 stroke-amber-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          viewBox="0 0 48 48"
+          className="w-8 h-8 stroke-amber-600 fill-none"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           {/* Square */}
           <rect x="8" y="8" width="32" height="32" rx="4" />
           {/* Inner Circle */}
@@ -91,7 +120,13 @@ const CareIcon = ({ type }) => {
       );
     case "ironLow":
       return (
-        <svg viewBox="0 0 48 48" className="w-8 h-8 stroke-slate-800 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          viewBox="0 0 48 48"
+          className="w-8 h-8 stroke-slate-800 fill-none"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           {/* Iron Silhouette */}
           <path d="M8 36 L40 36 C42 36 43 34 41 30 C37 22 28 20 22 20 L10 20 C8 20 8 26 8 36 Z" />
           <path d="M12 20 L12 14 C12 12 14 10 16 10 L34 10" />
@@ -101,7 +136,13 @@ const CareIcon = ({ type }) => {
       );
     case "noDryClean":
       return (
-        <svg viewBox="0 0 48 48" className="w-8 h-8 stroke-rose-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          viewBox="0 0 48 48"
+          className="w-8 h-8 stroke-rose-600 fill-none"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           {/* Circle */}
           <circle cx="24" cy="24" r="16" />
           {/* Prohibited X cross */}
@@ -119,9 +160,23 @@ const WashingCareCard = ({
   customInstructions = "",
   brand = "Nordic Prowear",
 }) => {
-  const [lang, setLang] = useState("no"); // 'no' (Norsk) | 'en' (English)
-
+  const { lang, setLang, t } = useLanguage();
   const isNo = lang === "no";
+
+  const norwegianCareFull =
+    "Vaskes på 40 °C • Ikke bruk klorblekemiddel • Tørketrommel på lav varme eller lufttørkes • Strykes på lav temperatur (maks 110–150 °C) • Ikke renses (med mindre etiketten tillater det)";
+
+  const englishCareFull =
+    "Machine Wash at 40 °C • Do Not Use Chlorine Bleach • Tumble Dry Low Heat or Air Dry • Iron at Low Temperature (Max 110–150 °C) • Do Not Dry Clean (Unless Label Allows)";
+
+  // If custom instructions exist, use appropriate translation
+  const fullTextToDisplay = isNo
+    ? customInstructions && customInstructions.includes("Vaskes")
+      ? customInstructions
+      : norwegianCareFull
+    : customInstructions && !customInstructions.includes("Vaskes")
+    ? customInstructions
+    : englishCareFull;
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/60 p-5 sm:p-6 shadow-sm space-y-4">
@@ -200,7 +255,19 @@ const WashingCareCard = ({
                     ? "bg-amber-500 text-white"
                     : "bg-emerald-600 text-white"
                 }`}
-                title={isProhibited ? "Forbudt / Prohibited" : isWarning ? "Forsiktig / Caution" : "Tillatt / Allowed"}
+                title={
+                  isProhibited
+                    ? isNo
+                      ? "Forbudt"
+                      : "Prohibited"
+                    : isWarning
+                    ? isNo
+                      ? "Forsiktig"
+                      : "Caution"
+                    : isNo
+                    ? "Tillatt"
+                    : "Allowed"
+                }
               >
                 {isProhibited ? <X size={10} strokeWidth={3} /> : <Check size={10} strokeWidth={3} />}
               </span>
@@ -226,20 +293,15 @@ const WashingCareCard = ({
 
       {/* FOOTER TEXT & FABRIC NOTE */}
       <div className="p-3.5 rounded-xl bg-slate-100/70 border border-slate-200/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-slate-700">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-slate-900">
+        <div className="flex items-start sm:items-center gap-2">
+          <span className="font-bold text-slate-900 shrink-0">
             {isNo ? "Full Vaskeanvisning:" : "Full Care Text:"}
           </span>
-          <span className="text-slate-600">
-            {customInstructions ||
-              (isNo
-                ? "Vaskes på 40 °C • Ikke bruk klorblekemiddel • Tørketrommel på lav varme • Strykes på lav temp • Ikke renses"
-                : "40°C Machine Wash • Do Not Bleach • Tumble Dry Low Heat • Iron Low Temp • Do Not Dry Clean")}
-          </span>
+          <span className="text-slate-600 leading-relaxed">{fullTextToDisplay}</span>
         </div>
 
         {fabric && (
-          <span className="shrink-0 px-2.5 py-1 rounded-lg bg-white border border-slate-200 font-semibold text-slate-800 font-mono text-[11px]">
+          <span className="shrink-0 px-2.5 py-1 rounded-lg bg-white border border-slate-200 font-semibold text-slate-800 font-mono text-[11px] self-start sm:self-auto">
             {fabric}
           </span>
         )}
