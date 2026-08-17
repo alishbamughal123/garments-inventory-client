@@ -45,3 +45,28 @@ export const resolveProductImageUrl = (imageUrl, baseStyleNumber = "") => {
 
   return "/uploads/placeholders/default-article.svg";
 };
+
+/**
+ * Resolves washing instruction image URL cleanly with Norwegian care label support
+ */
+export const resolveWashingImageUrl = (washingImageUrl, baseStyleNumber = "") => {
+  if (washingImageUrl) {
+    if (washingImageUrl.startsWith("http://") || washingImageUrl.startsWith("https://") || washingImageUrl.startsWith("data:")) {
+      return washingImageUrl;
+    }
+    if (washingImageUrl.startsWith("/images/")) {
+      return washingImageUrl;
+    }
+    if (washingImageUrl.startsWith("/uploads/")) {
+      return `${BACKEND_URL}${washingImageUrl}`;
+    }
+    return washingImageUrl;
+  }
+
+  // Built-in washing instruction image mapping
+  if (baseStyleNumber === "10124" || baseStyleNumber.startsWith("10124")) {
+    return "/images/washing-instructions10124.png";
+  }
+
+  return "/uploads/placeholders/default-washing.svg";
+};

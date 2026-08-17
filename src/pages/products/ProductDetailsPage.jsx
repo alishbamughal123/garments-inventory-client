@@ -31,7 +31,8 @@ import {
   getProducts,
 } from "../../services/products.service";
 import { exportArticlesToExcelWithBarcodes } from "../../utils/barcodeExport";
-import { resolveProductImageUrl, getColorHex } from "../../utils/imageHelper";
+import { resolveProductImageUrl, resolveWashingImageUrl, getColorHex } from "../../utils/imageHelper";
+import WashingCareCard from "../../components/products/WashingCareCard";
 import toast from "react-hot-toast";
 
 const ProductDetailsPage = () => {
@@ -269,23 +270,6 @@ const ProductDetailsPage = () => {
                 <span>{product.itemName || "Garment Article"}</span>
               </div>
             </SurfaceCard>
-
-            {/* WASHING & CARE INSTRUCTIONS CARD */}
-            <SurfaceCard className="p-4 bg-slate-50/80 border border-slate-200/80">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-100/70 text-blue-700 flex items-center justify-center shrink-0">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                    Washing & Care Instructions
-                  </h4>
-                  <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                    {product.washingInstructions || "40°C Standard Wash. Do Not Bleach. Tumble Dry Low."}
-                  </p>
-                </div>
-              </div>
-            </SurfaceCard>
           </div>
 
           {/* RIGHT: COLOUR OPTIONS & SIZES INTERACTIVE SELECTOR */}
@@ -460,6 +444,13 @@ const ProductDetailsPage = () => {
             </SurfaceCard>
           </div>
         </div>
+
+        {/* 🌟 VECTOR ISO 3758 NORWEGIAN TEXTILE CARE CARD */}
+        <WashingCareCard
+          fabric={activeVariant.fabric || product.fabric}
+          customInstructions={activeVariant.washingInstructions || product.washingInstructions}
+          brand={product.brand || "Nordic Prowear"}
+        />
 
         {/* DETAILED SPECIFICATIONS & PRICE HISTORY */}
         <SurfaceCard className="p-5 sm:p-8 space-y-6">
