@@ -140,29 +140,29 @@ const BarcodePrintModal = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
+            <button
+              type="button"
               onClick={handleExportExcel}
               disabled={exportingExcel}
-              className="hidden sm:inline-flex items-center gap-1.5 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-3.5 py-2 text-xs font-semibold shadow-sm transition disabled:opacity-50"
             >
               <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-              {exportingExcel ? "Exporting..." : "Excel (.xlsx) with Barcodes"}
-            </Button>
-
-            <Button
-              onClick={handlePrint}
-              size="sm"
-              className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-200"
-            >
-              <Printer className="w-4 h-4" />
-              Print Labels
-            </Button>
+              <span>{exportingExcel ? "Exporting..." : "Excel (.xlsx)"}</span>
+            </button>
 
             <button
+              type="button"
+              onClick={handlePrint}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-xs font-semibold shadow-sm transition"
+            >
+              <Printer className="w-4 h-4" />
+              <span>Print Labels</span>
+            </button>
+
+            <button
+              type="button"
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
+              className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition ml-1"
             >
               <X className="w-5 h-5" />
             </button>
@@ -340,29 +340,32 @@ const BarcodePrintModal = ({
 
         {/* FOOTER (NO-PRINT) */}
         <div className="no-print p-4 bg-slate-50 border-t border-slate-200/60 flex items-center justify-between">
-          <Button
-            variant="outline"
-            size="sm"
+          <button
+            type="button"
             onClick={handleExportExcel}
             disabled={exportingExcel}
-            className="inline-flex items-center gap-1.5 text-emerald-700 border-emerald-300 hover:bg-emerald-50"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-4 py-2 text-xs font-semibold shadow-sm transition disabled:opacity-50"
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-            Download Excel Sheet
-          </Button>
+            <span>Download Excel Sheet</span>
+          </button>
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={onClose}>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-4 py-2 text-xs font-semibold shadow-sm transition"
+            >
               Close
-            </Button>
-            <Button
+            </button>
+            <button
+              type="button"
               onClick={handlePrint}
-              size="sm"
-              className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-200"
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 text-xs font-semibold shadow-sm transition"
             >
               <Printer className="w-4 h-4" />
-              Print Labels Now
-            </Button>
+              <span>Print Labels Now</span>
+            </button>
           </div>
         </div>
       </div>

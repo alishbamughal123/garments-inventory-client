@@ -129,42 +129,43 @@ const ProductDetailsPage = () => {
           title={`Article Details - ${product.productName}`}
           description={`Style #${baseStyleNo} • Review variants, stock levels, embedded barcode sheets, and pricing.`}
           action={
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant="outline"
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+              <button
+                type="button"
                 onClick={handleExportArticleExcel}
                 disabled={exportingExcel}
-                className="inline-flex items-center gap-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50 shadow-sm"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50"
               >
-                <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-                {exportingExcel ? "Exporting..." : "Excel (+ Barcodes)"}
-              </Button>
+                <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{exportingExcel ? "Exporting..." : "Excel (+ Barcodes)"}</span>
+              </button>
 
-              <Button
-                variant="outline"
+              <button
+                type="button"
                 onClick={() => setPrintModalOpen(true)}
-                className="inline-flex items-center gap-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50 shadow-sm"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300"
               >
-                <Printer className="w-4 h-4 text-indigo-600" />
-                Print Labels ({allVariants.length})
-              </Button>
+                <Printer className="w-4 h-4 text-blue-600 shrink-0" />
+                <span>Print Labels ({allVariants.length})</span>
+              </button>
 
-              <Button
-                variant="outline"
+              <button
+                type="button"
                 onClick={() => navigate(`/products/barcode/${product.id}`)}
-                className="inline-flex items-center gap-2 border-slate-200 hover:bg-slate-50 shadow-sm"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300"
               >
-                <Tag className="w-4 h-4 text-slate-600" />
-                Barcode Label
-              </Button>
+                <Tag className="w-4 h-4 text-slate-500 shrink-0" />
+                <span>Barcode</span>
+              </button>
 
-              <Button
+              <button
+                type="button"
                 onClick={() => navigate(`/products/edit/${product.id}`)}
-                className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold shadow-sm transition"
               >
-                <Edit className="w-4 h-4" />
-                Edit Article
-              </Button>
+                <Edit className="w-4 h-4 shrink-0" />
+                <span>Edit</span>
+              </button>
             </div>
           }
         />

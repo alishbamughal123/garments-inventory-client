@@ -206,34 +206,34 @@ const BarcodePage = () => {
           title={`Article Barcode - ${product.productName}`}
           description={`Style #${baseStyleNo} • High-resolution barcodes, multi-variant label sheet printing, and Excel spreadsheet export.`}
           action={
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant="outline"
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+              <button
+                type="button"
                 onClick={handleExportArticleExcel}
                 disabled={exportingExcel}
-                className="inline-flex items-center gap-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50 shadow-sm"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50"
               >
-                <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-                {exportingExcel ? "Exporting..." : "Download Excel (+ Barcodes)"}
-              </Button>
+                <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{exportingExcel ? "Exporting..." : "Excel (+ Barcodes)"}</span>
+              </button>
 
-              <Button
-                variant="outline"
+              <button
+                type="button"
                 onClick={() => setPrintModalOpen(true)}
-                className="inline-flex items-center gap-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50 shadow-sm"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300"
               >
-                <Printer className="w-4 h-4 text-indigo-600" />
-                Print All Sizes ({allVariants.length})
-              </Button>
+                <Printer className="w-4 h-4 text-blue-600 shrink-0" />
+                <span>Print All Sizes ({allVariants.length})</span>
+              </button>
 
-              <Button
-                variant="outline"
+              <button
+                type="button"
                 onClick={() => navigate(`/products/${product.id}`)}
-                className="inline-flex items-center gap-2"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold shadow-sm transition"
               >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Details
-              </Button>
+                <ArrowLeft className="w-4 h-4 shrink-0" />
+                <span>Back to Details</span>
+              </button>
             </div>
           }
         />

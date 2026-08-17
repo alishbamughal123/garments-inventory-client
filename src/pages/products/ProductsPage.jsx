@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
-import { Printer, FileSpreadsheet, Layers, Filter, Check } from "lucide-react";
+import { Printer, FileSpreadsheet, Layers, Filter } from "lucide-react";
 import MainLayout from "../../layouts/MainLayout";
-import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
 import DeleteModal from "../../components/common/DeleteModal";
 import SearchBar from "../../components/products/SearchBar";
@@ -54,16 +53,19 @@ const ProductsPage = () => {
     return () => clearTimeout(timeout);
   }, [search]);
 
-  // Extract unique base styles for fast filtering (e.g. 10101, 10102)
+  // Extract unique base styles (e.g. 10101, 10102)
   const uniqueBaseStyles = Array.from(
     new Set(
       products
         .map((p) => p.baseStyleNumber || (p.styleNumber ? p.styleNumber.split("-")[0] : null))
         .filter(Boolean)
     )
-  );
+  ).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
-  // Filter products by selected base style if applicable
+  // Priority styles to show as top quick tabs
+  const priorityStyles = ["10101", "10102"].filter((s) => uniqueBaseStyles.includes(s));
+
+  // Filter products by selected base style
   const filteredProducts =
     selectedStyleFilter === "ALL"
       ? products
@@ -136,59 +138,57 @@ const ProductsPage = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-5 sm:space-y-6">
-        {/* PAGE HEADER */}
+      <div className="space-y-5">
+        {/* CLEAN PAGE HEADER */}
         <PageHeader
           title="Articles & Barcodes"
-          description="Manage apparel products, variants, embedded barcode sheets, and thermal label printing."
+          description="Manage apparel products, variants, barcode sheets, and label printing."
           action={
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full sm:w-auto">
-              {/* 1-Click Excel with Barcodes */}
-              <Button
-                variant="outline"
-                size="sm"
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+              {/* Excel Export Button */}
+              <button
+                type="button"
                 onClick={handleExportAllExcel}
                 disabled={exportingExcel || filteredProducts.length === 0}
-                className="inline-flex items-center justify-center gap-1.5 border-emerald-300 text-emerald-700 hover:bg-emerald-50 shadow-sm text-xs font-semibold py-2.5 px-3 w-full sm:w-auto"
-                title="Download Excel spreadsheet with embedded high-resolution barcode images"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Download Excel spreadsheet with embedded barcode images"
               >
                 <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span className="truncate">
+                <span>
                   {exportingExcel
                     ? `Exporting (${exportProgress?.current || 0}/${exportProgress?.total || filteredProducts.length})...`
                     : "Excel (+ Barcodes)"}
                 </span>
-              </Button>
+              </button>
 
-              {/* 1-Click Print Barcode Labels Sheet */}
-              <Button
-                variant="outline"
-                size="sm"
+              {/* Print Labels Sheet Button */}
+              <button
+                type="button"
                 onClick={() => setPrintModalOpen(true)}
                 disabled={filteredProducts.length === 0}
-                className="inline-flex items-center justify-center gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50 shadow-sm text-xs font-semibold py-2.5 px-3 w-full sm:w-auto"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Open printable barcode sticker labels sheet (A4 / Thermal)"
               >
-                <Printer className="w-4 h-4 text-indigo-600 shrink-0" />
-                <span className="truncate">Print Labels Sheet</span>
-              </Button>
+                <Printer className="w-4 h-4 text-blue-600 shrink-0" />
+                <span>Print Labels</span>
+              </button>
 
-              {/* Add Article Button (Spans full width on mobile 2-col grid) */}
-              <Button
+              {/* Primary Add Article Button */}
+              <button
+                type="button"
                 onClick={() => navigate("/products/add")}
-                size="sm"
-                className="col-span-2 sm:col-auto inline-flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-200 py-2.5 px-4 font-semibold text-xs sm:text-sm w-full sm:w-auto"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold shadow-sm transition"
               >
                 <FiPlus size={18} className="shrink-0" />
                 <span>Add Article</span>
-              </Button>
+              </button>
             </div>
           }
         />
 
-        {/* SEARCH & FILTERS TOOLBAR CARD */}
-        <SurfaceCard className="p-3 sm:p-4 space-y-3">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        {/* TOOLBAR: SEARCH & STYLE FILTER */}
+        <SurfaceCard className="p-3.5 sm:p-4">
+          <div className="flex flex-col md:flex-row md:items-center gap-3">
             {/* Search Input */}
             <div className="flex-1 min-w-0">
               <SearchBar
@@ -197,32 +197,23 @@ const ProductsPage = () => {
               />
             </div>
 
-            {/* Total count badge */}
-            <div className="flex items-center justify-between sm:justify-end gap-2 text-xs text-slate-500 shrink-0">
-              <span>Showing:</span>
-              <span className="px-2.5 py-1 rounded-lg bg-slate-100 font-bold text-slate-800 font-mono">
-                {filteredProducts.length} / {products.length} articles
-              </span>
-            </div>
-          </div>
-
-          {/* Quick Style Filter Tabs (e.g. 10101, 10102) */}
-          {uniqueBaseStyles.length > 0 && (
-            <div className="pt-2 border-t border-slate-100 flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 text-xs">
-              <span className="text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1 shrink-0 text-[11px]">
-                <Filter className="w-3 h-3 text-slate-400" /> Styles:
-              </span>
+            {/* Style Filter Dropdown & Quick Tabs */}
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              {/* Quick Tab: All Articles */}
               <button
+                type="button"
                 onClick={() => setSelectedStyleFilter("ALL")}
-                className={`px-3 py-1.5 rounded-xl font-semibold transition shrink-0 flex items-center gap-1.5 ${
+                className={`px-3 py-2 rounded-xl text-xs font-semibold transition ${
                   selectedStyleFilter === "ALL"
                     ? "bg-slate-900 text-white shadow-sm"
-                    : "bg-slate-100/70 border border-slate-200 text-slate-600 hover:bg-slate-200/60"
+                    : "bg-slate-100/80 text-slate-600 hover:bg-slate-200/70 border border-slate-200/60"
                 }`}
               >
-                All Articles ({products.length})
+                All ({products.length})
               </button>
-              {uniqueBaseStyles.map((style) => {
+
+              {/* Quick Tabs for Main Styles (e.g. 10101, 10102) */}
+              {priorityStyles.map((style) => {
                 const count = products.filter((p) => {
                   const base =
                     p.baseStyleNumber || (p.styleNumber ? p.styleNumber.split("-")[0] : "");
@@ -232,17 +223,18 @@ const ProductsPage = () => {
                 return (
                   <button
                     key={style}
+                    type="button"
                     onClick={() => setSelectedStyleFilter(style)}
-                    className={`px-3 py-1.5 rounded-xl font-semibold transition shrink-0 flex items-center gap-1.5 ${
+                    className={`px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
                       isSelected
-                        ? "bg-indigo-600 text-white shadow-sm"
-                        : "bg-slate-100/70 border border-slate-200 text-slate-600 hover:bg-slate-200/60"
+                        ? "bg-blue-600 text-white shadow-sm"
+                        : "bg-slate-100/80 text-slate-600 hover:bg-slate-200/70 border border-slate-200/60"
                     }`}
                   >
                     <span>Style #{style}</span>
                     <span
                       className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${
-                        isSelected ? "bg-indigo-800 text-white" : "bg-slate-200 text-slate-700"
+                        isSelected ? "bg-blue-800 text-white" : "bg-slate-200 text-slate-700"
                       }`}
                     >
                       {count}
@@ -250,8 +242,47 @@ const ProductsPage = () => {
                   </button>
                 );
               })}
+
+              {/* All other styles dropdown */}
+              {uniqueBaseStyles.length > priorityStyles.length && (
+                <div className="relative">
+                  <select
+                    value={priorityStyles.includes(selectedStyleFilter) || selectedStyleFilter === "ALL" ? "" : selectedStyleFilter}
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        setSelectedStyleFilter(e.target.value);
+                      }
+                    }}
+                    className="rounded-xl border border-slate-200 bg-slate-50 py-2 pl-3 pr-8 text-xs font-semibold text-slate-700 outline-none transition hover:bg-white focus:border-blue-400 focus:bg-white"
+                  >
+                    <option value="">More Styles ({uniqueBaseStyles.length - priorityStyles.length})...</option>
+                    {uniqueBaseStyles
+                      .filter((s) => !priorityStyles.includes(s))
+                      .map((style) => {
+                        const count = products.filter((p) => {
+                          const base =
+                            p.baseStyleNumber || (p.styleNumber ? p.styleNumber.split("-")[0] : "");
+                          return base === style;
+                        }).length;
+                        return (
+                          <option key={style} value={style}>
+                            Style #{style} ({count} items)
+                          </option>
+                        );
+                      })}
+                  </select>
+                </div>
+              )}
+
+              {/* Counter Badge */}
+              <div className="hidden lg:flex items-center text-xs text-slate-500 pl-1 font-medium">
+                <span className="font-mono font-semibold text-slate-800">
+                  {filteredProducts.length}
+                </span>
+                <span className="ml-1">articles</span>
+              </div>
             </div>
-          )}
+          </div>
         </SurfaceCard>
 
         {/* ARTICLES TABLE */}
