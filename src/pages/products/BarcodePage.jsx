@@ -1,13 +1,26 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { Printer, Download, Copy, Check, ArrowLeft, Tag, Layers, RefreshCw } from "lucide-react";
+import {
+  Printer,
+  Download,
+  Copy,
+  Check,
+  ArrowLeft,
+  Tag,
+  Layers,
+  RefreshCw,
+  FileSpreadsheet,
+  Grid,
+} from "lucide-react";
 import MainLayout from "../../layouts/MainLayout";
 import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import Loader from "../../components/ui/Loader";
-import { getProductById } from "../../services/products.service";
+import BarcodePrintModal from "../../components/products/BarcodePrintModal";
+import { getProductById, getProducts } from "../../services/products.service";
+import { exportArticlesToExcelWithBarcodes } from "../../utils/barcodeExport";
 
 const API_URL =
   import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes("railway")
@@ -20,18 +33,25 @@ const BarcodePage = () => {
 
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState(null);
+  const [allVariants, setAllVariants] = useState([]);
   const [barcode, setBarcode] = useState("");
   const [copied, setCopied] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [exportingExcel, setExportingExcel] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
 
     (async () => {
       try {
-        const response = await getProductById(id);
-        const productData = response.data;
+        setLoading(true);
+        const [productRes, allProductsRes] = await Promise.all([
+          getProductById(id),
+          getProducts().catch(() => ({ data: [] })),
+        ]);
 
+        const productData = productRes.data;
         if (!isMounted) return;
 
         setProduct(productData);
@@ -40,6 +60,22 @@ const BarcodePage = () => {
           productData?.barcodes?.find((b) => b.isPrimary) || productData?.barcodes?.[0];
 
         setBarcode(primaryBarcode?.barcodeValue || productData?.sku || "");
+
+        // Find all sibling variants of the same base style / style name
+        const baseStyle =
+          productData.baseStyleNumber ||
+          (productData.styleNumber ? productData.styleNumber.split("-")[0] : null);
+
+        const siblings = (allProductsRes.data || []).filter((p) => {
+          const pBase =
+            p.baseStyleNumber || (p.styleNumber ? p.styleNumber.split("-")[0] : null);
+          return (
+            (baseStyle && pBase === baseStyle) ||
+            (p.styleName && productData.styleName && p.styleName === productData.styleName)
+          );
+        });
+
+        setAllVariants(siblings.length > 0 ? siblings : [productData]);
       } catch (error) {
         console.error("Error loading product for barcode:", error);
         toast.error("Failed to load barcode details");
@@ -84,7 +120,34 @@ const BarcodePage = () => {
     }
   };
 
-  const handlePrint = () => {
+  const handleExportArticleExcel = async () => {
+    try {
+      setExportingExcel(true);
+      toast.loading("Generating Excel sheet with barcode images...", { id: "excel-toast" });
+
+      const baseCode =
+        product.baseStyleNumber ||
+        (product.styleNumber ? product.styleNumber.split("-")[0] : product.sku);
+
+      await exportArticlesToExcelWithBarcodes({
+        products: allVariants.length > 0 ? allVariants : [product],
+        fileName: `Article_${baseCode}_Barcodes`,
+        sheetName: `Article ${baseCode}`,
+      });
+
+      toast.success(
+        `Excel sheet for Article ${baseCode} (${allVariants.length} variants) downloaded!`,
+        { id: "excel-toast" }
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to export Excel file", { id: "excel-toast" });
+    } finally {
+      setExportingExcel(false);
+    }
+  };
+
+  const handlePrintSingle = () => {
     window.print();
   };
 
@@ -109,9 +172,13 @@ const BarcodePage = () => {
     );
   }
 
+  const baseStyleNo =
+    product.baseStyleNumber ||
+    (product.styleNumber ? product.styleNumber.split("-")[0] : product.sku);
+
   return (
     <MainLayout>
-      {/* PRINT-ONLY STYLES */}
+      {/* PRINT-ONLY STYLES FOR SINGLE LABEL */}
       <style>{`
         @media print {
           body * {
@@ -134,21 +201,80 @@ const BarcodePage = () => {
         }
       `}</style>
 
-      <div className="mx-auto max-w-4xl space-y-6">
+      <div className="mx-auto max-w-5xl space-y-6">
         <PageHeader
-          title="Article Barcode Label"
-          description="High-resolution barcode preview, printable hangtag sticker, and article specification details."
+          title={`Article Barcode - ${product.productName}`}
+          description={`Style #${baseStyleNo} • High-resolution barcodes, multi-variant label sheet printing, and Excel spreadsheet export.`}
           action={
-            <Button
-              variant="outline"
-              onClick={() => navigate(`/products/${product.id}`)}
-              className="inline-flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Details
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={handleExportArticleExcel}
+                disabled={exportingExcel}
+                className="inline-flex items-center gap-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50 shadow-sm"
+              >
+                <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                {exportingExcel ? "Exporting..." : "Download Excel (+ Barcodes)"}
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={() => setPrintModalOpen(true)}
+                className="inline-flex items-center gap-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50 shadow-sm"
+              >
+                <Printer className="w-4 h-4 text-indigo-600" />
+                Print All Sizes ({allVariants.length})
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/products/${product.id}`)}
+                className="inline-flex items-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Details
+              </Button>
+            </div>
           }
         />
+
+        {/* VARIANT SIZES QUICK PICKER BAR */}
+        {allVariants.length > 1 && (
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <Grid className="w-4 h-4 text-indigo-600" />
+                All Sizes for Article #{baseStyleNo} ({allVariants.length} Variants)
+              </div>
+              <span className="text-xs text-slate-400">Click any size to preview barcode</span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {allVariants.map((v) => {
+                const isCurrent = v.id === product.id;
+                const vBarcode =
+                  v.barcodes?.find((b) => b.isPrimary)?.barcodeValue ||
+                  v.barcodes?.[0]?.barcodeValue ||
+                  v.sku;
+
+                return (
+                  <button
+                    key={v.id}
+                    onClick={() => navigate(`/products/barcode/${v.id}`)}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-150 flex items-center gap-2 ${
+                      isCurrent
+                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 scale-105"
+                        : "bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300"
+                    }`}
+                  >
+                    <span className="font-bold uppercase">{v.size || "OS"}</span>
+                    <span className="text-[10px] opacity-75 font-mono">({vBarcode})</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           {/* BARCODE LABEL CARD (LEFT) */}
@@ -186,7 +312,11 @@ const BarcodePage = () => {
                 <div className="flex items-center justify-center gap-2 text-xs text-slate-500 font-medium pt-1">
                   {product.color && <span>Color: {product.color}</span>}
                   {product.color && product.size && <span>•</span>}
-                  {product.size && <span className="font-bold text-slate-700">Size: {product.size}</span>}
+                  {product.size && (
+                    <span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">
+                      Size: {product.size}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -224,18 +354,18 @@ const BarcodePage = () => {
               {/* FOOTER INFO */}
               <div className="mt-6 border-t border-slate-100 pt-4 flex items-center justify-between text-[11px] text-slate-400 font-medium">
                 <span>SKU: {product.sku}</span>
-                <span>Category: {product.category?.name || "General"}</span>
+                <span>Stock: {product.stockQuantity} units</span>
               </div>
             </div>
 
             {/* ACTION BUTTONS BELOW LABEL */}
             <div className="w-full mt-6 grid grid-cols-3 gap-3">
               <Button
-                onClick={handlePrint}
+                onClick={handlePrintSingle}
                 className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 py-3 rounded-2xl font-semibold text-xs sm:text-sm"
               >
                 <Printer className="w-4 h-4" />
-                Print
+                Print Sticker
               </Button>
 
               <Button
@@ -258,26 +388,38 @@ const BarcodePage = () => {
             </div>
           </div>
 
-          {/* ARTICLE METADATA & SPECS (RIGHT) */}
+          {/* ARTICLE METADATA & SIBLINGS LIST (RIGHT) */}
           <div className="md:col-span-6 space-y-6">
             <SurfaceCard className="p-6 sm:p-8 space-y-6">
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-                <div className="w-10 h-10 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center">
-                  <Tag className="w-5 h-5 text-indigo-600" />
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                    <Tag className="w-5 h-5 text-indigo-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-base">Article Specifications</h4>
+                    <p className="text-xs text-slate-500">Live barcode metadata & catalog specs</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-bold text-slate-900 text-base">Article Specifications</h4>
-                  <p className="text-xs text-slate-500">Live barcode metadata & catalog specs</p>
-                </div>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleExportArticleExcel}
+                  className="inline-flex items-center gap-1 text-emerald-700 border-emerald-300 hover:bg-emerald-50 text-xs"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+                  Excel Export
+                </Button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <SpecBox label="Base Style No" value={product.baseStyleNumber} />
+              <div className="grid grid-cols-2 gap-3.5">
+                <SpecBox label="Base Style No" value={product.baseStyleNumber || baseStyleNo} />
                 <SpecBox label="Style Name" value={product.styleName} />
                 <SpecBox label="Category" value={product.category?.name} />
-                <SpecBox label="Brand" value={product.brand} />
+                <SpecBox label="Brand" value={product.brand || "Nordic Prowear"} />
                 <SpecBox label="Color / Code" value={`${product.color} (${product.colorCode || "-"})`} />
-                <SpecBox label="Size" value={product.size} />
+                <SpecBox label="Current Size" value={product.size} highlight />
                 <SpecBox label="Fabric" value={product.fabric} />
                 <SpecBox label="Fabric Weight" value={product.fabricWeight} />
                 <SpecBox
@@ -291,13 +433,23 @@ const BarcodePage = () => {
               <div className="bg-amber-50/70 border border-amber-200/60 rounded-2xl p-4 text-xs text-amber-800 leading-relaxed flex items-start gap-3">
                 <Layers className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold">Printing Tip:</span> For optimal barcode scan rate on thermal label printers, use standard 4x2 inch label paper. Clicking "Print" will cleanly format only the label sticker.
+                  <span className="font-bold">Export & Print Options:</span> Click{" "}
+                  <strong>"Download Excel (+ Barcodes)"</strong> to get the Excel sheet with embedded barcode images for all sizes, or{" "}
+                  <strong>"Print All Sizes"</strong> to generate standard A4/thermal sticker sheets ready to print.
                 </div>
               </div>
             </SurfaceCard>
           </div>
         </div>
       </div>
+
+      {/* MULTI-VARIANT PRINT MODAL */}
+      <BarcodePrintModal
+        isOpen={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        products={allVariants}
+        title={`Print Barcode Labels - Article #${baseStyleNo} (${allVariants.length} Sizes)`}
+      />
     </MainLayout>
   );
 };

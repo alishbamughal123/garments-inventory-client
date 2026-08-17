@@ -7,45 +7,62 @@ import {
   useParams,
   useNavigate,
 } from "react-router-dom";
+import { FileSpreadsheet, Printer, Tag, Edit } from "lucide-react";
 import MainLayout from "../../layouts/MainLayout";
 import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import Loader from "../../components/ui/Loader";
+import BarcodePrintModal from "../../components/products/BarcodePrintModal";
 import {
   getProductById,
   getPriceHistory,
+  getProducts,
 } from "../../services/products.service";
+import { exportArticlesToExcelWithBarcodes } from "../../utils/barcodeExport";
+import toast from "react-hot-toast";
 
 const ProductDetailsPage = () => {
-  const { id } =
-    useParams();
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const navigate =
-    useNavigate();
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [product, setProduct] =
-    useState(null);
-
-  const [priceHistory, setPriceHistory] =
-    useState([]);
+  const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState(null);
+  const [priceHistory, setPriceHistory] = useState([]);
+  const [allVariants, setAllVariants] = useState([]);
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [exportingExcel, setExportingExcel] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
 
     (async () => {
       try {
-        const [productRes, historyRes] = await Promise.all([
+        const [productRes, historyRes, allProductsRes] = await Promise.all([
           getProductById(id),
           getPriceHistory(id).catch(() => ({ data: [] })),
+          getProducts().catch(() => ({ data: [] })),
         ]);
 
         if (isMounted) {
-          setProduct(productRes.data);
+          const productData = productRes.data;
+          setProduct(productData);
           setPriceHistory(historyRes?.data || []);
+
+          const baseStyle =
+            productData.baseStyleNumber ||
+            (productData.styleNumber ? productData.styleNumber.split("-")[0] : null);
+
+          const siblings = (allProductsRes.data || []).filter((p) => {
+            const pBase =
+              p.baseStyleNumber || (p.styleNumber ? p.styleNumber.split("-")[0] : null);
+            return (
+              (baseStyle && pBase === baseStyle) ||
+              (p.styleName && productData.styleName && p.styleName === productData.styleName)
+            );
+          });
+
+          setAllVariants(siblings.length > 0 ? siblings : [productData]);
         }
       } catch (error) {
         console.log(error);
@@ -61,6 +78,33 @@ const ProductDetailsPage = () => {
     };
   }, [id]);
 
+  const handleExportArticleExcel = async () => {
+    try {
+      setExportingExcel(true);
+      toast.loading("Generating Excel sheet with embedded barcodes...", { id: "excel-toast" });
+
+      const baseCode =
+        product.baseStyleNumber ||
+        (product.styleNumber ? product.styleNumber.split("-")[0] : product.sku);
+
+      await exportArticlesToExcelWithBarcodes({
+        products: allVariants.length > 0 ? allVariants : [product],
+        fileName: `Article_${baseCode}_Report`,
+        sheetName: `Article ${baseCode}`,
+      });
+
+      toast.success(
+        `Excel sheet for Article ${baseCode} (${allVariants.length} variants) downloaded!`,
+        { id: "excel-toast" }
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to export Excel file", { id: "excel-toast" });
+    } finally {
+      setExportingExcel(false);
+    }
+  };
+
   if (loading) {
     return (
       <MainLayout>
@@ -74,24 +118,54 @@ const ProductDetailsPage = () => {
       (b) => b.isPrimary
     );
 
+  const baseStyleNo =
+    product.baseStyleNumber ||
+    (product.styleNumber ? product.styleNumber.split("-")[0] : product.sku);
+
   return (
     <MainLayout>
-
       <div className="space-y-6">
         <PageHeader
-          title="Article Details"
-          description="Review style-number variants, composition, and inventory information for apparel articles."
+          title={`Article Details - ${product.productName}`}
+          description={`Style #${baseStyleNo} • Review variants, stock levels, embedded barcode sheets, and pricing.`}
           action={
-            <Button
-              onClick={() =>
-                navigate(
-                  `/products/edit/${product.id}`
-                )
-              }
-              size="lg"
-            >
-              Edit Article
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={handleExportArticleExcel}
+                disabled={exportingExcel}
+                className="inline-flex items-center gap-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50 shadow-sm"
+              >
+                <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                {exportingExcel ? "Exporting..." : "Excel (+ Barcodes)"}
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={() => setPrintModalOpen(true)}
+                className="inline-flex items-center gap-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50 shadow-sm"
+              >
+                <Printer className="w-4 h-4 text-indigo-600" />
+                Print Labels ({allVariants.length})
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/products/barcode/${product.id}`)}
+                className="inline-flex items-center gap-2 border-slate-200 hover:bg-slate-50 shadow-sm"
+              >
+                <Tag className="w-4 h-4 text-slate-600" />
+                Barcode Label
+              </Button>
+
+              <Button
+                onClick={() => navigate(`/products/edit/${product.id}`)}
+                className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                <Edit className="w-4 h-4" />
+                Edit Article
+              </Button>
+            </div>
           }
         />
 
@@ -297,6 +371,13 @@ const ProductDetailsPage = () => {
         </SurfaceCard>
       </div>
 
+      {/* MULTI-VARIANT BARCODE PRINT MODAL */}
+      <BarcodePrintModal
+        isOpen={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        products={allVariants}
+        title={`Print Barcodes - Article #${baseStyleNo} (${allVariants.length} Variants)`}
+      />
     </MainLayout>
   );
 };
