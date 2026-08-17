@@ -4,10 +4,8 @@ import {
   FiTag,
   FiEdit2,
 } from "react-icons/fi";
-
-import {
-  useNavigate,
-} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { resolveProductImageUrl, getColorHex } from "../../utils/imageHelper";
 
 const ProductTable = ({
   products,
@@ -34,8 +32,10 @@ const ProductTable = ({
       {/* Mobile & Tablet Card Grid (1 column on mobile, 2 columns on tablet) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:hidden">
         {products.map((product) => {
-          const barcode = product.barcodes?.find((b) => b.isPrimary);
+          const barcode = product.barcodes?.find((b) => b.isPrimary) || product.barcodes?.[0];
           const lowStock = product.stockQuantity <= product.minStockAlert;
+          const baseStyle = product.baseStyleNumber || (product.styleNumber ? product.styleNumber.split("-")[0] : "");
+          const imgUrl = resolveProductImageUrl(product.imageUrl, baseStyle);
 
           return (
             <article
@@ -44,19 +44,43 @@ const ProductTable = ({
             >
               <div>
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
-                      {product.styleNumber || product.sku}
-                    </p>
-                    <h3
+                  <div className="flex items-center gap-3 min-w-0">
+                    {/* Garment Image Thumbnail */}
+                    <div
                       onClick={() => navigate(`/products/${product.id}`)}
-                      className="truncate text-base font-semibold text-slate-900 mt-0.5 hover:text-[var(--color-primary-ink)] transition-colors cursor-pointer"
+                      className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 cursor-pointer overflow-hidden shadow-xs hover:border-blue-300 transition"
                     >
-                      {product.productName}
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      {product.itemName || product.styleName || "-"}
-                    </p>
+                      <img
+                        src={imgUrl}
+                        alt={product.productName}
+                        className="max-h-full max-w-full object-contain"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "/uploads/placeholders/default-article.svg";
+                        }}
+                      />
+                    </div>
+
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 font-mono">
+                        {product.styleNumber || product.sku}
+                      </p>
+                      <h3
+                        onClick={() => navigate(`/products/${product.id}`)}
+                        className="truncate text-sm sm:text-base font-semibold text-slate-900 mt-0.5 hover:text-blue-600 transition-colors cursor-pointer"
+                      >
+                        {product.productName}
+                      </h3>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full border border-slate-300 shrink-0"
+                          style={{ backgroundColor: getColorHex(product.color) }}
+                        />
+                        <span className="text-xs text-slate-500 truncate">
+                          {product.color} • {product.size}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
                   <span
@@ -101,14 +125,14 @@ const ProductTable = ({
                 </button>
                 <button
                   onClick={() => navigate(`/products/barcode/${product.id}`)}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50/30 px-2.5 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
                 >
-                  <FiTag size={14} className="text-emerald-500" />
+                  <FiTag size={14} className="text-blue-500" />
                   Barcode
                 </button>
                 <button
                   onClick={() => navigate(`/products/edit/${product.id}`)}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50/30 px-2.5 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-50 hover:border-amber-300 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
                 >
                   <FiEdit2 size={14} className="text-amber-500" />
                   Edit
@@ -132,10 +156,13 @@ const ProductTable = ({
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50/75">
               <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                Garment
+              </th>
+              <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 Style No
               </th>
               <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Article
+                Article & Color
               </th>
               <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 SKU
@@ -159,23 +186,53 @@ const ProductTable = ({
           </thead>
           <tbody className="divide-y divide-slate-100">
             {products.map((product) => {
-              const barcode = product.barcodes?.find((b) => b.isPrimary);
+              const barcode = product.barcodes?.find((b) => b.isPrimary) || product.barcodes?.[0];
               const lowStock = product.stockQuantity <= product.minStockAlert;
+              const baseStyle = product.baseStyleNumber || (product.styleNumber ? product.styleNumber.split("-")[0] : "");
+              const imgUrl = resolveProductImageUrl(product.imageUrl, baseStyle);
 
               return (
                 <tr
                   key={product.id}
                   className="transition-colors hover:bg-slate-50/50 group"
                 >
+                  {/* Garment Image Preview */}
+                  <td className="px-4 py-3">
+                    <div
+                      onClick={() => navigate(`/products/${product.id}`)}
+                      className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 cursor-pointer overflow-hidden shadow-xs hover:border-blue-400 transition"
+                      title="Click to view garment colors & details"
+                    >
+                      <img
+                        src={imgUrl}
+                        alt={product.productName}
+                        className="max-h-full max-w-full object-contain"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "/uploads/placeholders/default-article.svg";
+                        }}
+                      />
+                    </div>
+                  </td>
+
                   <td className="px-4 py-4 text-sm font-medium text-slate-900 font-mono">
                     {product.styleNumber || product.sku}
                   </td>
                   <td className="px-4 py-4 text-sm">
-                    <div className="font-semibold text-slate-800 group-hover:text-[var(--color-primary-ink)] transition-colors">
+                    <div
+                      onClick={() => navigate(`/products/${product.id}`)}
+                      className="font-semibold text-slate-800 group-hover:text-blue-600 transition-colors cursor-pointer"
+                    >
                       {product.productName}
                     </div>
-                    <div className="mt-0.5 text-xs text-slate-400">
-                      {product.itemName || product.styleName || "-"}
+                    <div className="mt-0.5 text-xs text-slate-400 flex items-center gap-1.5">
+                      <span
+                        className="w-2 h-2 rounded-full border border-slate-300 shrink-0"
+                        style={{ backgroundColor: getColorHex(product.color) }}
+                      />
+                      <span>
+                        {product.color} • Size {product.size}
+                      </span>
                     </div>
                   </td>
                   <td className="px-4 py-4 text-sm text-slate-500 font-mono">
@@ -206,14 +263,14 @@ const ProductTable = ({
                     <div className="flex items-center justify-end gap-1">
                       <button
                         onClick={() => navigate(`/products/${product.id}`)}
-                        className="rounded-lg p-1.5 text-slate-400 transition hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary-ink)]"
-                        title="View Article"
+                        className="rounded-lg p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600"
+                        title="View Article & Color Options"
                       >
                         <FiEye size={17} />
                       </button>
                       <button
                         onClick={() => navigate(`/products/barcode/${product.id}`)}
-                        className="rounded-lg p-1.5 text-slate-400 transition hover:bg-emerald-50 hover:text-emerald-600"
+                        className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
                         title="Article Barcode"
                       >
                         <FiTag size={17} />
