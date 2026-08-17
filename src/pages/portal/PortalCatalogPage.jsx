@@ -20,16 +20,66 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { resolveProductImageUrl, getColorHex } from "../../utils/imageHelper";
-import WashingCareCard from "../../components/products/WashingCareCard";
 
 /**
- * Compact SVG Care Icon for Horizontal Cards
+ * Standard ISO 3758 / Nordic Textile Care Symbols & Descriptions
  */
-const MiniCareIcon = ({ type }) => {
+const DEFAULT_SYMBOLS = [
+  {
+    id: "wash",
+    titleNo: "Vaskes på 40 °C",
+    titleEn: "Machine Wash 40°C",
+    descNo: "Normal maskinvask på maks 40 °C.",
+    descEn: "Standard machine wash at max 40°C.",
+    status: "allowed",
+    iconType: "wash40",
+  },
+  {
+    id: "bleach",
+    titleNo: "Ikke klorblek",
+    titleEn: "Do Not Bleach",
+    descNo: "Ikke bruk klorblekemiddel.",
+    descEn: "Do not use chlorine bleach.",
+    status: "prohibited",
+    iconType: "noBleach",
+  },
+  {
+    id: "tumble",
+    titleNo: "Lav tørketrommel",
+    titleEn: "Tumble Dry Low",
+    descNo: "Tørketrommel på lav varme.",
+    descEn: "Tumble dry at low heat.",
+    status: "warning",
+    iconType: "tumbleLow",
+  },
+  {
+    id: "iron",
+    titleNo: "Lav stryking",
+    titleEn: "Iron Low (Max 110°C)",
+    descNo: "Strykes på lav temp (maks 110–150 °C).",
+    descEn: "Iron low setting (max 110–150 °C).",
+    status: "allowed",
+    iconType: "ironLow",
+  },
+  {
+    id: "dryclean",
+    titleNo: "Ikke renses",
+    titleEn: "Do Not Dry Clean",
+    descNo: "Tåler ikke kjemisk rens.",
+    descEn: "Do not chemically dry clean.",
+    status: "prohibited",
+    iconType: "noDryClean",
+  },
+];
+
+/**
+ * Crisp SVG Care Icon for Front-of-Card Display
+ */
+const CareIcon = ({ type }) => {
   switch (type) {
     case "wash40":
       return (
-        <svg viewBox="0 0 48 48" className="w-5 h-5 stroke-slate-800 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 48 48" className="w-6 h-6 stroke-slate-800 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M6 16 L10 38 Q10 42 14 42 L34 42 Q38 42 38 38 L42 16" />
           <path d="M6 19 Q12 15 18 19 T30 19 T42 19" strokeWidth="2" strokeDasharray="1 0" />
           <text x="24" y="33" textAnchor="middle" fill="currentColor" stroke="none" className="text-[11px] font-extrabold font-mono" style={{ fill: "#1e293b" }}>40°</text>
@@ -37,7 +87,7 @@ const MiniCareIcon = ({ type }) => {
       );
     case "noBleach":
       return (
-        <svg viewBox="0 0 48 48" className="w-5 h-5 stroke-rose-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 48 48" className="w-6 h-6 stroke-rose-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polygon points="24,8 6,40 42,40" />
           <line x1="12" y1="18" x2="36" y2="38" className="stroke-rose-600" strokeWidth="2.5" />
           <line x1="36" y1="18" x2="12" y2="38" className="stroke-rose-600" strokeWidth="2.5" />
@@ -45,7 +95,7 @@ const MiniCareIcon = ({ type }) => {
       );
     case "tumbleLow":
       return (
-        <svg viewBox="0 0 48 48" className="w-5 h-5 stroke-amber-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 48 48" className="w-6 h-6 stroke-amber-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <rect x="8" y="8" width="32" height="32" rx="4" />
           <circle cx="24" cy="24" r="12" />
           <circle cx="24" cy="24" r="2.5" className="fill-amber-600 stroke-none" />
@@ -53,7 +103,7 @@ const MiniCareIcon = ({ type }) => {
       );
     case "ironLow":
       return (
-        <svg viewBox="0 0 48 48" className="w-5 h-5 stroke-slate-800 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 48 48" className="w-6 h-6 stroke-slate-800 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M8 36 L40 36 C42 36 43 34 41 30 C37 22 28 20 22 20 L10 20 C8 20 8 26 8 36 Z" />
           <path d="M12 20 L12 14 C12 12 14 10 16 10 L34 10" />
           <circle cx="24" cy="28" r="2" className="fill-slate-800 stroke-none" />
@@ -61,14 +111,14 @@ const MiniCareIcon = ({ type }) => {
       );
     case "noDryClean":
       return (
-        <svg viewBox="0 0 48 48" className="w-5 h-5 stroke-rose-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 48 48" className="w-6 h-6 stroke-rose-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="24" cy="24" r="16" />
           <line x1="12" y1="12" x2="36" y2="36" className="stroke-rose-600" strokeWidth="2.5" />
           <line x1="36" y1="12" x2="12" y2="36" className="stroke-rose-600" strokeWidth="2.5" />
         </svg>
       );
     default:
-      return <ShieldCheck className="w-5 h-5 text-blue-600" />;
+      return <ShieldCheck className="w-6 h-6 text-blue-600" />;
   }
 };
 
@@ -81,8 +131,6 @@ const PortalCatalogPage = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [quantities, setQuantities] = useState({});
-  const [activeCareModalProduct, setActiveCareModalProduct] = useState(null);
-  const [viewMode, setViewMode] = useState("rows"); // 'rows' (horizontal cards) | 'grid'
 
   const fetchCatalog = async () => {
     try {
@@ -155,6 +203,12 @@ const PortalCatalogPage = () => {
     );
   };
 
+  const norwegianCareFull =
+    "Vaskes på 40 °C • Ikke bruk klorblekemiddel • Tørketrommel på lav varme eller lufttørkes • Strykes på lav temperatur (maks 110–150 °C) • Ikke renses (med mindre etiketten tillater det)";
+
+  const englishCareFull =
+    "Machine Wash at 40 °C • Do Not Use Chlorine Bleach • Tumble Dry Low Heat or Air Dry • Iron at Low Temperature (Max 110–150 °C) • Do Not Dry Clean (Unless Label Allows)";
+
   return (
     <div className="space-y-6">
       {/* Hero Header Banner */}
@@ -177,8 +231,8 @@ const PortalCatalogPage = () => {
         </div>
       </div>
 
-      {/* Search & View Mode Toolbar */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      {/* Search Filter Bar */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm flex items-center gap-4">
         <div className="relative flex-1">
           <Search
             className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
@@ -186,41 +240,15 @@ const PortalCatalogPage = () => {
           />
           <input
             type="text"
-            placeholder={isNo ? "Søk etter artikkel, stilnummer, farge, SKU..." : "Search style, article, color, SKU..."}
+            placeholder={
+              isNo
+                ? "Søk etter artikkel, stilnummer, farge, SKU..."
+                : "Search style, article, color, SKU..."
+            }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none focus:border-blue-500 focus:bg-white transition"
           />
-        </div>
-
-        {/* View Layout Toggle (Row Cards vs Grid) */}
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 self-end sm:self-auto shrink-0">
-          <button
-            type="button"
-            onClick={() => setViewMode("rows")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-              viewMode === "rows"
-                ? "bg-white text-slate-900 shadow-xs"
-                : "text-slate-500 hover:text-slate-800"
-            }`}
-            title="Horizontal Row Cards (1 per row)"
-          >
-            <LayoutList size={14} />
-            <span>{isNo ? "Rader" : "Rows"}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode("grid")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-              viewMode === "grid"
-                ? "bg-white text-slate-900 shadow-xs"
-                : "text-slate-500 hover:text-slate-800"
-            }`}
-            title="Grid Cards"
-          >
-            <LayoutGrid size={14} />
-            <span>{isNo ? "Rutenett" : "Grid"}</span>
-          </button>
         </div>
       </div>
 
@@ -235,9 +263,9 @@ const PortalCatalogPage = () => {
           <h3 className="text-sm font-bold text-slate-700">No articles found</h3>
           <p className="text-xs text-slate-400">Try adjusting your search keywords.</p>
         </div>
-      ) : viewMode === "rows" ? (
-        /* 🌟 HORIZONTAL LANDSCAPE CARDS (1 ROW PER ARTICLE - CLEAN & COMPACT) */
-        <div className="space-y-3.5">
+      ) : (
+        /* 🌟 EXPANDED HORIZONTAL ROW CARDS WITH FULL FRONT CARE INSTRUCTIONS */
+        <div className="space-y-4">
           {products.map((product) => {
             const qty = quantities[product.id] || 1;
             const inStock = product.stockQuantity > 0;
@@ -246,317 +274,251 @@ const PortalCatalogPage = () => {
               (product.styleNumber ? product.styleNumber.split("-")[0] : "");
             const garmentImg = resolveProductImageUrl(product.imageUrl, baseStyle);
 
+            const careText = isNo
+              ? product.washingInstructions && product.washingInstructions.includes("Vaskes")
+                ? product.washingInstructions
+                : norwegianCareFull
+              : product.washingInstructions && !product.washingInstructions.includes("Vaskes")
+              ? product.washingInstructions
+              : englishCareFull;
+
             return (
               <div
                 key={product.id}
-                className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 hover:shadow-md hover:border-slate-300 transition duration-200 group"
+                className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-200 space-y-4 group"
               >
-                {/* 1. LEFT: COMPACT GARMENT PHOTO */}
-                <div className="flex items-center gap-4 w-full md:w-auto min-w-0">
-                  <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-slate-50 border border-slate-200/80 p-2 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs group-hover:border-blue-300 transition">
-                    <img
-                      src={garmentImg}
-                      alt={product.productName}
-                      className="max-h-full max-w-full object-contain group-hover:scale-105 transition duration-300"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "/uploads/placeholders/default-article.svg";
-                      }}
-                    />
-
-                    {/* Color Swatch Dot Tag */}
-                    <div className="absolute bottom-1.5 left-1.5 bg-white/95 backdrop-blur-xs border border-slate-200 px-2 py-0.5 rounded-lg text-[10px] font-semibold text-slate-700 shadow-2xs flex items-center gap-1">
-                      <span
-                        className="w-2 h-2 rounded-full border border-slate-300 shrink-0"
-                        style={{ backgroundColor: getColorHex(product.color) }}
+                {/* 1. TOP MAIN ROW: GARMENT PHOTO, PRODUCT INFO & CART ACTIONS */}
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
+                  {/* Left Group: Photo + Product Info */}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full lg:w-auto min-w-0 flex-1">
+                    {/* Compact Crisp Photo Box */}
+                    <div className="relative w-36 h-36 sm:w-40 sm:h-40 rounded-2xl bg-slate-50 border border-slate-200/80 p-2.5 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs group-hover:border-blue-300 transition">
+                      <img
+                        src={garmentImg}
+                        alt={product.productName}
+                        className="max-h-full max-w-full object-contain group-hover:scale-105 transition duration-300"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "/uploads/placeholders/default-article.svg";
+                        }}
                       />
-                      <span>{product.color}</span>
+
+                      {/* Color Swatch Dot Tag */}
+                      <div className="absolute bottom-2 left-2 bg-white/95 backdrop-blur-xs border border-slate-200 px-2.5 py-0.5 rounded-lg text-[10px] font-semibold text-slate-700 shadow-2xs flex items-center gap-1.5">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full border border-slate-300 shrink-0"
+                          style={{ backgroundColor: getColorHex(product.color) }}
+                        />
+                        <span>{product.color}</span>
+                      </div>
+                    </div>
+
+                    {/* Middle Info Block */}
+                    <div className="space-y-1.5 min-w-0 flex-1">
+                      {/* Style No, Brand & Category */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-bold tracking-wider uppercase font-mono">
+                          Style #{baseStyle}
+                        </span>
+                        <span className="text-[10px] font-semibold text-slate-500">
+                          {product.brand || "Nordic Prowear"}
+                        </span>
+                        <span className="text-slate-300">•</span>
+                        <span className="text-[10px] font-semibold text-slate-500">
+                          {product.category?.name || "Apparel"}
+                        </span>
+                        {product.hasCustomPrice && (
+                          <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-md flex items-center gap-1">
+                            <Tag size={10} /> B2B Price
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Product Name */}
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-blue-600 transition leading-snug">
+                        {product.productName}
+                      </h3>
+
+                      {/* SKU, Color, Size & Weight Specs */}
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600 font-medium pt-0.5">
+                        <span className="font-mono text-slate-400">
+                          SKU: <strong className="text-slate-700">{product.sku}</strong>
+                        </span>
+                        <span>•</span>
+                        <span>
+                          {isNo ? "Farge" : "Color"}: <strong className="text-slate-800">{product.color}</strong>
+                        </span>
+                        <span>•</span>
+                        <span>
+                          {isNo ? "Str" : "Size"}: <strong className="text-slate-800">{product.size || "Standard"}</strong>
+                        </span>
+                        {product.weightInKg && (
+                          <>
+                            <span>•</span>
+                            <span className="flex items-center gap-1 text-slate-600">
+                              <Weight size={12} className="text-slate-400" /> {product.weightInKg} kg
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Fabric pill */}
+                      {product.fabric && (
+                        <div className="pt-1">
+                          <span className="inline-block px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80 text-[11px] font-semibold text-slate-700 font-mono">
+                            {product.fabric}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {/* 2. MIDDLE: ARTICLE DETAILS & BUILT-IN VECTOR CARE SYMBOLS */}
-                  <div className="space-y-1.5 min-w-0 flex-1">
-                    {/* Style No & Category Badge */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-bold tracking-wider uppercase font-mono">
-                        Style #{baseStyle}
-                      </span>
-                      <span className="text-[10px] font-semibold text-slate-500">
-                        {product.category?.name || "Garment"}
-                      </span>
-                      {product.hasCustomPrice && (
-                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md flex items-center gap-1">
-                          <Tag size={10} /> B2B Price
+                  {/* Right Group: Price, Stock, Stepper & Add to Cart */}
+                  <div className="flex flex-row lg:flex-col items-center lg:items-end justify-between w-full lg:w-auto gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100 shrink-0">
+                    {/* Price & Stock */}
+                    <div className="text-left lg:text-right">
+                      <div className="flex items-baseline lg:justify-end gap-1.5">
+                        {product.hasCustomPrice && (
+                          <span className="text-xs text-slate-400 line-through font-mono">
+                            NOK {Number(product.salePrice).toLocaleString()}
+                          </span>
+                        )}
+                        <span className="text-xl font-black text-slate-900 font-mono">
+                          NOK {Number(product.effectivePrice || product.salePrice).toLocaleString()}
                         </span>
-                      )}
-                    </div>
+                      </div>
 
-                    {/* Product Name */}
-                    <h3 className="text-sm sm:text-base font-bold text-slate-900 group-hover:text-blue-600 transition leading-snug">
-                      {product.productName}
-                    </h3>
-
-                    {/* SKU, Color, Size & Fabric Info */}
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600 font-medium">
-                      <span className="font-mono text-slate-400">SKU: <strong className="text-slate-700">{product.sku}</strong></span>
-                      <span>•</span>
-                      <span>{isNo ? "Farge" : "Color"}: <strong className="text-slate-800">{product.color}</strong></span>
-                      <span>•</span>
-                      <span>{isNo ? "Str" : "Size"}: <strong className="text-slate-800">{product.size || "Standard"}</strong></span>
-                      {product.fabric && (
-                        <>
-                          <span>•</span>
-                          <span className="text-slate-500 font-mono text-[11px] truncate max-w-xs">{product.fabric}</span>
-                        </>
-                      )}
-                    </div>
-
-                    {/* 🌟 VECTOR WASHING CARE SYMBOLS ROW (FRONT & CENTER) */}
-                    <div
-                      onClick={() => setActiveCareModalProduct(product)}
-                      className="pt-1 flex items-center gap-2 cursor-pointer group/care"
-                      title={isNo ? "Klikk for å se full vaskeanvisning" : "Click to view full care label"}
-                    >
-                      <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 rounded-xl p-1 px-2 hover:bg-blue-50/70 hover:border-blue-200 transition">
-                        <MiniCareIcon type="wash40" />
-                        <MiniCareIcon type="noBleach" />
-                        <MiniCareIcon type="tumbleLow" />
-                        <MiniCareIcon type="ironLow" />
-                        <MiniCareIcon type="noDryClean" />
-                        <span className="ml-1.5 text-[10px] font-bold text-blue-700 hidden sm:inline">
-                          {isNo ? "40°C • Ikke klorblek • Lav tørk • Lav stryk • Ikke rens" : "40°C • No Bleach • Tumble Low • Iron Low • No Dry Clean"}
+                      <div className="mt-0.5">
+                        <span
+                          className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                            inStock
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                              : "bg-rose-50 text-rose-700 border border-rose-200/60"
+                          }`}
+                        >
+                          <span className={`w-1.5 h-1.5 rounded-full ${inStock ? "bg-emerald-500" : "bg-rose-500"}`} />
+                          {inStock
+                            ? `${product.stockQuantity} ${isNo ? "på lager" : "in stock"}`
+                            : isNo
+                            ? "Utsolgt"
+                            : "Out of stock"}
                         </span>
                       </div>
                     </div>
-                  </div>
-                </div>
 
-                {/* 3. RIGHT: PRICING, STOCK, QUANTITY STEPPER & ADD TO CART */}
-                <div className="flex flex-row md:flex-col items-center md:items-end justify-between w-full md:w-auto gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100 shrink-0">
-                  {/* Pricing & Stock */}
-                  <div className="text-left md:text-right">
-                    <div className="flex items-baseline md:justify-end gap-1.5">
-                      {product.hasCustomPrice && (
-                        <span className="text-xs text-slate-400 line-through font-mono">
-                          NOK {Number(product.salePrice).toLocaleString()}
-                        </span>
-                      )}
-                      <span className="text-lg font-black text-slate-900 font-mono">
-                        NOK {Number(product.effectivePrice || product.salePrice).toLocaleString()}
-                      </span>
-                    </div>
+                    {/* Quantity Stepper & Add Button */}
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center bg-slate-100 border border-slate-200 rounded-xl p-0.5">
+                        <button
+                          type="button"
+                          onClick={() => handleDecrement(product.id)}
+                          disabled={!inStock || qty <= 1}
+                          className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 disabled:opacity-30 transition"
+                        >
+                          <Minus size={13} />
+                        </button>
+                        <input
+                          type="number"
+                          min="1"
+                          max={product.stockQuantity || 1}
+                          value={qty}
+                          onChange={(e) => handleQtyChange(product.id, e.target.value)}
+                          disabled={!inStock}
+                          className="w-10 bg-transparent text-center text-xs font-bold text-slate-900 outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleIncrement(product.id, product.stockQuantity)}
+                          disabled={!inStock || qty >= product.stockQuantity}
+                          className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 disabled:opacity-30 transition"
+                        >
+                          <Plus size={13} />
+                        </button>
+                      </div>
 
-                    <div className="mt-0.5">
-                      <span
-                        className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          inStock
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
-                            : "bg-rose-50 text-rose-700 border border-rose-200/60"
-                        }`}
-                      >
-                        <span className={`w-1.5 h-1.5 rounded-full ${inStock ? "bg-emerald-500" : "bg-rose-500"}`} />
-                        {inStock ? `${product.stockQuantity} ${isNo ? "på lager" : "in stock"}` : isNo ? "Utsolgt" : "Out of stock"}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Quantity Stepper & Add Button */}
-                  <div className="flex items-center gap-2">
-                    {/* Stepper */}
-                    <div className="flex items-center bg-slate-100 border border-slate-200 rounded-xl p-0.5">
                       <button
                         type="button"
-                        onClick={() => handleDecrement(product.id)}
-                        disabled={!inStock || qty <= 1}
-                        className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 disabled:opacity-30 transition"
-                      >
-                        <Minus size={13} />
-                      </button>
-                      <input
-                        type="number"
-                        min="1"
-                        max={product.stockQuantity || 1}
-                        value={qty}
-                        onChange={(e) => handleQtyChange(product.id, e.target.value)}
+                        onClick={() => handleAddToCart(product)}
                         disabled={!inStock}
-                        className="w-10 bg-transparent text-center text-xs font-bold text-slate-900 outline-none"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleIncrement(product.id, product.stockQuantity)}
-                        disabled={!inStock || qty >= product.stockQuantity}
-                        className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 disabled:opacity-30 transition"
+                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-2.5 px-5 text-xs font-bold shadow-sm transition flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                       >
-                        <Plus size={13} />
+                        <ShoppingCart size={14} />
+                        <span>{t("addToCart") || "Add to Cart"}</span>
                       </button>
                     </div>
-
-                    {/* Add Button */}
-                    <button
-                      type="button"
-                      onClick={() => handleAddToCart(product)}
-                      disabled={!inStock}
-                      className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-2 px-4 text-xs font-bold shadow-sm transition flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-                    >
-                      <ShoppingCart size={13} />
-                      <span>{t("addToCart") || "Add"}</span>
-                    </button>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        /* GRID VIEW MODE */
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => {
-            const qty = quantities[product.id] || 1;
-            const inStock = product.stockQuantity > 0;
-            const baseStyle =
-              product.baseStyleNumber ||
-              (product.styleNumber ? product.styleNumber.split("-")[0] : "");
-            const garmentImg = resolveProductImageUrl(product.imageUrl, baseStyle);
 
-            return (
-              <div
-                key={product.id}
-                className="bg-white border border-slate-200 rounded-3xl p-5 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition duration-300 group"
-              >
-                <div>
-                  <div className="flex justify-between items-start gap-2 mb-3">
-                    <span className="text-[10px] font-bold text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full uppercase">
-                      {product.category?.name || "Garment"}
+                {/* 2. 🌟 BOTTOM SECTION: FULL FRONT WASHING CARE INSTRUCTIONS BLOCK */}
+                <div className="pt-3 border-t border-slate-100/90 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck size={16} className="text-blue-600" />
+                      <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                        {isNo ? "Vaskeanvisning & Tekstilpleie" : "Washing & Textile Care"}
+                      </h4>
+                      <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold font-mono">
+                        ISO 3758
+                      </span>
+                    </div>
+
+                    <span className="text-[11px] text-slate-400 font-medium">
+                      {isNo ? "Nordiske Standarder" : "Nordic Standards"}
                     </span>
-                    {product.hasCustomPrice && (
-                      <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
-                        <Tag size={12} /> B2B Price
+                  </div>
+
+                  {/* 5 VECTOR CARE SYMBOL TILES (FULL ROW) */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+                    {DEFAULT_SYMBOLS.map((s) => {
+                      const isProhibited = s.status === "prohibited";
+                      const isWarning = s.status === "warning";
+
+                      return (
+                        <div
+                          key={s.id}
+                          className={`p-2.5 rounded-xl border flex items-center gap-2.5 ${
+                            isProhibited
+                              ? "bg-rose-50/30 border-rose-100"
+                              : isWarning
+                              ? "bg-amber-50/30 border-amber-100"
+                              : "bg-slate-50/60 border-slate-200/70"
+                          }`}
+                        >
+                          <div className="p-1 rounded-lg bg-white border border-slate-100 shadow-2xs shrink-0 flex items-center justify-center">
+                            <CareIcon type={s.iconType} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[11px] font-bold text-slate-800 leading-tight truncate">
+                              {isNo ? s.titleNo : s.titleEn}
+                            </p>
+                            <p className="text-[9px] text-slate-500 leading-tight truncate">
+                              {isNo ? s.descNo : s.descEn}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* FULL CARE TEXT LINE */}
+                  <div className="p-2.5 px-3.5 rounded-xl bg-slate-50 border border-slate-200/70 text-xs text-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                    <div className="flex items-start sm:items-center gap-2">
+                      <strong className="text-slate-900 shrink-0">
+                        {isNo ? "Full Tekst:" : "Full Care Text:"}
+                      </strong>
+                      <span className="text-slate-600 leading-relaxed">{careText}</span>
+                    </div>
+
+                    {product.fabric && (
+                      <span className="shrink-0 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-semibold text-slate-800 font-mono self-start sm:self-auto">
+                        {product.fabric}
                       </span>
                     )}
                   </div>
-
-                  <div className="relative group/img bg-slate-50 rounded-2xl overflow-hidden h-48 border border-slate-200/80 flex items-center justify-center p-3 text-center my-3">
-                    <img
-                      src={garmentImg}
-                      alt={product.productName}
-                      className="max-h-full max-w-full object-contain group-hover/img:scale-105 transition duration-300"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "/uploads/placeholders/default-article.svg";
-                      }}
-                    />
-                    <div className="absolute bottom-2.5 left-2.5 bg-white/95 backdrop-blur-sm border border-slate-200 px-2.5 py-1 rounded-xl text-[11px] font-medium text-slate-700 shadow-xs flex items-center gap-1.5">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full border border-slate-300 shrink-0"
-                        style={{ backgroundColor: getColorHex(product.color) }}
-                      />
-                      <span className="font-bold">{product.color}</span>
-                    </div>
-                  </div>
-
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition leading-snug">
-                    {product.productName}
-                  </h3>
-                  <p className="text-xs text-slate-400 font-mono mt-0.5">SKU: {product.sku}</p>
-
-                  {/* Vector Care Icons */}
-                  <div
-                    onClick={() => setActiveCareModalProduct(product)}
-                    className="mt-3 p-2 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between cursor-pointer hover:bg-blue-50"
-                  >
-                    <div className="flex items-center gap-1">
-                      <MiniCareIcon type="wash40" />
-                      <MiniCareIcon type="noBleach" />
-                      <MiniCareIcon type="tumbleLow" />
-                      <MiniCareIcon type="ironLow" />
-                      <MiniCareIcon type="noDryClean" />
-                    </div>
-                    <span className="text-[10px] font-bold text-blue-700">ISO 3758</span>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-slate-100 space-y-3 mt-4">
-                  <div className="flex items-baseline justify-between">
-                    <span className="text-xs text-slate-500 font-medium">Unit Price:</span>
-                    <div className="text-right">
-                      <span className="text-lg font-black text-slate-900 font-mono">
-                        NOK {Number(product.effectivePrice || product.salePrice).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min="1"
-                      max={product.stockQuantity || 1}
-                      value={qty}
-                      onChange={(e) => handleQtyChange(product.id, e.target.value)}
-                      disabled={!inStock}
-                      className="w-16 bg-slate-50 border border-slate-200 rounded-xl py-2 px-2 text-center text-xs font-bold text-slate-900 outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleAddToCart(product)}
-                      disabled={!inStock}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-2.5 px-4 text-xs font-bold shadow-sm transition flex items-center justify-center gap-1.5 disabled:opacity-50"
-                    >
-                      <ShoppingCart size={14} />
-                      <span>{t("addToCart") || "Add"}</span>
-                    </button>
-                  </div>
                 </div>
               </div>
             );
           })}
-        </div>
-      )}
-
-      {/* POPUP MODAL FOR CRISP NORWEGIAN CARE LABEL */}
-      {activeCareModalProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl overflow-hidden p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
-                  <ShieldCheck size={16} />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">
-                    {activeCareModalProduct.productName}
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Style #{activeCareModalProduct.baseStyleNumber || activeCareModalProduct.sku} • {activeCareModalProduct.color}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setActiveCareModalProduct(null)}
-                className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Render Vector Care Card */}
-            <WashingCareCard
-              fabric={activeCareModalProduct.fabric}
-              customInstructions={activeCareModalProduct.washingInstructions}
-              brand={activeCareModalProduct.brand || "Nordic Prowear"}
-            />
-
-            <div className="flex justify-end pt-2">
-              <button
-                type="button"
-                onClick={() => setActiveCareModalProduct(null)}
-                className="rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-5 py-2 text-xs font-semibold shadow-sm transition"
-              >
-                {isNo ? "Lukk" : "Close"}
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>
