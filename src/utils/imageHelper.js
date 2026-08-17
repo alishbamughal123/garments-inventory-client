@@ -43,8 +43,8 @@ export const resolveProductImageUrl = (imageUrl, baseStyleNumber = "", colorName
 
   // Style #10101 (Basic S/S Tee)
   if (baseStyle === "10101" || baseStyle.startsWith("10101")) {
-    if (col.includes("white")) return "/images/10101-white.jpg";
-    if (col.includes("navy")) return "/images/10101-navy.jpg";
+    if (col.includes("white")) return "/images/10101-white.png";
+    if (col.includes("navy")) return "/images/10101-navy.png";
     return "/images/10101-black.png";
   }
 
