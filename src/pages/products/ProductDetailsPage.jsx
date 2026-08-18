@@ -14,6 +14,7 @@ import {
   Layers,
   Check,
   Package,
+  Boxes,
   ShieldCheck,
   Sparkles,
   Barcode,
@@ -46,6 +47,7 @@ const ProductDetailsPage = () => {
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedVariantId, setSelectedVariantId] = useState(id);
   const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [printModalMode, setPrintModalMode] = useState("individual");
   const [exportingExcel, setExportingExcel] = useState(false);
 
   useEffect(() => {
@@ -73,10 +75,10 @@ const ProductDetailsPage = () => {
           const siblings = (allProductsRes.data || []).filter((p) => {
             const pBase =
               p.baseStyleNumber || (p.styleNumber ? p.styleNumber.split("-")[0] : null);
-            return (
-              (baseStyle && pBase === baseStyle) ||
-              (p.styleName && productData.styleName && p.styleName === productData.styleName)
-            );
+            if (baseStyle && pBase) {
+              return pBase === baseStyle;
+            }
+            return p.id === productData.id;
           });
 
           const variantList = siblings.length > 0 ? siblings : [productData];
@@ -197,7 +199,10 @@ const ProductDetailsPage = () => {
 
               <button
                 type="button"
-                onClick={() => setPrintModalOpen(true)}
+                onClick={() => {
+                  setPrintModalMode("individual");
+                  setPrintModalOpen(true);
+                }}
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300"
               >
                 <Printer className="w-4 h-4 text-blue-600 shrink-0" />
@@ -519,6 +524,7 @@ const ProductDetailsPage = () => {
         isOpen={printModalOpen}
         onClose={() => setPrintModalOpen(false)}
         products={allVariants}
+        initialMode={printModalMode}
         title={`Print Barcodes - Style #${baseStyleNo} (${allVariants.length} Sizes/Colors)`}
       />
     </MainLayout>

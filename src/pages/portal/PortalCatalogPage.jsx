@@ -21,7 +21,14 @@ import {
 } from "lucide-react";
 import { resolveProductImageUrl, getColorHex } from "../../utils/imageHelper";
 import {
+  STYLE_10099_SYMBOLS,
   STYLE_10101_SYMBOLS,
+  STYLE_10109_SYMBOLS,
+  STYLE_10121_SYMBOLS,
+  STYLE_10122_SYMBOLS,
+  STYLE_10123_SYMBOLS,
+  STYLE_200123_SYMBOLS,
+  STYLE_200124_SYMBOLS,
   DEFAULT_WORKWEAR_SYMBOLS,
   CareIcon,
 } from "../../components/products/WashingCareCard";
@@ -178,19 +185,116 @@ const PortalCatalogPage = () => {
               (product.styleNumber ? product.styleNumber.split("-")[0] : "");
             const garmentImg = resolveProductImageUrl(product.imageUrl, baseStyle, product.color);
 
-            const isStyle10101 =
-              String(baseStyle).startsWith("10101") ||
-              (product.washingInstructions && product.washingInstructions.includes("separat"));
+            const isStyle10099 =
+              String(baseStyle).startsWith("10099") ||
+              (product.washingInstructions && (product.washingInstructions.includes("85°C") || product.washingInstructions.includes("85")));
 
-            const symbolsList = isStyle10101
+            const isStyle10109 =
+              !isStyle10099 &&
+              (String(baseStyle).startsWith("10109") ||
+                (product.fabric && product.fabric.includes("210") && String(baseStyle).includes("10109")));
+
+            const isStyle10121 =
+              !isStyle10099 &&
+              !isStyle10109 &&
+              (String(baseStyle).startsWith("10121") ||
+                (product.fabric && product.fabric.includes("320")));
+
+            const isStyle10122 =
+              !isStyle10099 &&
+              !isStyle10109 &&
+              !isStyle10121 &&
+              (String(baseStyle).startsWith("10122") ||
+                (product.fabric && product.fabric.includes("Anti Pilling")));
+
+            const isStyle10123 =
+              !isStyle10099 &&
+              !isStyle10109 &&
+              !isStyle10121 &&
+              !isStyle10122 &&
+              (String(baseStyle).startsWith("10123") ||
+                (product.washingInstructions && (product.washingInstructions.includes("tørketromles") || product.washingInstructions.includes("Tåler ikke rens"))));
+
+            const isStyle200123 =
+              !isStyle10099 &&
+              !isStyle10109 &&
+              !isStyle10121 &&
+              !isStyle10122 &&
+              !isStyle10123 &&
+              String(baseStyle).startsWith("200123");
+
+            const isStyle200124 =
+              !isStyle10099 &&
+              !isStyle10109 &&
+              !isStyle10121 &&
+              !isStyle10122 &&
+              !isStyle10123 &&
+              !isStyle200123 &&
+              (String(baseStyle).startsWith("200124") ||
+                (product.washingInstructions && (product.washingInstructions.includes("75°C") || product.washingInstructions.includes("75"))));
+
+            const isStyle10101 =
+              !isStyle10099 &&
+              !isStyle10109 &&
+              !isStyle10121 &&
+              !isStyle10122 &&
+              !isStyle10123 &&
+              !isStyle200123 &&
+              !isStyle200124 &&
+              (String(baseStyle).startsWith("10101") ||
+                (product.washingInstructions && product.washingInstructions.includes("separat")));
+
+            const symbolsList = isStyle10099
+              ? STYLE_10099_SYMBOLS
+              : isStyle10109
+              ? STYLE_10109_SYMBOLS
+              : isStyle10121
+              ? STYLE_10121_SYMBOLS
+              : isStyle10122
+              ? STYLE_10122_SYMBOLS
+              : isStyle10123
+              ? STYLE_10123_SYMBOLS
+              : isStyle200123
+              ? STYLE_200123_SYMBOLS
+              : isStyle200124
+              ? STYLE_200124_SYMBOLS
+              : isStyle10101
               ? STYLE_10101_SYMBOLS
               : DEFAULT_WORKWEAR_SYMBOLS;
 
             const careText = isNo
               ? product.washingInstructions ||
-                (isStyle10101
+                (isStyle10099
+                  ? "Vask 85°C (Industrivask) • Må ikke blekes • Tørketrommel tillatt • Må ikke strykes • Tåler ikke rens"
+                  : isStyle10109
+                  ? "Vask 75°C • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  : isStyle10121
+                  ? "Vask 40°C • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt"
+                  : isStyle10122
+                  ? "Vask 40°C • Må ikke tørketromles • Tåler ikke bleking • Strykes ved lav varme • Tåler ikke rens"
+                  : isStyle10123
+                  ? "Vask 40°C • Må ikke blekes • Må ikke tørketromles • Strykes på lav varme • Tåler ikke rens"
+                  : isStyle200123
+                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  : isStyle200124
+                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt"
+                  : isStyle10101
                   ? "Vask 40°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt"
                   : norwegianCareFull)
+              : isStyle10099
+              ? "Wash 85°C (Industrial Wash) • Do Not Bleach • Tumble Dry Allowed • Do Not Iron • Do Not Dry Clean"
+              : isStyle10109
+              ? "Wash 75°C • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              : isStyle10121
+              ? "Wash 40°C • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed"
+              : isStyle10122
+              ? "Wash 40°C • Do Not Tumble Dry • Do Not Bleach • Iron Low Heat • Do Not Dry Clean"
+              : isStyle10123
+              ? "Wash 40°C • Do Not Bleach • Do Not Tumble Dry • Iron Low Heat • Do Not Dry Clean"
+              : isStyle200123
+              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              : isStyle200124
+              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed"
               : isStyle10101
               ? "Wash 40°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed"
               : englishCareFull;
@@ -371,7 +475,7 @@ const PortalCatalogPage = () => {
                         {isNo ? "Vaskeanvisning & Tekstilpleie" : "Washing & Textile Care"}
                       </h4>
                       <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold font-mono">
-                        ISO 3758
+                        {isStyle200124 ? "Style #200124" : isStyle10101 ? "Style #10101" : "ISO 3758"}
                       </span>
                     </div>
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
-import { Printer, FileSpreadsheet, Layers, Filter } from "lucide-react";
+import { Printer, FileSpreadsheet, Layers, Filter, ChevronDown, X } from "lucide-react";
 import MainLayout from "../../layouts/MainLayout";
 import PageHeader from "../../components/ui/PageHeader";
 import DeleteModal from "../../components/common/DeleteModal";
@@ -63,7 +63,7 @@ const ProductsPage = () => {
   ).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
   // Priority styles to show as top quick tabs
-  const priorityStyles = ["10101", "10102"].filter((s) => uniqueBaseStyles.includes(s));
+  const priorityStyles = ["10099", "10101", "10102", "10123", "10124", "200124"].filter((s) => uniqueBaseStyles.includes(s));
 
   // Filter products by selected base style
   const filteredProducts =
@@ -197,89 +197,59 @@ const ProductsPage = () => {
               />
             </div>
 
-            {/* Style Filter Dropdown & Quick Tabs */}
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
-              {/* Quick Tab: All Articles */}
-              <button
-                type="button"
-                onClick={() => setSelectedStyleFilter("ALL")}
-                className={`px-3 py-2 rounded-xl text-xs font-semibold transition ${
-                  selectedStyleFilter === "ALL"
-                    ? "bg-slate-900 text-white shadow-sm"
-                    : "bg-slate-100/80 text-slate-600 hover:bg-slate-200/70 border border-slate-200/60"
-                }`}
-              >
-                All ({products.length})
-              </button>
-
-              {/* Quick Tabs for Main Styles (e.g. 10101, 10102) */}
-              {priorityStyles.map((style) => {
-                const count = products.filter((p) => {
-                  const base =
-                    p.baseStyleNumber || (p.styleNumber ? p.styleNumber.split("-")[0] : "");
-                  return base === style;
-                }).length;
-                const isSelected = selectedStyleFilter === style;
-                return (
-                  <button
-                    key={style}
-                    type="button"
-                    onClick={() => setSelectedStyleFilter(style)}
-                    className={`px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
-                      isSelected
-                        ? "bg-blue-600 text-white shadow-sm"
-                        : "bg-slate-100/80 text-slate-600 hover:bg-slate-200/70 border border-slate-200/60"
-                    }`}
-                  >
-                    <span>Style #{style}</span>
-                    <span
-                      className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${
-                        isSelected ? "bg-blue-800 text-white" : "bg-slate-200 text-slate-700"
-                      }`}
-                    >
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
-
-              {/* All other styles dropdown */}
-              {uniqueBaseStyles.length > priorityStyles.length && (
-                <div className="relative">
-                  <select
-                    value={priorityStyles.includes(selectedStyleFilter) || selectedStyleFilter === "ALL" ? "" : selectedStyleFilter}
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        setSelectedStyleFilter(e.target.value);
-                      }
-                    }}
-                    className="rounded-xl border border-slate-200 bg-slate-50 py-2 pl-3 pr-8 text-xs font-semibold text-slate-700 outline-none transition hover:bg-white focus:border-blue-400 focus:bg-white"
-                  >
-                    <option value="">More Styles ({uniqueBaseStyles.length - priorityStyles.length})...</option>
-                    {uniqueBaseStyles
-                      .filter((s) => !priorityStyles.includes(s))
-                      .map((style) => {
-                        const count = products.filter((p) => {
-                          const base =
-                            p.baseStyleNumber || (p.styleNumber ? p.styleNumber.split("-")[0] : "");
-                          return base === style;
-                        }).length;
-                        return (
-                          <option key={style} value={style}>
-                            Style #{style} ({count} items)
-                          </option>
-                        );
-                      })}
-                  </select>
+            {/* Clean Style Filter Dropdown */}
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="relative min-w-[210px] sm:min-w-[250px]">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                  <Filter size={15} />
                 </div>
+                <select
+                  id="style-filter-select"
+                  value={selectedStyleFilter}
+                  onChange={(e) => setSelectedStyleFilter(e.target.value)}
+                  className="w-full appearance-none rounded-xl border border-slate-200/90 bg-slate-50/70 hover:bg-white py-2.5 pl-9 pr-9 text-xs sm:text-sm font-semibold text-slate-800 shadow-2xs outline-none transition hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 cursor-pointer"
+                >
+                  <option value="ALL">
+                    All Styles ({products.length} total)
+                  </option>
+                  {uniqueBaseStyles.map((style) => {
+                    const count = products.filter((p) => {
+                      const base =
+                        p.baseStyleNumber || (p.styleNumber ? p.styleNumber.split("-")[0] : "");
+                      return base === style;
+                    }).length;
+                    return (
+                      <option key={style} value={style}>
+                        Style #{style} ({count} {count === 1 ? "variant" : "variants"})
+                      </option>
+                    );
+                  })}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+                  <ChevronDown size={16} />
+                </div>
+              </div>
+
+              {/* Reset to All Button */}
+              {selectedStyleFilter !== "ALL" && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedStyleFilter("ALL")}
+                  className="px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200/80 hover:text-slate-900 border border-slate-200/80 transition flex items-center gap-1.5 shrink-0"
+                  title="Clear filter and show all styles"
+                >
+                  <X size={14} />
+                  <span>All</span>
+                </button>
               )}
 
-              {/* Counter Badge */}
-              <div className="hidden lg:flex items-center text-xs text-slate-500 pl-1 font-medium">
-                <span className="font-mono font-semibold text-slate-800">
+              {/* Active Counter Pill */}
+              <div className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100/70 border border-slate-200/60 text-xs font-medium text-slate-600 shrink-0">
+                <span className="w-2 h-2 rounded-full bg-blue-600" />
+                <span className="font-mono font-bold text-slate-900">
                   {filteredProducts.length}
                 </span>
-                <span className="ml-1">articles</span>
+                <span>{filteredProducts.length === 1 ? "variant" : "variants"}</span>
               </div>
             </div>
           </div>

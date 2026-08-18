@@ -58,6 +58,28 @@ export const generateBarcodeImageBase64 = async (barcodeValue) => {
 };
 
 /**
+ * Generate a PNG data URL for a given QR code string
+ */
+export const generateQRCodeImageBase64 = async (text) => {
+  if (!text) return null;
+  try {
+    const canvas = document.createElement("canvas");
+    bwipjs.toCanvas(canvas, {
+      bcid: "qrcode",
+      text: String(text),
+      scale: 3,
+      paddingwidth: 1,
+      paddingheight: 1,
+      backgroundcolor: "FFFFFF",
+    });
+    return canvas.toDataURL("image/png");
+  } catch (err) {
+    console.warn("Client-side QR generation error:", err);
+    return null;
+  }
+};
+
+/**
  * Export products to an Excel file with high-res barcode images embedded in cells
  */
 export const exportArticlesToExcelWithBarcodes = async ({
