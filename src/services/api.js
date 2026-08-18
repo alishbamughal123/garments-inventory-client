@@ -26,12 +26,15 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    const isAuthEndpoint =
+      error?.config?.url?.includes("/auth/login") ||
+      error?.config?.url?.includes("/portal/login") ||
+      error?.config?.url?.includes("/portal/register") ||
+      error?.config?.url?.includes("/portal/google-auth");
+
     if (
-      error?.response?.status ===
-        401 &&
-      !error?.config?.url?.includes(
-        "/auth/login"
-      )
+      error?.response?.status === 401 &&
+      !isAuthEndpoint
     ) {
       localStorage.removeItem(
         "token"

@@ -39,6 +39,8 @@ const LoginPage = () => {
     companyName: "",
     email: "",
     phone: "",
+    address: "",
+    city: "",
     password: "",
   });
 
@@ -109,13 +111,13 @@ const LoginPage = () => {
       const response = await googleAuthCustomerPortal({
         email: dummyGoogleEmail,
         name: "Google B2B Client",
-        googleId: "google-oauth-12345"
+        googleId: `google-oauth-${Date.now()}`
       });
       login(response.data.token, response.data.user);
       toast.success(lang === "no" ? "Innlogget via Google!" : "Authenticated with Google successfully!");
       navigate("/portal/catalog");
     } catch (error) {
-      toast.error("Google authentication failed");
+      toast.error(error?.response?.data?.message || (lang === "no" ? "Google-godkjenning mislyktes" : "Google authentication failed"));
     } finally {
       setLoading(false);
     }
@@ -363,6 +365,35 @@ const LoginPage = () => {
                     placeholder="+47 987 65 432"
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:bg-white"
                     required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                    {lang === "no" ? "Leveringsadresse" : "Street Address"}
+                  </label>
+                  <input
+                    type="text"
+                    name="address"
+                    value={registerData.address}
+                    onChange={handleRegisterChange}
+                    placeholder="Storgata 100"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                    {lang === "no" ? "Poststed / By" : "City / Postal"}
+                  </label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={registerData.city}
+                    onChange={handleRegisterChange}
+                    placeholder="0182 Oslo"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:bg-white"
                   />
                 </div>
               </div>

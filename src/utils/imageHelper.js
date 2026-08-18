@@ -108,6 +108,43 @@ export const resolveProductImageUrl = (imageUrl, baseStyleNumber = "", colorName
     return "/images/200123-black.png";
   }
 
+  // Style #200126 (Arendal - Classic trousers w elastic men)
+  if (baseStyle === "200126" || baseStyle.startsWith("200126")) {
+    return "/images/200126.png";
+  }
+
+  // Style #10114 (Århus - Chef Hat / Kokkehatt)
+  if (baseStyle === "10114" || baseStyle.startsWith("10114")) {
+    if (col.includes("black") || col.includes("sort") || col === "b") {
+      return "/images/10114-black.png";
+    }
+    return "/images/10114-white.png";
+  }
+
+  // Style #20111 (Borås - Chef Jakke)
+  if (baseStyle === "20111" || baseStyle.startsWith("20111")) {
+    if (col.includes("white") || col.includes("hvit") || col === "w") {
+      return "/images/20111-white.png";
+    }
+    return "/images/20111-black.png";
+  }
+
+  // Style #200127 (Haugesund - Slip trousers unisex)
+  if (baseStyle === "200127" || baseStyle.startsWith("200127")) {
+    return "/images/200127.png";
+  }
+
+  // Style #10115 (København - Apron / Forkle)
+  if (baseStyle === "10115" || baseStyle.startsWith("10115")) {
+    if (col.includes("grey") || col.includes("gray") || col.includes("grå") || col === "lg") {
+      return "/images/10115-grey.png";
+    }
+    if (col.includes("navy") || col.includes("marine") || col === "n" || col === "nb") {
+      return "/images/10115-navy.png";
+    }
+    return "/images/10115-black.png";
+  }
+
   // Style #10124 (Oslo - Workwear Trousers)
   if (baseStyle === "10124" || baseStyle.startsWith("10124")) {
     return "/images/10124.png";
@@ -150,6 +187,14 @@ export const resolveWashingImageUrl = (washingImageUrl, baseStyleNumber = "") =>
     return "/images/washing-instructions10109.png";
   }
 
+  if (baseStyle === "10114" || baseStyle.startsWith("10114")) {
+    return "/images/washing-instructions10114.png";
+  }
+
+  if (baseStyle === "10115" || baseStyle.startsWith("10115")) {
+    return "/images/washing-instructions10115.png";
+  }
+
   if (baseStyle === "10121" || baseStyle.startsWith("10121")) {
     return "/images/washing-instructions10121.png";
   }
@@ -162,12 +207,24 @@ export const resolveWashingImageUrl = (washingImageUrl, baseStyleNumber = "") =>
     return "/images/washing-instructions10123.png";
   }
 
+  if (baseStyle === "20111" || baseStyle.startsWith("20111")) {
+    return "/images/washing-instructions20111.png";
+  }
+
   if (baseStyle === "200123" || baseStyle.startsWith("200123")) {
     return "/images/washing-instructions200123.png";
   }
 
   if (baseStyle === "200124" || baseStyle.startsWith("200124")) {
     return "/images/washing-instructions200124.png";
+  }
+
+  if (baseStyle === "200126" || baseStyle.startsWith("200126")) {
+    return "/images/washing-instructions200126.png";
+  }
+
+  if (baseStyle === "200127" || baseStyle.startsWith("200127")) {
+    return "/images/washing-instructions200127.png";
   }
 
   if (baseStyle === "10101" || baseStyle.startsWith("10101")) {
