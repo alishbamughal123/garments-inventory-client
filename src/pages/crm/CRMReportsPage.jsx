@@ -364,25 +364,28 @@ const CRMReportsPage = () => {
       {/* SUMMARY KPI BANNER */}
       {reportData?.summary && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Object.entries(reportData.summary).map(([key, val]) => (
-            <div key={key} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                {key.replace(/([A-Z])/g, " $1")}
-              </span>
-              <span className="text-xl font-extrabold text-slate-900 mt-1 block">
-                {typeof val === "number" ? val.toLocaleString() : val}
-              </span>
-            </div>
-          ))}
+          {Object.entries(reportData.summary).map(([key, val]) => {
+            const rawLabel = key.replace(/([A-Z])/g, " $1");
+            return (
+              <div key={key} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                  {t(rawLabel)}
+                </span>
+                <span className="text-xl font-extrabold text-slate-900 mt-1 block font-mono">
+                  {typeof val === "number" ? val.toLocaleString() : val}
+                </span>
+              </div>
+            );
+          })}
         </div>
       )}
 
       {/* REPORT DATA TABLE */}
       {loading ? (
-        <div className="p-12 text-center text-xs text-slate-400">Loading report data...</div>
+        <div className="p-12 text-center text-xs text-slate-400">{t("loading")}</div>
       ) : !reportData || !reportData.items || reportData.items.length === 0 ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-xs text-slate-400">
-          No items found for the selected report filters.
+          {t("noData")}
         </div>
       ) : (
         <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm print:border-none print:shadow-none">
@@ -390,11 +393,14 @@ const CRMReportsPage = () => {
             <table className="min-w-full text-xs">
               <thead className="bg-slate-50 text-slate-500 font-bold uppercase border-b border-slate-200">
                 <tr>
-                  {Object.keys(reportData.items[0]).map((col) => (
-                    <th key={col} className="px-4 py-3.5 text-left whitespace-nowrap">
-                      {col.replace(/([A-Z])/g, " $1")}
-                    </th>
-                  ))}
+                  {Object.keys(reportData.items[0]).map((col) => {
+                    const colName = col.replace(/([A-Z])/g, " $1");
+                    return (
+                      <th key={col} className="px-4 py-3.5 text-left whitespace-nowrap">
+                        {t(colName)}
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -402,7 +408,7 @@ const CRMReportsPage = () => {
                   <tr key={idx} className="hover:bg-slate-50/80 transition">
                     {Object.entries(row).map(([k, v], cIdx) => (
                       <td key={cIdx} className="px-4 py-3 text-slate-700 whitespace-nowrap font-medium">
-                        {typeof v === "boolean" ? (v ? "Yes" : "No") : v != null ? String(v) : "-"}
+                        {typeof v === "boolean" ? (v ? (isNo ? "Ja" : "Yes") : (isNo ? "Nei" : "No")) : v != null ? String(v) : "-"}
                       </td>
                     ))}
                   </tr>

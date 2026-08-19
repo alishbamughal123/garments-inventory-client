@@ -198,7 +198,7 @@ const CustomerDetailsPage = () => {
           onClick={() => setActiveTab("overview")}
           className={`pb-3 px-4 border-b-2 transition ${activeTab === "overview" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
         >
-          Overview & CRM Timeline
+          {isNo ? "Oversikt & CRM-tidslinje" : "Overview & CRM Timeline"}
         </button>
         <button
           onClick={() => setActiveTab("contacts")}
@@ -210,19 +210,19 @@ const CustomerDetailsPage = () => {
           onClick={() => setActiveTab("orders")}
           className={`pb-3 px-4 border-b-2 transition ${activeTab === "orders" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
         >
-          B2B Orders ({customer.customerOrders?.length || 0})
+          {isNo ? "B2B Ordrer" : "B2B Orders"} ({customer.customerOrders?.length || 0})
         </button>
         <button
           onClick={() => setActiveTab("stockout")}
           className={`pb-3 px-4 border-b-2 transition ${activeTab === "stockout" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
         >
-          Stock Out Receipts ({customer.stockOuts?.length || 0})
+          {isNo ? "Følgesedler & Vareutgang" : "Stock Out Receipts"} ({customer.stockOuts?.length || 0})
         </button>
         <button
           onClick={() => setActiveTab("gdpr")}
           className={`pb-3 px-4 border-b-2 transition ${activeTab === "gdpr" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
         >
-          GDPR & Anonymization
+          {isNo ? "GDPR & Personvern" : "GDPR & Anonymization"}
         </button>
       </div>
 
@@ -231,26 +231,26 @@ const CustomerDetailsPage = () => {
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
           <div className="space-y-6">
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-              <h3 className="text-base font-bold text-slate-900 mb-4">Contact Profile</h3>
+              <h3 className="text-base font-bold text-slate-900 mb-4">{isNo ? "Kontaktprofil" : "Contact Profile"}</h3>
               <div className="grid gap-4 sm:grid-cols-2 text-xs">
                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                   <Phone size={16} className="text-slate-400" />
                   <div>
-                    <span className="text-slate-400 block">Phone</span>
+                    <span className="text-slate-400 block">{t("phone")}</span>
                     <span className="font-semibold text-slate-800">{customer.phoneNumber}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                   <Mail size={16} className="text-slate-400" />
                   <div>
-                    <span className="text-slate-400 block">Email</span>
+                    <span className="text-slate-400 block">{t("email")}</span>
                     <span className="font-semibold text-slate-800">{customer.email || "-"}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl sm:col-span-2">
                   <MapPin size={16} className="text-slate-400" />
                   <div>
-                    <span className="text-slate-400 block">Address</span>
+                    <span className="text-slate-400 block">{t("address")}</span>
                     <span className="font-semibold text-slate-800">{customer.address || "-"}, {customer.city}</span>
                   </div>
                 </div>
@@ -258,14 +258,14 @@ const CustomerDetailsPage = () => {
             </section>
 
             <ActivityComposer
-              title="Log Customer Activity"
+              title={isNo ? "Loggfør kundeaktivitet" : "Log Customer Activity"}
               entityIds={{ customerId: customer.id }}
               onSubmit={handleActivitySubmit}
               loading={activityLoading}
             />
 
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h3 className="text-base font-bold text-slate-900 mb-4">Activity Timeline</h3>
+              <h3 className="text-base font-bold text-slate-900 mb-4">{isNo ? "Aktivitetstidslinje" : "Activity Timeline"}</h3>
               <div className="space-y-3">
                 {customer.activityTimeline?.map((item) => (
                   <div key={`${item.source}-${item.id}`} className="p-3 border border-slate-100 rounded-xl bg-slate-50/60 text-xs">
@@ -283,7 +283,7 @@ const CustomerDetailsPage = () => {
 
           <div className="space-y-6">
             <EmailComposer
-              title="Send Email to Customer"
+              title={isNo ? "Send e-post til kunden" : "Send Email to Customer"}
               entityIds={{ customerId: customer.id }}
               initialToEmail={customer.email || ""}
               onSubmit={handleEmailSubmit}
@@ -299,14 +299,14 @@ const CustomerDetailsPage = () => {
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
           <h3 className="text-base font-bold text-slate-900">{t("contacts")} ({customer.contacts?.length || 0})</h3>
           {customer.contacts?.length === 0 ? (
-            <p className="text-xs text-slate-500">No additional contacts registered.</p>
+            <p className="text-xs text-slate-500">{isNo ? "Ingen ekstra kontakter registrert." : "No additional contacts registered."}</p>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2">
               {customer.contacts?.map((contact) => (
                 <div key={contact.id} className="p-4 border border-slate-200 bg-slate-50/60 rounded-xl space-y-1 text-xs">
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-sm text-slate-900">{contact.name}</span>
-                    {contact.isPrimary && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 font-semibold rounded-full text-[10px]">Primary</span>}
+                    {contact.isPrimary && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 font-semibold rounded-full text-[10px]">{t("primaryContact")}</span>}
                   </div>
                   {contact.title && <p className="text-slate-500 font-medium">{contact.title}</p>}
                   {contact.email && <p className="text-slate-700">✉️ {contact.email}</p>}
@@ -321,9 +321,9 @@ const CustomerDetailsPage = () => {
       {/* Orders Tab */}
       {activeTab === "orders" && (
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
-          <h3 className="text-base font-bold text-slate-900">B2B Customer Orders</h3>
+          <h3 className="text-base font-bold text-slate-900">{isNo ? "B2B Kundebestillinger" : "B2B Customer Orders"}</h3>
           {customer.customerOrders?.length === 0 ? (
-            <p className="text-xs text-slate-500">No B2B orders placed yet.</p>
+            <p className="text-xs text-slate-500">{isNo ? "Ingen B2B-bestillinger plassert enda." : "No B2B orders placed yet."}</p>
           ) : (
             <div className="space-y-3">
               {customer.customerOrders?.map((order) => (
@@ -331,7 +331,7 @@ const CustomerDetailsPage = () => {
                   <div>
                     <span className="font-mono font-bold text-blue-600 text-sm">{order.orderNumber}</span>
                     <span className="text-slate-400 ml-2">({new Date(order.createdAt).toLocaleDateString()})</span>
-                    <p className="text-slate-600 mt-1">{order.orderItems?.length || 0} items • Parcel Weight: <span className="font-semibold text-slate-900">{order.totalParcelWeight?.toFixed(2)} kg</span></p>
+                    <p className="text-slate-600 mt-1">{order.orderItems?.length || 0} {isNo ? "artikler • Pakkevekt:" : "items • Parcel Weight:"} <span className="font-semibold text-slate-900">{order.totalParcelWeight?.toFixed(2)} kg</span></p>
                   </div>
 
                   <div className="flex items-center gap-4">
@@ -348,9 +348,9 @@ const CustomerDetailsPage = () => {
       {/* Stock Out Tab */}
       {activeTab === "stockout" && (
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
-          <h3 className="text-base font-bold text-slate-900">Stock Out & Delivery Note Receipts</h3>
+          <h3 className="text-base font-bold text-slate-900">{isNo ? "Vareutgang & Følgeseddel-kvitteringer" : "Stock Out & Delivery Note Receipts"}</h3>
           {customer.stockOuts?.length === 0 ? (
-            <p className="text-xs text-slate-500">No stock out transactions recorded for this customer.</p>
+            <p className="text-xs text-slate-500">{isNo ? "Ingen vareutgangstransaksjoner registrert for denne kunden." : "No stock out transactions recorded for this customer."}</p>
           ) : (
             <div className="space-y-3">
               {customer.stockOuts?.map((tx) => (
@@ -358,10 +358,10 @@ const CustomerDetailsPage = () => {
                   <div>
                     <span className="font-bold text-slate-900">{tx.product?.productName}</span>
                     <span className="text-slate-500 ml-2">({tx.product?.sku})</span>
-                    <p className="text-slate-600 mt-0.5">Qty: <span className="font-bold text-slate-900">{tx.quantity}</span> • Parcel Weight: <span className="font-semibold text-blue-600">{tx.totalWeightKg?.toFixed(2)} kg</span></p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">{new Date(tx.createdAt).toLocaleString()} by {tx.performedBy?.name}</p>
+                    <p className="text-slate-600 mt-0.5">{t("quantity")}: <span className="font-bold text-slate-900">{tx.quantity}</span> • {isNo ? "Vekt:" : "Weight:"} <span className="font-semibold text-blue-600">{tx.totalWeightKg?.toFixed(2)} kg</span></p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{new Date(tx.createdAt).toLocaleString()} {isNo ? "av" : "by"} {tx.performedBy?.name}</p>
                   </div>
-                  <span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full font-semibold text-[11px]">Stock Out Complete</span>
+                  <span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full font-semibold text-[11px]">{isNo ? "Vareutgang fullført" : "Stock Out Complete"}</span>
                 </div>
               ))}
             </div>
@@ -378,7 +378,7 @@ const CustomerDetailsPage = () => {
               <span>{t("gdprActions")}</span>
             </h3>
             <p className="text-xs text-slate-500 mt-1">
-              {lang === "no" 
+              {isNo 
                 ? "Overhold GDPR-regelverk med eksport av personopplysninger og anonymisering på forespørsel." 
                 : "Manage customer rights under GDPR, including data export requests and right to be forgotten."}
             </p>
@@ -387,25 +387,25 @@ const CustomerDetailsPage = () => {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
               <h4 className="font-bold text-xs text-slate-800">{t("exportGdpr")}</h4>
-              <p className="text-[11px] text-slate-500">Download full JSON data package of all records held for this customer.</p>
+              <p className="text-[11px] text-slate-500">{isNo ? "Last ned fullstendig JSON-datapakke over alle registrerte data for denne kunden." : "Download full JSON data package of all records held for this customer."}</p>
               <button
                 onClick={handleExportGDPR}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition"
               >
                 <Download size={14} />
-                <span>Download Data Package</span>
+                <span>{isNo ? "Last ned datapakke" : "Download Data Package"}</span>
               </button>
             </div>
 
             <div className="p-4 bg-red-50/50 border border-red-200 rounded-xl space-y-3">
               <h4 className="font-bold text-xs text-red-900">{t("anonymizeGdpr")}</h4>
-              <p className="text-[11px] text-red-600">Permanently anonymize all contact details and name fields while retaining transaction figures for tax audit.</p>
+              <p className="text-[11px] text-red-600">{isNo ? "Anonymiser permanent alle kontaktdata og navn, men behold transaksjonstall for regnskap og revisjon." : "Permanently anonymize all contact details and name fields while retaining transaction figures for tax audit."}</p>
               <button
                 onClick={handleAnonymizeGDPR}
                 className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-semibold hover:bg-red-700 transition"
               >
                 <UserX size={14} />
-                <span>Anonymize Customer</span>
+                <span>{isNo ? "Anonymiser kunde" : "Anonymize Customer"}</span>
               </button>
             </div>
           </div>

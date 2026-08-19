@@ -4,6 +4,7 @@ export const appRoutes = {
   dashboard: "/dashboard",
   products: "/products",
   productsAdd: "/products/add",
+  sizeCharts: "/size-charts",
   categories: "/categories",
   categoriesAdd: "/categories/add",
   categoriesEdit: (id = ":id") =>

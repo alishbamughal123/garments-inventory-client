@@ -13,6 +13,7 @@ import PageHeader from "../../components/ui/PageHeader";
 import StatusBadge from "../../components/ui/StatusBadge";
 import DeleteModal from "../../components/common/DeleteModal";
 import Button from "../../components/ui/Button";
+import { useLanguage } from "../../context/LanguageContext";
 import {
   getLeads,
   updateLeadStage,
@@ -30,6 +31,7 @@ const stages = [
 ];
 
 const LeadPipelinePage = () => {
+  const { t, isNo } = useLanguage();
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -126,14 +128,14 @@ const LeadPipelinePage = () => {
   if (loading) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
-        Loading Pipeline...
+        {isNo ? "Laster salgspipeline..." : "Loading Pipeline..."}
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Lead Pipeline Board" />
+      <PageHeader title={isNo ? "Salgspipeline" : "Lead Pipeline Board"} />
 
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
@@ -179,7 +181,7 @@ const LeadPipelinePage = () => {
                                     {lead.fullName}
                                   </h4>
                                   <p className="mt-0.5 text-xs text-slate-500">
-                                    {lead.companyName || "No Company"}
+                                    {lead.companyName || (isNo ? "Ingen bedrift" : "No Company")}
                                   </p>
                                 </div>
 
@@ -190,7 +192,7 @@ const LeadPipelinePage = () => {
                                     openDeleteModal(lead);
                                   }}
                                   className="text-slate-400 hover:text-red-600 transition p-1 rounded-lg hover:bg-red-50"
-                                  title="Delete Lead"
+                                  title={t("delete")}
                                 >
                                   <Trash2 size={14} />
                                 </button>
@@ -205,13 +207,13 @@ const LeadPipelinePage = () => {
 
                               {lead.assignedTo && (
                                 <div className="mt-3 text-[11px] font-medium text-[var(--color-primary-ink)]">
-                                  Assigned: {lead.assignedTo.name}
+                                  {isNo ? "Tildelt:" : "Assigned:"} {lead.assignedTo.name}
                                 </div>
                               )}
 
                               {lead.source && (
                                 <div className="mt-1 text-[11px] text-slate-500">
-                                  Source: {lead.source}
+                                  {isNo ? "Kilde:" : "Source:"} {lead.source}
                                 </div>
                               )}
                             </article>
@@ -223,7 +225,7 @@ const LeadPipelinePage = () => {
 
                       {stageLeads.length === 0 && (
                         <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-xs text-slate-400">
-                          No leads in this stage
+                          {isNo ? "Ingen leads i dette stadiet" : "No leads in this stage"}
                         </div>
                       )}
                     </div>
@@ -240,12 +242,12 @@ const LeadPipelinePage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
             <h3 className="text-lg font-bold text-slate-900">
-              Confirm Lead Stage Move
+              {isNo ? "Bekreft flytting av lead-stadium" : "Confirm Lead Stage Move"}
             </h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Are you sure you want to move <strong>"{pendingMove.lead.fullName}"</strong> from stage{" "}
-              <span className="font-bold text-slate-800">{pendingMove.lead.status}</span> to{" "}
-              <span className="font-bold text-teal-700">{pendingMove.newStage}</span>?
+              {isNo
+                ? `Er du sikker på at du vil flytte "${pendingMove.lead.fullName}" fra stadiet ${pendingMove.lead.status} til ${pendingMove.newStage}?`
+                : `Are you sure you want to move "${pendingMove.lead.fullName}" from stage ${pendingMove.lead.status} to ${pendingMove.newStage}?`}
             </p>
             <div className="flex justify-end gap-3 pt-2">
               <Button
@@ -255,10 +257,10 @@ const LeadPipelinePage = () => {
                   setPendingMove(null);
                 }}
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button onClick={handleConfirmMove}>
-                Confirm Stage Move
+                {isNo ? "Bekreft flytting" : "Confirm Stage Move"}
               </Button>
             </div>
           </div>
@@ -273,8 +275,8 @@ const LeadPipelinePage = () => {
           setSelectedLeadToDelete(null);
         }}
         onConfirm={handleConfirmDelete}
-        title="Delete Lead"
-        message={`Are you sure you want to delete lead ${selectedLeadToDelete?.fullName}? This action cannot be undone.`}
+        title={isNo ? "Slett Lead" : "Delete Lead"}
+        message={isNo ? `Er du sikker på at du vil slette lead ${selectedLeadToDelete?.fullName}? Dette kan ikke angres.` : `Are you sure you want to delete lead ${selectedLeadToDelete?.fullName}? This action cannot be undone.`}
       />
     </div>
   );

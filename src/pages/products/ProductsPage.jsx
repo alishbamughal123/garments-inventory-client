@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
-import { Printer, FileSpreadsheet, Layers, Filter, ChevronDown, X } from "lucide-react";
+import { Printer, FileSpreadsheet, Layers, Filter, ChevronDown, X, FileCode } from "lucide-react";
 import MainLayout from "../../layouts/MainLayout";
 import PageHeader from "../../components/ui/PageHeader";
 import DeleteModal from "../../components/common/DeleteModal";
@@ -10,16 +10,19 @@ import ProductTable from "../../components/products/ProductTable";
 import BarcodePrintModal from "../../components/products/BarcodePrintModal";
 import Loader from "../../components/ui/Loader";
 import SurfaceCard from "../../components/ui/SurfaceCard";
+import { useLanguage } from "../../context/LanguageContext";
 import {
   deleteProduct,
   getProducts,
   searchProducts,
 } from "../../services/products.service";
 import { exportArticlesToExcelWithBarcodes } from "../../utils/barcodeExport";
+import { downloadCAD_DXF, downloadCAD_SVG } from "../../utils/cadExport";
 import toast from "react-hot-toast";
 
 const ProductsPage = () => {
   const navigate = useNavigate();
+  const { t, isNo } = useLanguage();
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -77,14 +80,19 @@ const ProductsPage = () => {
 
   const handleExportAllExcel = async () => {
     if (filteredProducts.length === 0) {
-      toast.error("No articles to export.");
+      toast.error(isNo ? "Ingen artikler å eksportere." : "No articles to export.");
       return;
     }
 
     try {
       setExportingExcel(true);
       setExportProgress(0);
-      toast.loading("Generating Excel sheet with embedded barcodes...", { id: "excel-toast" });
+      toast.loading(
+        isNo
+          ? "Genererer Excel-ark med innebygde strekkoder..."
+          : "Generating Excel sheet with embedded barcodes...",
+        { id: "excel-toast" }
+      );
 
       const filterSuffix =
         selectedStyleFilter !== "ALL" ? `_Style_${selectedStyleFilter}` : "_All_Articles";
@@ -92,22 +100,74 @@ const ProductsPage = () => {
       await exportArticlesToExcelWithBarcodes({
         products: filteredProducts,
         fileName: `Nordic_Inventory_Barcodes${filterSuffix}`,
-        sheetName: selectedStyleFilter !== "ALL" ? `Style ${selectedStyleFilter}` : "All Articles",
+        sheetName: selectedStyleFilter !== "ALL" ? `Style ${selectedStyleFilter}` : (isNo ? "Alle artikler" : "All Articles"),
         onProgress: (percent, current, total) => {
           setExportProgress({ percent, current, total });
         },
       });
 
       toast.success(
-        `Successfully exported ${filteredProducts.length} articles with barcode images!`,
+        isNo
+          ? `Eksporterte ${filteredProducts.length} artikler med strekkodebilder!`
+          : `Successfully exported ${filteredProducts.length} articles with barcode images!`,
         { id: "excel-toast" }
       );
     } catch (error) {
       console.error(error);
-      toast.error(error.message || "Failed to export Excel file", { id: "excel-toast" });
+      toast.error(error.message || (isNo ? "Kunne ikke eksportere Excel-fil" : "Failed to export Excel file"), { id: "excel-toast" });
     } finally {
       setExportingExcel(false);
       setExportProgress(null);
+    }
+  };
+
+  const handleExportAllCAD_DXF = () => {
+    if (filteredProducts.length === 0) {
+      toast.error(isNo ? "Ingen artikler å eksportere." : "No articles to export.");
+      return;
+    }
+
+    try {
+      const filterSuffix =
+        selectedStyleFilter !== "ALL" ? `_Style_${selectedStyleFilter}` : "_All_Articles";
+
+      downloadCAD_DXF({
+        products: filteredProducts,
+        fileName: `Nordic_Inventory_Barcodes_CAD${filterSuffix}`,
+      });
+      toast.success(
+        isNo
+          ? `Eksporterte ${filteredProducts.length} artikler til AutoCAD DXF CAD-fil!`
+          : `Exported ${filteredProducts.length} articles to AutoCAD DXF CAD file!`
+      );
+    } catch (error) {
+      console.error(error);
+      toast.error(isNo ? "Kunne ikke generere CAD-fil" : "Failed to generate CAD file");
+    }
+  };
+
+  const handleExportAllCAD_SVG = () => {
+    if (filteredProducts.length === 0) {
+      toast.error(isNo ? "Ingen artikler å eksportere." : "No articles to export.");
+      return;
+    }
+
+    try {
+      const filterSuffix =
+        selectedStyleFilter !== "ALL" ? `_Style_${selectedStyleFilter}` : "_All_Articles";
+
+      downloadCAD_SVG({
+        products: filteredProducts,
+        fileName: `Nordic_Inventory_Barcodes_Vector_CAD${filterSuffix}`,
+      });
+      toast.success(
+        isNo
+          ? `Eksporterte ${filteredProducts.length} artikler til Vector CAD (.svg) fil!`
+          : `Exported ${filteredProducts.length} articles to Vector CAD (.svg) file!`
+      );
+    } catch (error) {
+      console.error(error);
+      toast.error(isNo ? "Kunne ikke generere SVG CAD-fil" : "Failed to generate SVG CAD file");
     }
   };
 
@@ -126,12 +186,12 @@ const ProductsPage = () => {
         prev.filter((product) => product.id !== selectedProduct.id)
       );
 
-      toast.success("Article deleted successfully");
+      toast.success(isNo ? "Artikkel ble slettet" : "Article deleted successfully");
       setDeleteModalOpen(false);
       setSelectedProduct(null);
     } catch (error) {
       toast.error(
-        error?.response?.data?.message || "Failed to delete article"
+        error?.response?.data?.message || (isNo ? "Kunne ikke slette artikkel" : "Failed to delete article")
       );
     }
   };
@@ -141,23 +201,49 @@ const ProductsPage = () => {
       <div className="space-y-5">
         {/* CLEAN PAGE HEADER */}
         <PageHeader
-          title="Articles & Barcodes"
-          description="Manage apparel products, variants, barcode sheets, and label printing."
+          title={t("articlesAndBarcodes")}
+          description={t("articlesPageDesc")}
           action={
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+              {/* CAD DXF Export Button */}
+              <button
+                type="button"
+                onClick={handleExportAllCAD_DXF}
+                disabled={filteredProducts.length === 0}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/70 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-indigo-700 shadow-sm transition hover:bg-indigo-100 hover:border-indigo-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                title={isNo ? "Last ned AutoCAD DXF CAD-fil med millimeter-nøyaktighet" : "Download AutoCAD DXF CAD file for laser cutting / CAD"}
+              >
+                <FileCode className="w-4 h-4 text-indigo-600 shrink-0" />
+                <span>CAD (.dxf)</span>
+              </button>
+
+              {/* Vector SVG Button (Opens in Chrome/Edge) */}
+              <button
+                type="button"
+                onClick={handleExportAllCAD_SVG}
+                disabled={filteredProducts.length === 0}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50/70 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-violet-700 shadow-sm transition hover:bg-violet-100 hover:border-violet-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                title={isNo ? "Last ned Vector SVG-fil (kan åpnes direkte i nettleseren)" : "Download Vector SVG CAD file (double-click opens directly in Google Chrome/Edge)"}
+              >
+                <Layers className="w-4 h-4 text-violet-600 shrink-0" />
+                <span>Vector (.svg)</span>
+              </button>
+
               {/* Excel Export Button */}
               <button
                 type="button"
                 onClick={handleExportAllExcel}
                 disabled={exportingExcel || filteredProducts.length === 0}
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Download Excel spreadsheet with embedded barcode images"
+                title={isNo ? "Last ned Excel-regneark med innebygde strekkodebilder" : "Download Excel spreadsheet with embedded barcode images"}
               >
                 <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>
                   {exportingExcel
-                    ? `Exporting (${exportProgress?.current || 0}/${exportProgress?.total || filteredProducts.length})...`
-                    : "Excel (+ Barcodes)"}
+                    ? (isNo
+                        ? `Eksporterer (${exportProgress?.current || 0}/${exportProgress?.total || filteredProducts.length})...`
+                        : `Exporting (${exportProgress?.current || 0}/${exportProgress?.total || filteredProducts.length})...`)
+                    : t("excelWithBarcodes")}
                 </span>
               </button>
 
@@ -167,10 +253,10 @@ const ProductsPage = () => {
                 onClick={() => setPrintModalOpen(true)}
                 disabled={filteredProducts.length === 0}
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Open printable barcode sticker labels sheet (A4 / Thermal)"
+                title={isNo ? "Åpne utskriftsklare strekkodeetiketter (A4 / Termisk)" : "Open printable barcode sticker labels sheet (A4 / Thermal)"}
               >
                 <Printer className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>Print Labels</span>
+                <span>{t("printLabels")}</span>
               </button>
 
               {/* Primary Add Article Button */}
@@ -180,7 +266,7 @@ const ProductsPage = () => {
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold shadow-sm transition"
               >
                 <FiPlus size={18} className="shrink-0" />
-                <span>Add Article</span>
+                <span>{t("addArticle")}</span>
               </button>
             </div>
           }
@@ -194,6 +280,11 @@ const ProductsPage = () => {
               <SearchBar
                 search={search}
                 setSearch={setSearch}
+                placeholder={
+                  isNo
+                    ? "Søk etter stilnr, navn, artikkel, SKU eller strekkode..."
+                    : "Search by style no, name, article, SKU, or barcode..."
+                }
               />
             </div>
 
@@ -210,7 +301,9 @@ const ProductsPage = () => {
                   className="w-full appearance-none rounded-xl border border-slate-200/90 bg-slate-50/70 hover:bg-white py-2.5 pl-9 pr-9 text-xs sm:text-sm font-semibold text-slate-800 shadow-2xs outline-none transition hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 cursor-pointer"
                 >
                   <option value="ALL">
-                    All Styles ({products.length} total)
+                    {isNo
+                      ? `Alle stiler (${products.length} totalt)`
+                      : `All Styles (${products.length} total)`}
                   </option>
                   {uniqueBaseStyles.map((style) => {
                     const count = products.filter((p) => {
@@ -220,7 +313,10 @@ const ProductsPage = () => {
                     }).length;
                     return (
                       <option key={style} value={style}>
-                        Style #{style} ({count} {count === 1 ? "variant" : "variants"})
+                        {isNo ? `Stil #${style}` : `Style #${style}`} ({count}{" "}
+                        {count === 1
+                          ? (isNo ? "variant" : "variant")
+                          : (isNo ? "varianter" : "variants")})
                       </option>
                     );
                   })}
@@ -236,10 +332,10 @@ const ProductsPage = () => {
                   type="button"
                   onClick={() => setSelectedStyleFilter("ALL")}
                   className="px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200/80 hover:text-slate-900 border border-slate-200/80 transition flex items-center gap-1.5 shrink-0"
-                  title="Clear filter and show all styles"
+                  title={isNo ? "Tilbakestill filter og vis alle stiler" : "Clear filter and show all styles"}
                 >
                   <X size={14} />
-                  <span>All</span>
+                  <span>{isNo ? "Alle" : "All"}</span>
                 </button>
               )}
 
@@ -249,7 +345,11 @@ const ProductsPage = () => {
                 <span className="font-mono font-bold text-slate-900">
                   {filteredProducts.length}
                 </span>
-                <span>{filteredProducts.length === 1 ? "variant" : "variants"}</span>
+                <span>
+                  {filteredProducts.length === 1
+                    ? (isNo ? "variant" : "variant")
+                    : (isNo ? "varianter" : "variants")}
+                </span>
               </div>
             </div>
           </div>
@@ -257,7 +357,7 @@ const ProductsPage = () => {
 
         {/* ARTICLES TABLE */}
         {loading ? (
-          <Loader message="Loading apparel articles..." />
+          <Loader message={isNo ? "Laster klesartikler..." : "Loading apparel articles..."} />
         ) : (
           <div className="bg-transparent sm:bg-white rounded-2xl border-0 sm:border border-slate-200 shadow-none sm:shadow-sm p-0 sm:p-6">
             <ProductTable
@@ -276,12 +376,20 @@ const ProductsPage = () => {
           setSelectedProduct(null);
         }}
         onConfirm={handleDelete}
-        title="Delete Article"
-        message={`Are you sure you want to delete ${
-          selectedProduct?.styleNumber ||
-          selectedProduct?.productName ||
-          "this article"
-        }? This action cannot be undone.`}
+        title={t("deleteArticle")}
+        message={
+          isNo
+            ? `Er du sikker på at du vil slette ${
+                selectedProduct?.styleNumber ||
+                selectedProduct?.productName ||
+                "denne artikkelen"
+              }? Denne handlingen kan ikke angres.`
+            : `Are you sure you want to delete ${
+                selectedProduct?.styleNumber ||
+                selectedProduct?.productName ||
+                "this article"
+              }? This action cannot be undone.`
+        }
       />
 
       {/* 1-CLICK BARCODE PRINT MODAL */}
@@ -291,8 +399,8 @@ const ProductsPage = () => {
         products={filteredProducts}
         title={
           selectedStyleFilter !== "ALL"
-            ? `Print Barcodes - Style #${selectedStyleFilter}`
-            : "Print Barcode Labels (All Articles)"
+            ? (isNo ? `Skriv ut strekkoder - Stil #${selectedStyleFilter}` : `Print Barcodes - Style #${selectedStyleFilter}`)
+            : (isNo ? "Skriv ut strekkoder (Alle artikler)" : "Print Barcode Labels (All Articles)")
         }
       />
     </MainLayout>
@@ -300,3 +408,4 @@ const ProductsPage = () => {
 };
 
 export default ProductsPage;
+

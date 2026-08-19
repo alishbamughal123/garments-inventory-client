@@ -145,6 +145,94 @@ export const resolveProductImageUrl = (imageUrl, baseStyleNumber = "", colorName
     return "/images/10115-black.png";
   }
 
+  // Style #200128 (Mandal - Half apron)
+  if (baseStyle === "200128" || baseStyle.startsWith("200128")) {
+    if (col.includes("grey") || col.includes("gray") || col.includes("grå") || col === "lg") {
+      return "/images/200128-grey.png";
+    }
+    if (col.includes("navy") || col.includes("marine") || col === "mn" || col === "n" || col === "nb") {
+      return "/images/200128-navy.png";
+    }
+    return "/images/200128-black.png";
+  }
+
+  // Style #10103 (Molde - Pen skjorte)
+  if (baseStyle === "10103" || baseStyle.startsWith("10103")) {
+    if (col.includes("black") || col.includes("sort") || col === "b") {
+      return "/images/10103-black.png";
+    }
+    return "/images/10103-white.png";
+  }
+
+  // Style #10107 (Hamar - Healthcare bukse NS 3357)
+  if (baseStyle === "10107" || baseStyle.startsWith("10107")) {
+    if (col.includes("navy") || col.includes("marine") || col === "n" || col === "nb") return "/images/10107-navy.png";
+    if (col.includes("grey") || col.includes("gray") || col.includes("grå") || col === "g") return "/images/10107-grey.png";
+    if (col.includes("black") || col.includes("sort") || col === "b") return "/images/10107-black.png";
+    if (col.includes("green") || col.includes("grønn") || col === "gr") return "/images/10107-green.png";
+    if (col.includes("light") || col.includes("lys") || col.includes("blue") || col.includes("blå") || col === "lb") return "/images/10107-lightblue.png";
+    return "/images/10107-white.png";
+  }
+
+  // Style #10105 (Lillehammer - Scrubs Unisex NS 3361)
+  if (baseStyle === "10105" || baseStyle.startsWith("10105")) {
+    if (col.includes("navy") || col.includes("marine") || col === "n" || col === "nb") return "/images/10105-navy.png";
+    if (col.includes("grey") || col.includes("gray") || col.includes("grå") || col === "g") return "/images/10105-grey.png";
+    if (col.includes("black") || col.includes("sort") || col === "b") return "/images/10105-black.png";
+    if (col.includes("green") || col.includes("grønn") || col === "gr") return "/images/10105-green.png";
+    if (col.includes("light") || col.includes("lys") || col.includes("blue") || col.includes("blå") || col === "lb") return "/images/10105-lightblue.png";
+    return "/images/10105-white.png";
+  }
+
+  // Style #10108 (Bergen - Healthcare bukse NS 3357)
+  if (baseStyle === "10108" || baseStyle.startsWith("10108")) {
+    if (col.includes("white") || col.includes("hvit") || col === "w") return "/images/10108-white.png";
+    if (col.includes("grey") || col.includes("gray") || col.includes("grå") || col === "g") return "/images/10108-grey.png";
+    if (col.includes("black") || col.includes("sort") || col === "b") return "/images/10108-black.png";
+    if (col.includes("green") || col.includes("grønn") || col === "gr") return "/images/10108-green.png";
+    if (col.includes("light") || col.includes("lys") || col.includes("blue") || col.includes("blå") || col === "lb") return "/images/10108-lightblue.png";
+    return "/images/10108-navy.png";
+  }
+
+  // Style #10106 (Stavanger - Scrub overdel NS 3361)
+  if (baseStyle === "10106" || baseStyle.startsWith("10106")) {
+    if (col.includes("white") || col.includes("hvit") || col === "w") return "/images/10106-white.png";
+    if (col.includes("grey") || col.includes("gray") || col.includes("grå") || col === "g") return "/images/10106-grey.png";
+    if (col.includes("black") || col.includes("sort") || col === "b") return "/images/10106-black.png";
+    if (col.includes("green") || col.includes("grønn") || col === "gr") return "/images/10106-green.png";
+    if (col.includes("light") || col.includes("lys") || col.includes("blue") || col.includes("blå") || col === "lb") return "/images/10106-lightblue.png";
+    return "/images/10106-navy.png";
+  }
+
+  // Style #200122 (Skagen - Striped Chef Trousers Men)
+  if (baseStyle === "200122" || baseStyle.startsWith("200122")) {
+    return "/images/200122.png";
+  }
+
+  // Style #20110 (Stockholm - Chef Jacket)
+  if (baseStyle === "20110" || baseStyle.startsWith("20110")) {
+    if (col.includes("black") || col.includes("sort") || col === "b") return "/images/20110-black.png";
+    return "/images/20110-white.png";
+  }
+
+  // Style #10102 (Tønsberg - Polo Shirt)
+  if (baseStyle === "10102" || baseStyle.startsWith("10102")) {
+    if (col.includes("red") || col.includes("rød") || col === "r") return "/images/10102-red.png";
+    if (col.includes("navy") || col.includes("marine") || col === "n" || col === "nb") return "/images/10102-navy.png";
+    if (col.includes("white") || col.includes("hvit") || col === "w") return "/images/10102-white.png";
+    return "/images/10102-black.png";
+  }
+
+  // Style #200125 (Umeå - Striped Chef Trousers Lady)
+  if (baseStyle === "200125" || baseStyle.startsWith("200125")) {
+    return "/images/200125.png";
+  }
+
+  // Style #200121 (Vejle - Houndstooth Check Chef Trousers Men)
+  if (baseStyle === "200121" || baseStyle.startsWith("200121")) {
+    return "/images/200121.png";
+  }
+
   // Style #10124 (Oslo - Workwear Trousers)
   if (baseStyle === "10124" || baseStyle.startsWith("10124")) {
     return "/images/10124.png";
@@ -183,6 +271,30 @@ export const resolveWashingImageUrl = (washingImageUrl, baseStyleNumber = "") =>
     return "/images/washing-instructions10099.png";
   }
 
+  if (baseStyle === "10102" || baseStyle.startsWith("10102")) {
+    return "/images/washing-instructions10102.png";
+  }
+
+  if (baseStyle === "10103" || baseStyle.startsWith("10103")) {
+    return "/images/washing-instructions10103.png";
+  }
+
+  if (baseStyle === "10105" || baseStyle.startsWith("10105")) {
+    return "/images/washing-instructions10105.png";
+  }
+
+  if (baseStyle === "10106" || baseStyle.startsWith("10106")) {
+    return "/images/washing-instructions10106.png";
+  }
+
+  if (baseStyle === "10107" || baseStyle.startsWith("10107")) {
+    return "/images/washing-instructions10107.png";
+  }
+
+  if (baseStyle === "10108" || baseStyle.startsWith("10108")) {
+    return "/images/washing-instructions10108.png";
+  }
+
   if (baseStyle === "10109" || baseStyle.startsWith("10109")) {
     return "/images/washing-instructions10109.png";
   }
@@ -207,8 +319,20 @@ export const resolveWashingImageUrl = (washingImageUrl, baseStyleNumber = "") =>
     return "/images/washing-instructions10123.png";
   }
 
+  if (baseStyle === "20110" || baseStyle.startsWith("20110")) {
+    return "/images/washing-instructions20110.png";
+  }
+
   if (baseStyle === "20111" || baseStyle.startsWith("20111")) {
     return "/images/washing-instructions20111.png";
+  }
+
+  if (baseStyle === "200121" || baseStyle.startsWith("200121")) {
+    return "/images/washing-instructions200121.png";
+  }
+
+  if (baseStyle === "200122" || baseStyle.startsWith("200122")) {
+    return "/images/washing-instructions200122.png";
   }
 
   if (baseStyle === "200123" || baseStyle.startsWith("200123")) {
@@ -219,12 +343,20 @@ export const resolveWashingImageUrl = (washingImageUrl, baseStyleNumber = "") =>
     return "/images/washing-instructions200124.png";
   }
 
+  if (baseStyle === "200125" || baseStyle.startsWith("200125")) {
+    return "/images/washing-instructions200125.png";
+  }
+
   if (baseStyle === "200126" || baseStyle.startsWith("200126")) {
     return "/images/washing-instructions200126.png";
   }
 
   if (baseStyle === "200127" || baseStyle.startsWith("200127")) {
     return "/images/washing-instructions200127.png";
+  }
+
+  if (baseStyle === "200128" || baseStyle.startsWith("200128")) {
+    return "/images/washing-instructions200128.png";
   }
 
   if (baseStyle === "10101" || baseStyle.startsWith("10101")) {

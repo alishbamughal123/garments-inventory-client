@@ -6,55 +6,52 @@ import {
   Clock3,
   Siren,
 } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 
 const summaryCards = [
   {
     key: "totalTasks",
     label: "Total Tasks",
     icon: ClipboardList,
-    iconClassName:
-      "text-slate-700",
+    iconClassName: "text-slate-700",
   },
   {
     key: "pendingTasks",
     label: "Pending",
     icon: Clock3,
-    iconClassName:
-      "text-amber-600",
+    iconClassName: "text-amber-600",
   },
   {
     key: "completedTasks",
     label: "Completed",
     icon: CheckCircle2,
-    iconClassName:
-      "text-emerald-600",
+    iconClassName: "text-emerald-600",
   },
   {
     key: "overdueTasks",
     label: "Overdue",
     icon: AlertTriangle,
-    iconClassName:
-      "text-red-600",
+    iconClassName: "text-red-600",
   },
   {
     key: "tasksDueToday",
     label: "Due Today",
     icon: CalendarClock,
-    iconClassName:
-      "text-sky-600",
+    iconClassName: "text-sky-600",
   },
   {
     key: "highPriorityTasks",
     label: "High Priority",
     icon: Siren,
-    iconClassName:
-      "text-rose-600",
+    iconClassName: "text-rose-600",
   },
 ];
 
 const TaskSummaryCards = ({
   summary,
 }) => {
+  const { t } = useLanguage();
+
   if (!summary) {
     return null;
   }
@@ -74,8 +71,8 @@ const TaskSummaryCards = ({
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm text-slate-500">
-                  {label}
+                <p className="text-sm text-slate-500 font-medium">
+                  {t(label)}
                 </p>
                 <p className="mt-3 text-3xl font-semibold text-slate-900">
                   {summary[key] ?? 0}

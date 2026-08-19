@@ -18,6 +18,7 @@ import {
   LifeBuoy,
   Target,
   Users,
+  Ruler,
 } from "lucide-react";
 import { appRoutes } from "./routes";
 
@@ -31,6 +32,11 @@ export const sidebarNavigation = [
     name: "Articles",
     path: appRoutes.products,
     icon: FiBox,
+  },
+  {
+    name: "Article Size Charts",
+    path: appRoutes.sizeCharts,
+    icon: Ruler,
   },
   {
     name: "Stock In",

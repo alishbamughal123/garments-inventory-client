@@ -21,6 +21,8 @@ import Loader from "../../components/ui/Loader";
 import BarcodePrintModal from "../../components/products/BarcodePrintModal";
 import { getProductById, getProducts } from "../../services/products.service";
 import { exportArticlesToExcelWithBarcodes } from "../../utils/barcodeExport";
+import { downloadCAD_DXF, downloadCAD_SVG } from "../../utils/cadExport";
+import { FileCode } from "lucide-react";
 
 const API_URL =
   import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes("railway")
@@ -147,6 +149,40 @@ const BarcodePage = () => {
     }
   };
 
+  // Export CAD (.dxf) for ONLY this specific size/article
+  const handleExportSingleCAD_DXF = () => {
+    try {
+      const code = product.sku || product.styleNumber || product.baseStyleNumber || "article";
+      const sizeTag = product.size ? `_Size_${product.size}` : "";
+
+      downloadCAD_DXF({
+        products: [product],
+        fileName: `Garment_CAD_${code}${sizeTag}`,
+      });
+      toast.success(`CAD (.dxf) for Size ${product.size || "OS"} downloaded!`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate CAD DXF file");
+    }
+  };
+
+  // Export Vector (.svg) for ONLY this specific size/article
+  const handleExportSingleCAD_SVG = () => {
+    try {
+      const code = product.sku || product.styleNumber || product.baseStyleNumber || "article";
+      const sizeTag = product.size ? `_Size_${product.size}` : "";
+
+      downloadCAD_SVG({
+        products: [product],
+        fileName: `Garment_Vector_${code}${sizeTag}`,
+      });
+      toast.success(`Vector (.svg) for Size ${product.size || "OS"} downloaded!`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate Vector CAD file");
+    }
+  };
+
   const handlePrintSingle = () => {
     window.print();
   };
@@ -181,22 +217,28 @@ const BarcodePage = () => {
       {/* PRINT-ONLY STYLES FOR SINGLE LABEL */}
       <style>{`
         @media print {
+          @page {
+            size: 100mm 50mm;
+            margin: 2mm;
+          }
           body * {
-            visibility: hidden;
+            visibility: hidden !important;
           }
           #printable-barcode-label, #printable-barcode-label * {
-            visibility: visible;
+            visibility: visible !important;
           }
           #printable-barcode-label {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            max-width: 400px;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 10px !important;
             box-shadow: none !important;
-            border: 2px solid #000 !important;
+            border: 2px solid #0f172a !important;
             background: #fff !important;
+            page-break-inside: avoid !important;
           }
         }
       `}</style>
@@ -204,9 +246,31 @@ const BarcodePage = () => {
       <div className="mx-auto max-w-5xl space-y-6">
         <PageHeader
           title={`Article Barcode - ${product.productName}`}
-          description={`Style #${baseStyleNo} • High-resolution barcodes, multi-variant label sheet printing, and Excel spreadsheet export.`}
+          description={`Style #${baseStyleNo} • Size ${product.size || "OS"} (${product.color || "Standard"}) • High-resolution single & batch barcode sticker exports.`}
           action={
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+              {/* Single Size AutoCAD DXF Button */}
+              <button
+                type="button"
+                onClick={handleExportSingleCAD_DXF}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/70 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-indigo-700 shadow-sm transition hover:bg-indigo-100 hover:border-indigo-300"
+                title={`Download AutoCAD DXF CAD file for Size ${product.size || "OS"}`}
+              >
+                <FileCode className="w-4 h-4 text-indigo-600 shrink-0" />
+                <span>CAD (.dxf)</span>
+              </button>
+
+              {/* Single Size Vector SVG Button (Opens in Chrome/Edge) */}
+              <button
+                type="button"
+                onClick={handleExportSingleCAD_SVG}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50/70 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-violet-700 shadow-sm transition hover:bg-violet-100 hover:border-violet-300"
+                title={`Download Vector SVG file for Size ${product.size || "OS"} (Opens directly in Chrome/Edge)`}
+              >
+                <Layers className="w-4 h-4 text-violet-600 shrink-0" />
+                <span>Vector (.svg)</span>
+              </button>
+
               <button
                 type="button"
                 onClick={handleExportArticleExcel}
@@ -214,25 +278,25 @@ const BarcodePage = () => {
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50"
               >
                 <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>{exportingExcel ? "Exporting..." : "Excel (+ Barcodes)"}</span>
+                <span>{exportingExcel ? "Exporting..." : "Excel"}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setPrintModalOpen(true)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold shadow-sm transition"
               >
-                <Printer className="w-4 h-4 text-blue-600 shrink-0" />
+                <Printer className="w-4 h-4 text-white shrink-0" />
                 <span>Print All Sizes ({allVariants.length})</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => navigate(`/products/${product.id}`)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold shadow-sm transition"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300"
               >
                 <ArrowLeft className="w-4 h-4 shrink-0" />
-                <span>Back to Details</span>
+                <span>Back</span>
               </button>
             </div>
           }
@@ -359,10 +423,10 @@ const BarcodePage = () => {
             </div>
 
             {/* ACTION BUTTONS BELOW LABEL */}
-            <div className="w-full mt-6 grid grid-cols-3 gap-3">
+            <div className="w-full mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               <Button
                 onClick={handlePrintSingle}
-                className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 py-3 rounded-2xl font-semibold text-xs sm:text-sm"
+                className="inline-flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-200 py-2.5 rounded-xl font-semibold text-xs"
               >
                 <Printer className="w-4 h-4" />
                 Print Sticker
@@ -370,20 +434,31 @@ const BarcodePage = () => {
 
               <Button
                 variant="outline"
-                onClick={handleDownloadBarcode}
-                className="inline-flex items-center justify-center gap-2 border-slate-200 hover:bg-slate-100 text-slate-700 py-3 rounded-2xl font-semibold text-xs sm:text-sm"
+                onClick={handleExportSingleCAD_DXF}
+                className="inline-flex items-center justify-center gap-1.5 border-indigo-200 bg-indigo-50/50 hover:bg-indigo-100 text-indigo-700 py-2.5 rounded-xl font-semibold text-xs"
+                title="Download AutoCAD DXF CAD format for this size"
               >
-                <Download className="w-4 h-4" />
-                Save PNG
+                <FileCode className="w-4 h-4 text-indigo-600" />
+                Save CAD (.dxf)
               </Button>
 
               <Button
                 variant="outline"
-                onClick={handleCopyBarcode}
-                className="inline-flex items-center justify-center gap-2 border-slate-200 hover:bg-slate-100 text-slate-700 py-3 rounded-2xl font-semibold text-xs sm:text-sm"
+                onClick={handleExportSingleCAD_SVG}
+                className="inline-flex items-center justify-center gap-1.5 border-violet-200 bg-violet-50/50 hover:bg-violet-100 text-violet-700 py-2.5 rounded-xl font-semibold text-xs"
+                title="Download Vector SVG format (Double-click opens directly in Chrome/Edge)"
               >
-                {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-                {copied ? "Copied" : "Copy No"}
+                <Layers className="w-4 h-4 text-violet-600" />
+                Save Vector (.svg)
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={handleDownloadBarcode}
+                className="inline-flex items-center justify-center gap-1.5 border-slate-200 hover:bg-slate-100 text-slate-700 py-2.5 rounded-xl font-semibold text-xs"
+              >
+                <Download className="w-4 h-4" />
+                Save PNG
               </Button>
             </div>
           </div>

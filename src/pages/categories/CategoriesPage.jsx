@@ -21,6 +21,7 @@ import MainLayout from "../../layouts/MainLayout";
 import CategoryTable from "../../components/categories/CategoryTable";
 import DeleteModal from "../../components/common/DeleteModal";
 import Loader from "../../components/ui/Loader";
+import { useLanguage } from "../../context/LanguageContext";
 
 import {
   getCategories,
@@ -28,6 +29,7 @@ import {
 } from "../../services/category.service";
 
 const CategoriesPage = () => {
+  const { t, isNo } = useLanguage();
   const navigate =
     useNavigate();
 
@@ -51,7 +53,7 @@ const CategoriesPage = () => {
       const response = await getCategories(currentSearch);
       setCategories(response.data || []);
     } catch {
-      toast.error("Failed to load categories");
+      toast.error(isNo ? "Kunne ikke laste kategorier" : "Failed to load categories");
     } finally {
       setLoading(false);
     }
@@ -80,7 +82,7 @@ const CategoriesPage = () => {
         );
 
         toast.success(
-          "Category deleted successfully"
+          isNo ? "Kategori slettet" : "Category deleted successfully"
         );
 
         setDeleteModal(false);
@@ -89,7 +91,7 @@ const CategoriesPage = () => {
         toast.error(
           error?.response?.data
             ?.message ||
-            "Delete failed"
+            (isNo ? "Sletting mislyktes" : "Delete failed")
         );
       }
     };
@@ -108,7 +110,7 @@ const CategoriesPage = () => {
     <MainLayout>
 
       <PageHeader
-        title="Categories"
+        title={t("categories")}
         action={
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
             <SearchBar
@@ -124,18 +126,18 @@ const CategoriesPage = () => {
               size="lg"
             >
               <FiPlus />
-              Add Category
+              {isNo ? "Legg til kategori" : "Add Category"}
             </Button>
           </div>
         }
       />
 
       {loading ? (
-        <Loader message="Syncing apparel categories..." />
+        <Loader message={isNo ? "Synkroniserer kategorier..." : "Syncing apparel categories..."} />
       ) : (
         <div className="space-y-4">
            <p className="text-sm text-slate-500">
-            Total Categories: {categories.length}
+            {isNo ? "Totalt antall kategorier:" : "Total Categories:"} {categories.length}
           </p>
           <CategoryTable
             categories={categories}
@@ -155,8 +157,8 @@ const CategoriesPage = () => {
         onConfirm={
           handleDelete
         }
-        title="Delete Category"
-        message="Are you sure you want to delete this category? This action cannot be undone."
+        title={isNo ? "Slett kategori" : "Delete Category"}
+        message={isNo ? "Er du sikker på at du vil slette denne kategorien? Dette kan ikke angres." : "Are you sure you want to delete this category? This action cannot be undone."}
       />
 
     </MainLayout>

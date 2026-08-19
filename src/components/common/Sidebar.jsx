@@ -28,6 +28,7 @@ const isPathActive = (
 const nameKeyMap = {
   "Dashboard": "dashboard",
   "Articles": "articles",
+  "Article Size Charts": "sizeCharts",
   "Stock In": "stockIn",
   "Stock Out": "stockOut",
   "Transactions": "transactions",
@@ -67,7 +68,8 @@ const Sidebar = () => {
 
   const getMenuLabel = (name) => {
     const key = nameKeyMap[name];
-    return key ? t(key) : name;
+    if (key) return t(key);
+    return t(name);
   };
 
   return (

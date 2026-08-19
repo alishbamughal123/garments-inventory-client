@@ -15,6 +15,7 @@ import {
   RotateCcw,
   QrCode,
   CheckCircle2,
+  FileCode,
 } from "lucide-react";
 import Button from "../ui/Button";
 import {
@@ -22,6 +23,7 @@ import {
   generateQRCodeImageBase64,
   exportArticlesToExcelWithBarcodes,
 } from "../../utils/barcodeExport";
+import { downloadCAD_DXF, downloadCAD_SVG } from "../../utils/cadExport";
 import toast from "react-hot-toast";
 
 const BarcodePrintModal = ({
@@ -216,6 +218,19 @@ const BarcodePrintModal = ({
     }
   };
 
+  const handleExportCAD = () => {
+    try {
+      downloadCAD_DXF({
+        products: products,
+        fileName: `Garment_CAD_Labels_${baseStyleNo}`,
+      });
+      toast.success(`AutoCAD DXF file for Style #${baseStyleNo} downloaded!`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate CAD DXF file");
+    }
+  };
+
   // Mixed carton qty helpers
   const handleQtyChange = (sku, val) => {
     const num = Math.max(0, parseInt(val, 10) || 0);
@@ -299,6 +314,16 @@ const BarcodePrintModal = ({
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleExportCAD}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 text-indigo-700 px-3.5 py-2 text-xs font-semibold shadow-sm transition"
+              title="Download AutoCAD DXF CAD format"
+            >
+              <FileCode className="w-4 h-4 text-indigo-600" />
+              <span>CAD (.dxf)</span>
+            </button>
+
             <button
               type="button"
               onClick={handleExportExcel}
@@ -780,16 +805,28 @@ const BarcodePrintModal = ({
         </div>
 
         {/* FOOTER (NO-PRINT) */}
-        <div className="no-print p-4 bg-slate-50 border-t border-slate-200/60 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={handleExportExcel}
-            disabled={exportingExcel}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-4 py-2 text-xs font-semibold shadow-sm transition disabled:opacity-50"
-          >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-            <span>Download Excel Sheet</span>
-          </button>
+        <div className="no-print p-4 bg-slate-50 border-t border-slate-200/60 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleExportCAD}
+              className="inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 text-indigo-700 px-4 py-2 text-xs font-semibold shadow-sm transition"
+              title="Download AutoCAD DXF CAD format"
+            >
+              <FileCode className="w-4 h-4 text-indigo-600" />
+              <span>Export CAD (.dxf)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleExportExcel}
+              disabled={exportingExcel}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-4 py-2 text-xs font-semibold shadow-sm transition disabled:opacity-50"
+            >
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+              <span>Download Excel Sheet</span>
+            </button>
+          </div>
 
           <div className="flex items-center gap-2">
             <button

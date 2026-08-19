@@ -20,12 +20,14 @@ import SurfaceCard from "../../components/ui/SurfaceCard";
 import { appRoutes } from "../../config/routes";
 import toast from "react-hot-toast";
 import Loader from "../../components/ui/Loader";
+import { useLanguage } from "../../context/LanguageContext";
 import {
   deleteLead,
   getLeads,
 } from "../../services/lead.service";
 
 const LeadsPage = () => {
+  const { t, isNo } = useLanguage();
   const [leads, setLeads] =
     useState([]);
   const [loading, setLoading] =
@@ -110,7 +112,7 @@ const LeadsPage = () => {
 
             <input
               type="text"
-              placeholder="Search leads by name, email, or company..."
+              placeholder={isNo ? "Søk etter leads på navn, e-post eller bedrift..." : "Search leads by name, email, or company..."}
               value={search}
               onChange={(e) =>
                 setSearch(
@@ -124,7 +126,7 @@ const LeadsPage = () => {
       </SurfaceCard>
 
       {loading ? (
-        <Loader message="Syncing CRM leads..." />
+        <Loader message={isNo ? "Synkroniserer CRM-leads..." : "Syncing CRM leads..."} />
       ) : (
         <>
           <div className="grid gap-4 lg:hidden">
@@ -132,7 +134,7 @@ const LeadsPage = () => {
         {!loading &&
           leads.length === 0 && (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
-              No leads found
+              {t("noData")}
             </div>
           )}
 
@@ -149,7 +151,7 @@ const LeadsPage = () => {
 
                 <p className="mt-1 truncate text-sm text-slate-500">
                   {lead.companyName ||
-                    "No company"}
+                    (isNo ? "Ingen bedrift" : "No company")}
                 </p>
               </div>
 
@@ -161,7 +163,7 @@ const LeadsPage = () => {
             <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div>
                 <dt className="text-slate-400">
-                  Phone
+                  {t("phone")}
                 </dt>
                 <dd className="mt-1 font-medium text-slate-700">
                   {lead.phoneNumber}
@@ -170,7 +172,7 @@ const LeadsPage = () => {
 
               <div>
                 <dt className="text-slate-400">
-                  Value
+                  {isNo ? "Verdi" : "Value"}
                 </dt>
                 <dd className="mt-1 font-medium text-emerald-700">
                   NOK{" "}
@@ -189,7 +191,7 @@ const LeadsPage = () => {
                 className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700"
               >
                 <Eye size={16} />
-                View
+                {t("view")}
               </Link>
 
               <Link
@@ -199,7 +201,7 @@ const LeadsPage = () => {
                 className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700"
               >
                 <Pencil size={16} />
-                Edit
+                {t("edit")}
               </Link>
 
               <button
@@ -211,7 +213,7 @@ const LeadsPage = () => {
                 className="inline-flex items-center gap-2 rounded-full border border-red-200 px-3 py-2 text-sm font-medium text-red-600"
               >
                 <Trash2 size={16} />
-                Delete
+                {t("delete")}
               </button>
             </div>
           </article>
@@ -224,22 +226,22 @@ const LeadsPage = () => {
             <thead className="bg-slate-50 text-sm text-slate-500">
               <tr>
                 <th className="p-4 text-left font-medium">
-                  Name
+                  {t("name")}
                 </th>
                 <th className="p-4 text-left font-medium">
-                  Company
+                  {t("company")}
                 </th>
                 <th className="p-4 text-left font-medium">
-                  Phone
+                  {t("phone")}
                 </th>
                 <th className="p-4 text-left font-medium">
-                  Status
+                  {t("status")}
                 </th>
                 <th className="p-4 text-left font-medium">
-                  Value
+                  {isNo ? "Verdi" : "Value"}
                 </th>
                 <th className="p-4 text-center font-medium">
-                  Actions
+                  {t("actions")}
                 </th>
               </tr>
             </thead>
@@ -253,7 +255,7 @@ const LeadsPage = () => {
                       colSpan="6"
                       className="p-10 text-center text-sm text-slate-500"
                     >
-                      No leads found
+                      {t("noData")}
                     </td>
                   </tr>
                 )}
@@ -344,8 +346,8 @@ const LeadsPage = () => {
           setSelectedLead(null);
         }}
         onConfirm={handleDelete}
-        title="Delete Lead"
-        message={`Are you sure you want to delete lead ${selectedLead?.fullName}? This action cannot be undone.`}
+        title={isNo ? "Slett Lead" : "Delete Lead"}
+        message={isNo ? `Er du sikker på at du vil slette lead ${selectedLead?.fullName}? Dette kan ikke angres.` : `Are you sure you want to delete lead ${selectedLead?.fullName}? This action cannot be undone.`}
       />
     </div>
   );

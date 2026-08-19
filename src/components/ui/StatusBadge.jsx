@@ -1,4 +1,5 @@
 import { cn } from "../../utils/cn";
+import { useLanguage } from "../../context/LanguageContext";
 
 const badgeVariants = {
   ACTIVE:
@@ -76,20 +77,23 @@ const badgeVariants = {
 const StatusBadge = ({
   value,
   className,
-}) => (
-  <span
-    className={cn(
-      "rounded-full px-3 py-1 text-xs font-medium",
-      badgeVariants[value] ||
-        "bg-slate-100 text-slate-600",
-      className
-    )}
-  >
-    {String(value || "-").replaceAll(
-      "_",
-      " "
-    )}
-  </span>
-);
+}) => {
+  const { t } = useLanguage();
+  const rawText = String(value || "-").replaceAll("_", " ");
+  const translated = t(value) !== value ? t(value) : t(rawText);
+
+  return (
+    <span
+      className={cn(
+        "rounded-full px-3 py-1 text-xs font-medium",
+        badgeVariants[value] ||
+          "bg-slate-100 text-slate-600",
+        className
+      )}
+    >
+      {translated}
+    </span>
+  );
+};
 
 export default StatusBadge;

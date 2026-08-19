@@ -488,10 +488,121 @@ export const STYLE_200124_SYMBOLS = [
   },
 ];
 
+/**
+ * 1b2. Style #10103 Specific Care Symbols (Molde Pen Skjorte)
+ */
+export const STYLE_10103_SYMBOLS = [
+  {
+    id: "wash40",
+    titleNo: "Vask 40°C",
+    titleEn: "Wash 40°C",
+    descNo: "Normal maskinvask på 40 °C.",
+    descEn: "Standard machine wash at 40 °C.",
+    status: "allowed",
+    iconType: "wash40",
+  },
+  {
+    id: "noBleach",
+    titleNo: "Må ikke blekes",
+    titleEn: "Do Not Bleach",
+    descNo: "Bruk ikke klorblekemiddel.",
+    descEn: "Do not use chlorine bleach.",
+    status: "prohibited",
+    iconType: "noBleach",
+  },
+  {
+    id: "noTumble",
+    titleNo: "Må ikke tørketromles",
+    titleEn: "Do Not Tumble Dry",
+    descNo: "Skal ikke tørkes i tørketrommel.",
+    descEn: "Do not dry in tumble dryer.",
+    status: "prohibited",
+    iconType: "noTumble",
+  },
+  {
+    id: "ironLow",
+    titleNo: "Strykes på lav varme",
+    titleEn: "Iron Low Heat",
+    descNo: "Strykes på lav temperatur (maks 110 °C).",
+    descEn: "Iron at low heat (max 110 °C).",
+    status: "allowed",
+    iconType: "ironLow",
+  },
+  {
+    id: "dryCleanP",
+    titleNo: "Profesjonell rens tillatt",
+    titleEn: "Prof. Dry Clean (P)",
+    descNo: "Kjemisk rens i perkloretylen tillatt.",
+    descEn: "Professional dry cleaning allowed (P).",
+    status: "allowed",
+    iconType: "dryCleanP",
+  },
+];
+
+/**
+ * 1b1. Style #10102 Specific Care Symbols (Tønsberg Polo Shirt)
+ */
+export const STYLE_10102_SYMBOLS = [
+  {
+    id: "wash40",
+    titleNo: "Vask 40°C",
+    titleEn: "Wash 40°C",
+    descNo: "Normal maskinvask på 40 °C.",
+    descEn: "Standard machine wash at 40 °C.",
+    status: "allowed",
+    iconType: "wash40",
+  },
+  {
+    id: "washSep",
+    titleNo: "Vaskes separat",
+    titleEn: "Wash Separately",
+    descNo: "Vask plagget separat eller med like farger.",
+    descEn: "Wash separately or with similar colors.",
+    status: "allowed",
+    iconType: "washTub",
+  },
+  {
+    id: "noBleach",
+    titleNo: "Må ikke blekes",
+    titleEn: "Do Not Bleach",
+    descNo: "Bruk ikke klorblekemiddel.",
+    descEn: "Do not use chlorine bleach.",
+    status: "prohibited",
+    iconType: "noBleach",
+  },
+  {
+    id: "ironMedium",
+    titleNo: "Strykes på middels varme",
+    titleEn: "Iron Medium Heat",
+    descNo: "Strykes på middels temp (maks 150 °C).",
+    descEn: "Iron at medium temperature (max 150 °C).",
+    status: "allowed",
+    iconType: "ironMedium",
+  },
+  {
+    id: "dryCleanP",
+    titleNo: "Profesjonell rens tillatt",
+    titleEn: "Prof. Dry Clean (P)",
+    descNo: "Kjemisk rens i perkloretylen tillatt.",
+    descEn: "Professional dry cleaning allowed (P).",
+    status: "allowed",
+    iconType: "dryCleanP",
+  },
+];
+
 export const STYLE_200126_SYMBOLS = STYLE_200123_SYMBOLS;
 export const STYLE_20111_SYMBOLS = STYLE_200123_SYMBOLS;
 export const STYLE_200127_SYMBOLS = STYLE_200123_SYMBOLS;
+export const STYLE_200128_SYMBOLS = STYLE_200123_SYMBOLS;
+export const STYLE_200122_SYMBOLS = STYLE_200123_SYMBOLS;
+export const STYLE_200125_SYMBOLS = STYLE_200123_SYMBOLS;
+export const STYLE_200121_SYMBOLS = STYLE_200123_SYMBOLS;
+export const STYLE_20110_SYMBOLS = STYLE_200123_SYMBOLS;
 export const STYLE_10115_SYMBOLS = STYLE_200123_SYMBOLS;
+export const STYLE_10107_SYMBOLS = STYLE_200123_SYMBOLS;
+export const STYLE_10105_SYMBOLS = STYLE_200123_SYMBOLS;
+export const STYLE_10106_SYMBOLS = STYLE_200123_SYMBOLS;
+export const STYLE_10108_SYMBOLS = STYLE_200123_SYMBOLS;
 
 /**
  * 3. Standard Workwear / ISO 3758 Symbols (Style 10124 & General)
@@ -673,24 +784,87 @@ const WashingCareCard = ({
     String(styleNumber).startsWith("10099") ||
     (customInstructions && (customInstructions.includes("85°C") || customInstructions.includes("85")));
 
+  const isStyle10102 =
+    !isStyle10099 &&
+    String(styleNumber).startsWith("10102");
+
+  const isStyle10103 =
+    !isStyle10099 &&
+    !isStyle10102 &&
+    String(styleNumber).startsWith("10103");
+
+  const isStyle10105 =
+    !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    String(styleNumber).startsWith("10105");
+
+  const isStyle10106 =
+    !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    String(styleNumber).startsWith("10106");
+
+  const isStyle10107 =
+    !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    String(styleNumber).startsWith("10107");
+
+  const isStyle10108 =
+    !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    String(styleNumber).startsWith("10108");
+
   const isStyle10109 =
     !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
     (String(styleNumber).startsWith("10109") ||
       (fabric && fabric.includes("210") && String(styleNumber).includes("10109")));
 
   const isStyle10114 =
     !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
     !isStyle10109 &&
     String(styleNumber).startsWith("10114");
 
   const isStyle10115 =
     !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
     !isStyle10109 &&
     !isStyle10114 &&
     String(styleNumber).startsWith("10115");
 
   const isStyle10121 =
     !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
     !isStyle10109 &&
     !isStyle10114 &&
     !isStyle10115 &&
@@ -699,6 +873,12 @@ const WashingCareCard = ({
 
   const isStyle10122 =
     !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
     !isStyle10109 &&
     !isStyle10114 &&
     !isStyle10115 &&
@@ -708,6 +888,12 @@ const WashingCareCard = ({
 
   const isStyle10123 =
     !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
     !isStyle10109 &&
     !isStyle10114 &&
     !isStyle10115 &&
@@ -716,85 +902,253 @@ const WashingCareCard = ({
     (String(styleNumber).startsWith("10123") ||
       (customInstructions && (customInstructions.includes("tørketromles") || customInstructions.includes("Tåler ikke rens"))));
 
-  const isStyle20111 =
+  const isStyle20110 =
     !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
     !isStyle10109 &&
     !isStyle10114 &&
     !isStyle10115 &&
     !isStyle10121 &&
     !isStyle10122 &&
     !isStyle10123 &&
+    String(styleNumber).startsWith("20110");
+
+  const isStyle20111 =
+    !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
+    !isStyle10109 &&
+    !isStyle10114 &&
+    !isStyle10115 &&
+    !isStyle10121 &&
+    !isStyle10122 &&
+    !isStyle10123 &&
+    !isStyle20110 &&
     String(styleNumber).startsWith("20111");
+
+  const isStyle200121 =
+    !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
+    !isStyle10109 &&
+    !isStyle10114 &&
+    !isStyle10115 &&
+    !isStyle10121 &&
+    !isStyle10122 &&
+    !isStyle10123 &&
+    !isStyle20110 &&
+    !isStyle20111 &&
+    String(styleNumber).startsWith("200121");
+
+  const isStyle200122 =
+    !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
+    !isStyle10109 &&
+    !isStyle10114 &&
+    !isStyle10115 &&
+    !isStyle10121 &&
+    !isStyle10122 &&
+    !isStyle10123 &&
+    !isStyle20110 &&
+    !isStyle20111 &&
+    !isStyle200121 &&
+    String(styleNumber).startsWith("200122");
 
   const isStyle200123 =
     !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
     !isStyle10109 &&
     !isStyle10114 &&
     !isStyle10115 &&
     !isStyle10121 &&
     !isStyle10122 &&
     !isStyle10123 &&
+    !isStyle20110 &&
     !isStyle20111 &&
+    !isStyle200121 &&
+    !isStyle200122 &&
     String(styleNumber).startsWith("200123");
 
   const isStyle200124 =
     !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
     !isStyle10109 &&
     !isStyle10114 &&
     !isStyle10115 &&
     !isStyle10121 &&
     !isStyle10122 &&
     !isStyle10123 &&
+    !isStyle20110 &&
     !isStyle20111 &&
+    !isStyle200121 &&
+    !isStyle200122 &&
     !isStyle200123 &&
     (String(styleNumber).startsWith("200124") ||
       (customInstructions && (customInstructions.includes("75°C") || customInstructions.includes("75"))));
 
-  const isStyle200126 =
+  const isStyle200125 =
     !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
     !isStyle10109 &&
     !isStyle10114 &&
     !isStyle10115 &&
     !isStyle10121 &&
     !isStyle10122 &&
     !isStyle10123 &&
+    !isStyle20110 &&
     !isStyle20111 &&
+    !isStyle200121 &&
+    !isStyle200122 &&
     !isStyle200123 &&
     !isStyle200124 &&
+    String(styleNumber).startsWith("200125");
+
+  const isStyle200126 =
+    !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
+    !isStyle10109 &&
+    !isStyle10114 &&
+    !isStyle10115 &&
+    !isStyle10121 &&
+    !isStyle10122 &&
+    !isStyle10123 &&
+    !isStyle20110 &&
+    !isStyle20111 &&
+    !isStyle200121 &&
+    !isStyle200122 &&
+    !isStyle200123 &&
+    !isStyle200124 &&
+    !isStyle200125 &&
     String(styleNumber).startsWith("200126");
 
   const isStyle200127 =
     !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
     !isStyle10109 &&
     !isStyle10114 &&
     !isStyle10115 &&
     !isStyle10121 &&
     !isStyle10122 &&
     !isStyle10123 &&
+    !isStyle20110 &&
     !isStyle20111 &&
+    !isStyle200121 &&
+    !isStyle200122 &&
     !isStyle200123 &&
     !isStyle200124 &&
+    !isStyle200125 &&
     !isStyle200126 &&
     String(styleNumber).startsWith("200127");
 
-  const isStyle10101 =
+  const isStyle200128 =
     !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
     !isStyle10109 &&
     !isStyle10114 &&
     !isStyle10115 &&
     !isStyle10121 &&
     !isStyle10122 &&
     !isStyle10123 &&
+    !isStyle20110 &&
     !isStyle20111 &&
+    !isStyle200121 &&
+    !isStyle200122 &&
     !isStyle200123 &&
     !isStyle200124 &&
+    !isStyle200125 &&
     !isStyle200126 &&
     !isStyle200127 &&
+    String(styleNumber).startsWith("200128");
+
+  const isStyle10101 =
+    !isStyle10099 &&
+    !isStyle10102 &&
+    !isStyle10103 &&
+    !isStyle10105 &&
+    !isStyle10106 &&
+    !isStyle10107 &&
+    !isStyle10108 &&
+    !isStyle10109 &&
+    !isStyle10114 &&
+    !isStyle10115 &&
+    !isStyle10121 &&
+    !isStyle10122 &&
+    !isStyle10123 &&
+    !isStyle20110 &&
+    !isStyle20111 &&
+    !isStyle200121 &&
+    !isStyle200122 &&
+    !isStyle200123 &&
+    !isStyle200124 &&
+    !isStyle200125 &&
+    !isStyle200126 &&
+    !isStyle200127 &&
+    !isStyle200128 &&
     (String(styleNumber).startsWith("10101") ||
       (customInstructions && customInstructions.includes("separat")));
 
   const symbolsList = isStyle10099
     ? STYLE_10099_SYMBOLS
+    : isStyle10102
+    ? STYLE_10102_SYMBOLS
+    : isStyle10103
+    ? STYLE_10103_SYMBOLS
+    : isStyle10105
+    ? STYLE_10105_SYMBOLS
+    : isStyle10106
+    ? STYLE_10106_SYMBOLS
+    : isStyle10107
+    ? STYLE_10107_SYMBOLS
+    : isStyle10108
+    ? STYLE_10108_SYMBOLS
     : isStyle10109
     ? STYLE_10109_SYMBOLS
     : isStyle10114
@@ -807,16 +1161,26 @@ const WashingCareCard = ({
     ? STYLE_10122_SYMBOLS
     : isStyle10123
     ? STYLE_10123_SYMBOLS
+    : isStyle20110
+    ? STYLE_20110_SYMBOLS
     : isStyle20111
     ? STYLE_20111_SYMBOLS
+    : isStyle200121
+    ? STYLE_200121_SYMBOLS
+    : isStyle200122
+    ? STYLE_200122_SYMBOLS
     : isStyle200123
     ? STYLE_200123_SYMBOLS
     : isStyle200124
     ? STYLE_200124_SYMBOLS
+    : isStyle200125
+    ? STYLE_200125_SYMBOLS
     : isStyle200126
     ? STYLE_200126_SYMBOLS
     : isStyle200127
     ? STYLE_200127_SYMBOLS
+    : isStyle200128
+    ? STYLE_200128_SYMBOLS
     : isStyle10101
     ? STYLE_10101_SYMBOLS
     : DEFAULT_WORKWEAR_SYMBOLS;
@@ -825,6 +1189,36 @@ const WashingCareCard = ({
     "Vask 85°C (Industrivask) • Må ikke blekes • Tørketrommel tillatt • Må ikke strykes • Tåler ikke rens";
   const fullText10099En =
     "Wash 85°C (Industrial Wash) • Do Not Bleach • Tumble Dry Allowed • Do Not Iron • Do Not Dry Clean";
+
+  const fullText10102No =
+    "Vask 40°C • Vaskes separat • Må ikke blekes • Strykes på middels varme • Profesjonell rens tillatt";
+  const fullText10102En =
+    "Wash 40°C • Wash Separately • Do Not Bleach • Iron Medium Heat • Professional Dry Clean (P) Allowed";
+
+  const fullText10103No =
+    "Vask 40°C • Må ikke blekes • Må ikke tørketromles • Strykes på lav varme • Profesjonell rens tillatt";
+  const fullText10103En =
+    "Wash 40°C • Do Not Bleach • Do Not Tumble Dry • Iron Low Heat • Professional Dry Clean (P) Allowed";
+
+  const fullText10105No =
+    "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+  const fullText10105En =
+    "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+
+  const fullText10106No =
+    "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+  const fullText10106En =
+    "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+
+  const fullText10107No =
+    "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+  const fullText10107En =
+    "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+
+  const fullText10108No =
+    "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+  const fullText10108En =
+    "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
 
   const fullText10109No =
     "Vask 75°C • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
@@ -856,9 +1250,24 @@ const WashingCareCard = ({
   const fullText10123En =
     "Wash 40°C • Do Not Bleach • Do Not Tumble Dry • Iron Low Heat • Do Not Dry Clean";
 
+  const fullText20110No =
+    "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+  const fullText20110En =
+    "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+
   const fullText20111No =
     "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
   const fullText20111En =
+    "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+
+  const fullText200121No =
+    "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+  const fullText200121En =
+    "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+
+  const fullText200122No =
+    "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+  const fullText200122En =
     "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
 
   const fullText200123No =
@@ -871,6 +1280,11 @@ const WashingCareCard = ({
   const fullText200124En =
     "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
+  const fullText200125No =
+    "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+  const fullText200125En =
+    "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+
   const fullText200126No =
     "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
   const fullText200126En =
@@ -879,6 +1293,11 @@ const WashingCareCard = ({
   const fullText200127No =
     "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
   const fullText200127En =
+    "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+
+  const fullText200128No =
+    "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+  const fullText200128En =
     "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
 
   const fullText10101No =
@@ -895,6 +1314,30 @@ const WashingCareCard = ({
     ? isNo
       ? fullText10099No
       : fullText10099En
+    : isStyle10102
+    ? isNo
+      ? fullText10102No
+      : fullText10102En
+    : isStyle10103
+    ? isNo
+      ? fullText10103No
+      : fullText10103En
+    : isStyle10105
+    ? isNo
+      ? fullText10105No
+      : fullText10105En
+    : isStyle10106
+    ? isNo
+      ? fullText10106No
+      : fullText10106En
+    : isStyle10107
+    ? isNo
+      ? fullText10107No
+      : fullText10107En
+    : isStyle10108
+    ? isNo
+      ? fullText10108No
+      : fullText10108En
     : isStyle10109
     ? isNo
       ? fullText10109No
@@ -919,10 +1362,22 @@ const WashingCareCard = ({
     ? isNo
       ? fullText10123No
       : fullText10123En
+    : isStyle20110
+    ? isNo
+      ? fullText20110No
+      : fullText20110En
     : isStyle20111
     ? isNo
       ? fullText20111No
       : fullText20111En
+    : isStyle200121
+    ? isNo
+      ? fullText200121No
+      : fullText200121En
+    : isStyle200122
+    ? isNo
+      ? fullText200122No
+      : fullText200122En
     : isStyle200123
     ? isNo
       ? fullText200123No
@@ -931,6 +1386,10 @@ const WashingCareCard = ({
     ? isNo
       ? fullText200124No
       : fullText200124En
+    : isStyle200125
+    ? isNo
+      ? fullText200125No
+      : fullText200125En
     : isStyle200126
     ? isNo
       ? fullText200126No
@@ -939,6 +1398,10 @@ const WashingCareCard = ({
     ? isNo
       ? fullText200127No
       : fullText200127En
+    : isStyle200128
+    ? isNo
+      ? fullText200128No
+      : fullText200128En
     : isStyle10101
     ? isNo
       ? fullText10101No
@@ -949,6 +1412,18 @@ const WashingCareCard = ({
 
   const styleBadgeText = isStyle10099
     ? "Style #10099"
+    : isStyle10102
+    ? "Style #10102"
+    : isStyle10103
+    ? "Style #10103"
+    : isStyle10105
+    ? "Style #10105"
+    : isStyle10106
+    ? "Style #10106"
+    : isStyle10107
+    ? "Style #10107"
+    : isStyle10108
+    ? "Style #10108"
     : isStyle10109
     ? "Style #10109"
     : isStyle10114
@@ -961,16 +1436,26 @@ const WashingCareCard = ({
     ? "Style #10122"
     : isStyle10123
     ? "Style #10123"
+    : isStyle20110
+    ? "Style #20110"
     : isStyle20111
     ? "Style #20111"
+    : isStyle200121
+    ? "Style #200121"
+    : isStyle200122
+    ? "Style #200122"
     : isStyle200123
     ? "Style #200123"
     : isStyle200124
     ? "Style #200124"
+    : isStyle200125
+    ? "Style #200125"
     : isStyle200126
     ? "Style #200126"
     : isStyle200127
     ? "Style #200127"
+    : isStyle200128
+    ? "Style #200128"
     : isStyle10101
     ? "Style #10101"
     : "ISO 3758";

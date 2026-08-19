@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import TaskCalendar from "../../components/tasks/TaskCalendar";
 import PageHeader from "../../components/ui/PageHeader";
 import { appRoutes } from "../../config/routes";
+import { useLanguage } from "../../context/LanguageContext";
 import {
   getTasks,
 } from "../../services/task.service";
@@ -29,6 +30,7 @@ const getToday = () => {
 };
 
 const TaskCalendarPage = () => {
+  const { t, isNo } = useLanguage();
   const navigate =
     useNavigate();
   const [tasks, setTasks] =
@@ -62,7 +64,7 @@ const TaskCalendarPage = () => {
         }
       } catch {
         toast.error(
-          "Failed to load task calendar"
+          isNo ? "Kunne ikke laste oppgavekalender" : "Failed to load task calendar"
         );
       } finally {
         if (isMounted) {
@@ -74,19 +76,19 @@ const TaskCalendarPage = () => {
     return () => {
       isMounted = false;
     };
-  }, [view, selectedDate]);
+  }, [view, selectedDate, isNo]);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Task Module"
-        title="Task Calendar"
-        description="Review daily, weekly, and monthly due dates across customers, leads, and assignees."
+        eyebrow={isNo ? "Oppgavemodul" : "Task Module"}
+        title={isNo ? "Oppgavekalender" : "Task Calendar"}
+        description={isNo ? "Se daglige, ukentlige og månedlige frister på tvers av kunder, leads og ansatte." : "Review daily, weekly, and monthly due dates across customers, leads, and assignees."}
       />
 
       {loading ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
-          Loading calendar...
+          {isNo ? "Laster kalender..." : "Loading calendar..."}
         </div>
       ) : (
         <TaskCalendar

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { appRoutes } from "../../../config/routes";
 import StatusBadge from "../../ui/StatusBadge";
+import { useLanguage } from "../../../context/LanguageContext";
 
 const priorityClasses = {
   LOW: "bg-slate-50 text-slate-600 border-slate-100",
@@ -11,32 +12,34 @@ const priorityClasses = {
 };
 
 const SupportTicketTable = ({ tickets, onDelete }) => {
+  const { t, isNo } = useLanguage();
+
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm no-scrollbar">
       <div className="overflow-x-auto no-scrollbar">
         <table className="min-w-full">
           <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500">
             <tr>
-              <th className="p-4 text-left">Ticket</th>
-              <th className="p-4 text-left">Subject</th>
-              <th className="p-4 text-left">Customer</th>
-              <th className="p-4 text-left">Priority</th>
-              <th className="p-4 text-left">Status</th>
-              <th className="p-4 text-left">Created</th>
-              <th className="p-4 text-center">Actions</th>
+              <th className="p-4 text-left">{isNo ? "Henvendelse #" : "Ticket"}</th>
+              <th className="p-4 text-left">{isNo ? "Emne" : "Subject"}</th>
+              <th className="p-4 text-left">{t("customer")}</th>
+              <th className="p-4 text-left">{t("priority")}</th>
+              <th className="p-4 text-left">{t("status")}</th>
+              <th className="p-4 text-left">{isNo ? "Opprettet" : "Created"}</th>
+              <th className="p-4 text-center">{t("actions")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {tickets.length === 0 ? (
               <tr>
                 <td colSpan="7" className="p-10 text-center text-sm text-slate-500">
-                  No support tickets found
+                  {t("noData")}
                 </td>
               </tr>
             ) : (
               tickets.map((ticket) => (
                 <tr key={ticket.id} className="transition hover:bg-slate-50/50">
-                  <td className="p-4 text-sm font-bold text-blue-600">
+                  <td className="p-4 text-sm font-bold text-blue-600 font-mono">
                     {ticket.ticketNumber}
                   </td>
                   <td className="p-4 text-sm text-slate-700">
@@ -45,11 +48,11 @@ const SupportTicketTable = ({ tickets, onDelete }) => {
                     </div>
                   </td>
                   <td className="p-4 text-sm text-slate-600">
-                    {ticket.customer?.fullName || "General Support"}
+                    {ticket.customer?.fullName || (isNo ? "Generell støtte" : "General Support")}
                   </td>
                   <td className="p-4">
                     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-bold uppercase ${priorityClasses[ticket.priority]}`}>
-                      {ticket.priority}
+                      {t(ticket.priority)}
                     </span>
                   </td>
                   <td className="p-4">
@@ -57,7 +60,7 @@ const SupportTicketTable = ({ tickets, onDelete }) => {
                       <StatusBadge value={ticket.status} />
                     </div>
                   </td>
-                  <td className="p-4 text-xs text-slate-500">
+                  <td className="p-4 text-xs text-slate-500 font-mono">
                     {new Date(ticket.createdAt).toLocaleDateString()}
                   </td>
                   <td className="p-4">

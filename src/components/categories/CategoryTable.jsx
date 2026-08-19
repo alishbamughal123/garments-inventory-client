@@ -2,12 +2,15 @@ import {
   FiEdit2,
   FiTrash2,
 } from "react-icons/fi";
+import { useLanguage } from "../../context/LanguageContext";
 
 const CategoryTable = ({
   categories,
   onEdit,
   onDelete,
 }) => {
+  const { t, isNo } = useLanguage();
+
   return (
     <div className="space-y-4">
       <div className="grid gap-4 lg:hidden">
@@ -23,7 +26,7 @@ const CategoryTable = ({
 
               <p className="mt-2 text-sm text-slate-500">
                 {category.description ||
-                  "No description provided."}
+                  (isNo ? "Ingen beskrivelse oppgitt." : "No description provided.")}
               </p>
 
               <div className="mt-5 flex flex-wrap gap-2">
@@ -34,7 +37,7 @@ const CategoryTable = ({
                   className="inline-flex items-center gap-2 rounded-full border border-[var(--color-primary-border)] bg-[var(--color-primary-soft)] px-3 py-2 text-sm font-medium text-[var(--color-primary-ink)]"
                 >
                   <FiEdit2 />
-                  Edit
+                  {t("edit")}
                 </button>
 
                 <button
@@ -46,7 +49,7 @@ const CategoryTable = ({
                   className="inline-flex items-center gap-2 rounded-full border border-red-200 px-3 py-2 text-sm font-medium text-red-600"
                 >
                   <FiTrash2 />
-                  Delete
+                  {t("delete")}
                 </button>
               </div>
             </article>
@@ -60,13 +63,13 @@ const CategoryTable = ({
             <thead>
               <tr className="bg-slate-50 text-sm text-slate-600">
                 <th className="p-4 text-left">
-                  Category
+                  {t("category")}
                 </th>
                 <th className="p-4 text-left">
-                  Description
+                  {t("description")}
                 </th>
                 <th className="p-4 text-center">
-                  Actions
+                  {t("actions")}
                 </th>
               </tr>
             </thead>
@@ -83,7 +86,7 @@ const CategoryTable = ({
                     </td>
                     <td className="p-4 text-slate-500">
                       {
-                        category.description
+                        category.description || "-"
                       }
                     </td>
                     <td className="p-4">
@@ -95,6 +98,7 @@ const CategoryTable = ({
                             )
                           }
                           className="rounded-lg bg-[var(--color-primary-soft)] p-2 text-[var(--color-primary-ink)] hover:bg-[var(--color-primary-muted)]"
+                          title={t("edit")}
                         >
                           <FiEdit2 />
                         </button>
@@ -106,6 +110,7 @@ const CategoryTable = ({
                             )
                           }
                           className="rounded-lg bg-red-50 p-2 text-red-600 hover:bg-red-100"
+                          title={t("delete")}
                         >
                           <FiTrash2 />
                         </button>

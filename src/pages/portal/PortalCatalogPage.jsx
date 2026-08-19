@@ -18,22 +18,35 @@ import {
   Minus,
   LayoutList,
   LayoutGrid,
+  Ruler,
 } from "lucide-react";
+import SizeChartCard from "../../components/products/SizeChartCard";
 import { resolveProductImageUrl, getColorHex } from "../../utils/imageHelper";
 import {
   STYLE_10099_SYMBOLS,
   STYLE_10101_SYMBOLS,
+  STYLE_10102_SYMBOLS,
+  STYLE_10103_SYMBOLS,
+  STYLE_10105_SYMBOLS,
+  STYLE_10106_SYMBOLS,
+  STYLE_10107_SYMBOLS,
+  STYLE_10108_SYMBOLS,
   STYLE_10109_SYMBOLS,
   STYLE_10114_SYMBOLS,
   STYLE_10115_SYMBOLS,
   STYLE_10121_SYMBOLS,
   STYLE_10122_SYMBOLS,
   STYLE_10123_SYMBOLS,
+  STYLE_20110_SYMBOLS,
   STYLE_20111_SYMBOLS,
+  STYLE_200121_SYMBOLS,
+  STYLE_200122_SYMBOLS,
   STYLE_200123_SYMBOLS,
   STYLE_200124_SYMBOLS,
+  STYLE_200125_SYMBOLS,
   STYLE_200126_SYMBOLS,
   STYLE_200127_SYMBOLS,
+  STYLE_200128_SYMBOLS,
   DEFAULT_WORKWEAR_SYMBOLS,
   CareIcon,
 } from "../../components/products/WashingCareCard";
@@ -47,6 +60,7 @@ const PortalCatalogPage = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [quantities, setQuantities] = useState({});
+  const [sizeChartModalProduct, setSizeChartModalProduct] = useState(null);
 
   const fetchCatalog = async () => {
     try {
@@ -194,128 +208,66 @@ const PortalCatalogPage = () => {
               String(baseStyle).startsWith("10099") ||
               (product.washingInstructions && (product.washingInstructions.includes("85°C") || product.washingInstructions.includes("85")));
 
-            const isStyle10109 =
-              !isStyle10099 &&
-              (String(baseStyle).startsWith("10109") ||
-                (product.fabric && product.fabric.includes("210") && String(baseStyle).includes("10109")));
+            const isStyle10102 = !isStyle10099 && String(baseStyle).startsWith("10102");
 
-            const isStyle10114 =
-              !isStyle10099 &&
-              !isStyle10109 &&
-              String(baseStyle).startsWith("10114");
+            const isStyle10103 = !isStyle10099 && !isStyle10102 && String(baseStyle).startsWith("10103");
 
-            const isStyle10115 =
-              !isStyle10099 &&
-              !isStyle10109 &&
-              !isStyle10114 &&
-              String(baseStyle).startsWith("10115");
+            const isStyle10105 = !isStyle10099 && !isStyle10102 && !isStyle10103 && String(baseStyle).startsWith("10105");
 
-            const isStyle10121 =
-              !isStyle10099 &&
-              !isStyle10109 &&
-              !isStyle10114 &&
-              !isStyle10115 &&
-              (String(baseStyle).startsWith("10121") ||
-                (product.fabric && product.fabric.includes("320")));
+            const isStyle10106 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && String(baseStyle).startsWith("10106");
 
-            const isStyle10122 =
-              !isStyle10099 &&
-              !isStyle10109 &&
-              !isStyle10114 &&
-              !isStyle10115 &&
-              !isStyle10121 &&
-              (String(baseStyle).startsWith("10122") ||
-                (product.fabric && product.fabric.includes("Anti Pilling")));
+            const isStyle10107 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && String(baseStyle).startsWith("10107");
 
-            const isStyle10123 =
-              !isStyle10099 &&
-              !isStyle10109 &&
-              !isStyle10114 &&
-              !isStyle10115 &&
-              !isStyle10121 &&
-              !isStyle10122 &&
-              (String(baseStyle).startsWith("10123") ||
-                (product.washingInstructions && (product.washingInstructions.includes("tørketromles") || product.washingInstructions.includes("Tåler ikke rens"))));
+            const isStyle10108 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && String(baseStyle).startsWith("10108");
 
-            const isStyle20111 =
-              !isStyle10099 &&
-              !isStyle10109 &&
-              !isStyle10114 &&
-              !isStyle10115 &&
-              !isStyle10121 &&
-              !isStyle10122 &&
-              !isStyle10123 &&
-              String(baseStyle).startsWith("20111");
+            const isStyle10109 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && (String(baseStyle).startsWith("10109") || (product.fabric && product.fabric.includes("210") && String(baseStyle).includes("10109")));
 
-            const isStyle200123 =
-              !isStyle10099 &&
-              !isStyle10109 &&
-              !isStyle10114 &&
-              !isStyle10115 &&
-              !isStyle10121 &&
-              !isStyle10122 &&
-              !isStyle10123 &&
-              !isStyle20111 &&
-              String(baseStyle).startsWith("200123");
+            const isStyle10114 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && String(baseStyle).startsWith("10114");
 
-            const isStyle200124 =
-              !isStyle10099 &&
-              !isStyle10109 &&
-              !isStyle10114 &&
-              !isStyle10115 &&
-              !isStyle10121 &&
-              !isStyle10122 &&
-              !isStyle10123 &&
-              !isStyle20111 &&
-              !isStyle200123 &&
-              (String(baseStyle).startsWith("200124") ||
-                (product.washingInstructions && (product.washingInstructions.includes("75°C") || product.washingInstructions.includes("75"))));
+            const isStyle10115 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && String(baseStyle).startsWith("10115");
 
-            const isStyle200126 =
-              !isStyle10099 &&
-              !isStyle10109 &&
-              !isStyle10114 &&
-              !isStyle10115 &&
-              !isStyle10121 &&
-              !isStyle10122 &&
-              !isStyle10123 &&
-              !isStyle20111 &&
-              !isStyle200123 &&
-              !isStyle200124 &&
-              String(baseStyle).startsWith("200126");
+            const isStyle10121 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && (String(baseStyle).startsWith("10121") || (product.fabric && product.fabric.includes("320")));
 
-            const isStyle200127 =
-              !isStyle10099 &&
-              !isStyle10109 &&
-              !isStyle10114 &&
-              !isStyle10115 &&
-              !isStyle10121 &&
-              !isStyle10122 &&
-              !isStyle10123 &&
-              !isStyle20111 &&
-              !isStyle200123 &&
-              !isStyle200124 &&
-              !isStyle200126 &&
-              String(baseStyle).startsWith("200127");
+            const isStyle10122 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && (String(baseStyle).startsWith("10122") || (product.fabric && product.fabric.includes("Anti Pilling")));
 
-            const isStyle10101 =
-              !isStyle10099 &&
-              !isStyle10109 &&
-              !isStyle10114 &&
-              !isStyle10115 &&
-              !isStyle10121 &&
-              !isStyle10122 &&
-              !isStyle10123 &&
-              !isStyle20111 &&
-              !isStyle200123 &&
-              !isStyle200124 &&
-              !isStyle200126 &&
-              !isStyle200127 &&
-              (String(baseStyle).startsWith("10101") ||
-                (product.washingInstructions && product.washingInstructions.includes("separat")));
+            const isStyle10123 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && (String(baseStyle).startsWith("10123") || (product.washingInstructions && (product.washingInstructions.includes("tørketromles") || product.washingInstructions.includes("Tåler ikke rens"))));
+
+            const isStyle20110 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && String(baseStyle).startsWith("20110");
+
+            const isStyle20111 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && String(baseStyle).startsWith("20111");
+
+            const isStyle200121 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && String(baseStyle).startsWith("200121");
+
+            const isStyle200122 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && String(baseStyle).startsWith("200122");
+
+            const isStyle200123 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && String(baseStyle).startsWith("200123");
+
+            const isStyle200124 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && (String(baseStyle).startsWith("200124") || (product.washingInstructions && (product.washingInstructions.includes("75°C") || product.washingInstructions.includes("75"))));
+
+            const isStyle200125 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && !isStyle200124 && String(baseStyle).startsWith("200125");
+
+            const isStyle200126 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && !isStyle200124 && !isStyle200125 && String(baseStyle).startsWith("200126");
+
+            const isStyle200127 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && !isStyle200124 && !isStyle200125 && !isStyle200126 && String(baseStyle).startsWith("200127");
+
+            const isStyle200128 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && !isStyle200124 && !isStyle200125 && !isStyle200126 && !isStyle200127 && String(baseStyle).startsWith("200128");
+
+            const isStyle10101 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && !isStyle200124 && !isStyle200125 && !isStyle200126 && !isStyle200127 && !isStyle200128 && (String(baseStyle).startsWith("10101") || (product.washingInstructions && product.washingInstructions.includes("separat")));
 
             const symbolsList = isStyle10099
               ? STYLE_10099_SYMBOLS
+              : isStyle10102
+              ? STYLE_10102_SYMBOLS
+              : isStyle10103
+              ? STYLE_10103_SYMBOLS
+              : isStyle10105
+              ? STYLE_10105_SYMBOLS
+              : isStyle10106
+              ? STYLE_10106_SYMBOLS
+              : isStyle10107
+              ? STYLE_10107_SYMBOLS
+              : isStyle10108
+              ? STYLE_10108_SYMBOLS
               : isStyle10109
               ? STYLE_10109_SYMBOLS
               : isStyle10114
@@ -328,16 +280,26 @@ const PortalCatalogPage = () => {
               ? STYLE_10122_SYMBOLS
               : isStyle10123
               ? STYLE_10123_SYMBOLS
+              : isStyle20110
+              ? STYLE_20110_SYMBOLS
               : isStyle20111
               ? STYLE_20111_SYMBOLS
+              : isStyle200121
+              ? STYLE_200121_SYMBOLS
+              : isStyle200122
+              ? STYLE_200122_SYMBOLS
               : isStyle200123
               ? STYLE_200123_SYMBOLS
               : isStyle200124
               ? STYLE_200124_SYMBOLS
+              : isStyle200125
+              ? STYLE_200125_SYMBOLS
               : isStyle200126
               ? STYLE_200126_SYMBOLS
               : isStyle200127
               ? STYLE_200127_SYMBOLS
+              : isStyle200128
+              ? STYLE_200128_SYMBOLS
               : isStyle10101
               ? STYLE_10101_SYMBOLS
               : DEFAULT_WORKWEAR_SYMBOLS;
@@ -346,6 +308,18 @@ const PortalCatalogPage = () => {
               ? product.washingInstructions ||
                 (isStyle10099
                   ? "Vask 85°C (Industrivask) • Må ikke blekes • Tørketrommel tillatt • Må ikke strykes • Tåler ikke rens"
+                  : isStyle10102
+                  ? "Vask 40°C • Vaskes separat • Må ikke blekes • Strykes på middels varme • Profesjonell rens tillatt"
+                  : isStyle10103
+                  ? "Vask 40°C • Må ikke blekes • Må ikke tørketromles • Strykes på lav varme • Profesjonell rens tillatt"
+                  : isStyle10105
+                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  : isStyle10106
+                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  : isStyle10107
+                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  : isStyle10108
+                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle10109
                   ? "Vask 75°C • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle10114
@@ -358,21 +332,43 @@ const PortalCatalogPage = () => {
                   ? "Vask 40°C • Må ikke tørketromles • Tåler ikke bleking • Strykes ved lav varme • Tåler ikke rens"
                   : isStyle10123
                   ? "Vask 40°C • Må ikke blekes • Må ikke tørketromles • Strykes på lav varme • Tåler ikke rens"
+                  : isStyle20110
+                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle20111
+                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  : isStyle200121
+                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  : isStyle200122
                   ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle200123
                   ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle200124
                   ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt"
+                  : isStyle200125
+                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle200126
                   ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle200127
+                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  : isStyle200128
                   ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle10101
                   ? "Vask 40°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt"
                   : norwegianCareFull)
               : isStyle10099
               ? "Wash 85°C (Industrial Wash) • Do Not Bleach • Tumble Dry Allowed • Do Not Iron • Do Not Dry Clean"
+              : isStyle10102
+              ? "Wash 40°C • Wash Separately • Do Not Bleach • Iron Medium Heat • Professional Dry Clean (P) Allowed"
+              : isStyle10103
+              ? "Wash 40°C • Do Not Bleach • Do Not Tumble Dry • Iron Low Heat • Professional Dry Clean (P) Allowed"
+              : isStyle10105
+              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              : isStyle10106
+              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              : isStyle10107
+              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              : isStyle10108
+              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle10109
               ? "Wash 75°C • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle10114
@@ -385,15 +381,25 @@ const PortalCatalogPage = () => {
               ? "Wash 40°C • Do Not Tumble Dry • Do Not Bleach • Iron Low Heat • Do Not Dry Clean"
               : isStyle10123
               ? "Wash 40°C • Do Not Bleach • Do Not Tumble Dry • Iron Low Heat • Do Not Dry Clean"
+              : isStyle20110
+              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle20111
+              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              : isStyle200121
+              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              : isStyle200122
               ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle200123
               ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle200124
               ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed"
+              : isStyle200125
+              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle200126
               ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle200127
+              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              : isStyle200128
               ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle10101
               ? "Wash 40°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed"
@@ -479,14 +485,23 @@ const PortalCatalogPage = () => {
                         )}
                       </div>
 
-                      {/* Fabric pill */}
-                      {product.fabric && (
-                        <div className="pt-1">
+                      {/* Fabric & Size Guide pills */}
+                      <div className="pt-1 flex flex-wrap items-center gap-2">
+                        {product.fabric && (
                           <span className="inline-block px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80 text-[11px] font-semibold text-slate-700 font-mono">
                             {product.fabric}
                           </span>
-                        </div>
-                      )}
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setSizeChartModalProduct(product)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 text-[11px] font-bold transition shadow-2xs"
+                          title="View exact size chart & measurements"
+                        >
+                          <Ruler size={12} />
+                          <span>{isNo ? "Måleskjema" : "Size Chart"}</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -642,6 +657,30 @@ const PortalCatalogPage = () => {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* 📏 INTERACTIVE SIZE CHART MODAL POPUP */}
+      {sizeChartModalProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl p-4 sm:p-6 overflow-y-auto relative shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-150">
+            <button
+              type="button"
+              onClick={() => setSizeChartModalProduct(null)}
+              className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition z-30"
+              title="Close Size Chart"
+            >
+              <X size={20} />
+            </button>
+            <SizeChartCard
+              styleNumber={sizeChartModalProduct.baseStyleNumber || sizeChartModalProduct.styleNumber}
+              styleName={sizeChartModalProduct.styleName || sizeChartModalProduct.productName}
+              currentSize={sizeChartModalProduct.size}
+              defaultView="single"
+              embeddedSizeChart={sizeChartModalProduct.sizeChart}
+              showFullscreenBtn={false}
+            />
+          </div>
         </div>
       )}
     </div>

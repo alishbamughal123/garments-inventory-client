@@ -22,6 +22,7 @@ import SurfaceCard from "../../components/ui/SurfaceCard";
 import DeleteModal from "../../components/common/DeleteModal";
 import TaskSummaryCards from "../../components/tasks/TaskSummaryCards";
 import Loader from "../../components/ui/Loader";
+import { useLanguage } from "../../context/LanguageContext";
 import {
   taskPriorityOptions,
   taskStatusOptions,
@@ -52,6 +53,7 @@ const formatDate = (
     : "-";
 
 const TasksPage = () => {
+  const { t, isNo } = useLanguage();
   const navigate =
     useNavigate();
   const [tasks, setTasks] =
@@ -247,7 +249,7 @@ const TasksPage = () => {
 
       <SurfaceCard className="p-4 sm:p-6">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <label className="relative block xl:col-span-2">
+          <label className="relative flex-1">
             <Search
               size={16}
               className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
@@ -259,7 +261,7 @@ const TasksPage = () => {
               onChange={
                 handleFilterChange
               }
-              placeholder="Search by task title"
+              placeholder={isNo ? "Søk etter oppgavetittel..." : "Search by task title..."}
               className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white"
             />
           </label>
@@ -273,7 +275,7 @@ const TasksPage = () => {
             onChange={
               handleFilterChange
             }
-            placeholder="Search by customer"
+            placeholder={isNo ? "Søk etter kunde..." : "Search by customer..."}
             className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white"
           />
 
@@ -284,7 +286,7 @@ const TasksPage = () => {
             onChange={
               handleFilterChange
             }
-            placeholder="Search by lead"
+            placeholder={isNo ? "Søk etter lead..." : "Search by lead..."}
             className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white"
           />
 
@@ -299,7 +301,7 @@ const TasksPage = () => {
             className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white"
           >
             <option value="">
-              All Statuses
+              {isNo ? "Alle statuser" : "All Statuses"}
             </option>
             {taskStatusOptions.map(
               (status) => (
@@ -307,10 +309,7 @@ const TasksPage = () => {
                   key={status}
                   value={status}
                 >
-                  {status.replaceAll(
-                    "_",
-                    " "
-                  )}
+                  {t(status)}
                 </option>
               )
             )}
@@ -327,7 +326,7 @@ const TasksPage = () => {
             className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white"
           >
             <option value="">
-              All Priorities
+              {isNo ? "Alle prioriteter" : "All Priorities"}
             </option>
             {taskPriorityOptions.map(
               (priority) => (
@@ -339,7 +338,7 @@ const TasksPage = () => {
                     priority
                   }
                 >
-                  {priority}
+                  {t(priority)}
                 </option>
               )
             )}
@@ -359,7 +358,7 @@ const TasksPage = () => {
             }
           >
             <option value="">
-              All Assignees
+              {isNo ? "Alle tildelte" : "All Assignees"}
             </option>
             {users.map((user) => (
               <option
@@ -386,7 +385,7 @@ const TasksPage = () => {
       </SurfaceCard>
 
       {loading ? (
-        <Loader message="Syncing operational tasks..." />
+        <Loader message={isNo ? "Synkroniserer oppgaver..." : "Syncing operational tasks..."} />
       ) : (
         <>
           <section className="grid gap-4 lg:hidden">
@@ -519,28 +518,28 @@ const TasksPage = () => {
             <thead className="bg-slate-50 text-sm text-slate-500">
               <tr>
                 <th className="px-5 py-4 text-left font-medium">
-                  Title
+                  {t("title")}
                 </th>
                 <th className="px-5 py-4 text-left font-medium">
-                  Status
+                  {t("status")}
                 </th>
                 <th className="px-5 py-4 text-left font-medium">
-                  Priority
+                  {t("priority")}
                 </th>
                 <th className="px-5 py-4 text-left font-medium">
-                  Due Date
+                  {t("dueDate")}
                 </th>
                 <th className="px-5 py-4 text-left font-medium">
-                  Assignee
+                  {isNo ? "Tildelt" : "Assignee"}
                 </th>
                 <th className="px-5 py-4 text-left font-medium">
-                  Customer
+                  {t("customer")}
                 </th>
                 <th className="px-5 py-4 text-left font-medium">
                   Lead
                 </th>
                 <th className="px-5 py-4 text-left font-medium">
-                  Actions
+                  {t("actions")}
                 </th>
               </tr>
             </thead>
@@ -568,7 +567,7 @@ const TasksPage = () => {
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
                         {task.description ||
-                          "No description"}
+                          (isNo ? "Ingen beskrivelse" : "No description")}
                       </p>
                     </button>
                   </td>
@@ -586,12 +585,12 @@ const TasksPage = () => {
                       }
                     />
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4 font-mono text-xs">
                     {formatDate(
                       task.dueDate
                     )}
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4 font-medium text-slate-800">
                     {task.assignedUser
                       ?.name ||
                       "-"}
@@ -654,7 +653,7 @@ const TasksPage = () => {
                       colSpan="8"
                       className="px-5 py-10 text-center text-sm text-slate-500"
                     >
-                      No tasks found.
+                      {t("noData")}
                     </td>
                   </tr>
                 )}
@@ -672,8 +671,8 @@ const TasksPage = () => {
           setSelectedTask(null);
         }}
         onConfirm={handleDelete}
-        title="Delete Task"
-        message={`Are you sure you want to delete task "${selectedTask?.title}"? This action cannot be undone.`}
+        title={isNo ? "Slett oppgave" : "Delete Task"}
+        message={isNo ? `Er du sikker på at du vil slette oppgaven "${selectedTask?.title}"? Dette kan ikke angres.` : `Are you sure you want to delete task "${selectedTask?.title}"? This action cannot be undone.`}
       />
     </div>
   );

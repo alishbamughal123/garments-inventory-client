@@ -6,12 +6,14 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { resolveProductImageUrl, getColorHex } from "../../utils/imageHelper";
+import { useLanguage } from "../../context/LanguageContext";
 
 const ProductTable = ({
   products,
   onDelete,
 }) => {
   const navigate = useNavigate();
+  const { t, isNo } = useLanguage();
 
   if (!products || products.length === 0) {
     return (
@@ -19,9 +21,13 @@ const ProductTable = ({
         <div className="rounded-full bg-slate-50 p-4 text-slate-400 mb-4 border border-slate-100">
           <FiTag size={32} />
         </div>
-        <h3 className="text-base font-semibold text-slate-800">No articles found</h3>
+        <h3 className="text-base font-semibold text-slate-800">
+          {isNo ? "Ingen artikler funnet" : "No articles found"}
+        </h3>
         <p className="mt-1 text-sm text-slate-500 max-w-xs">
-          Try adjusting your search terms or add a new apparel article to get started.
+          {isNo
+            ? "Prøv å justere søket eller legg til en ny artikkel for å komme i gang."
+            : "Try adjusting your search terms or add a new apparel article to get started."}
         </p>
       </div>
     );
@@ -91,7 +97,7 @@ const ProductTable = ({
                     }`}
                   >
                     <span className={`h-1.5 w-1.5 rounded-full ${lowStock ? "bg-amber-500" : "bg-emerald-500"}`} />
-                    {lowStock ? "Low Stock" : "In Stock"}
+                    {lowStock ? t("Low Stock") : t("In Stock")}
                   </span>
                 </div>
 
@@ -101,15 +107,15 @@ const ProductTable = ({
                     <dd className="mt-0.5 break-all font-semibold text-slate-700 font-mono">{product.sku}</dd>
                   </div>
                   <div>
-                    <dt className="text-slate-400 font-medium">Barcode</dt>
+                    <dt className="text-slate-400 font-medium">{t("barcode")}</dt>
                     <dd className="mt-0.5 break-all font-semibold text-slate-700 font-mono">{barcode?.barcodeValue || "-"}</dd>
                   </div>
                   <div>
-                    <dt className="text-slate-400 font-medium">Stock</dt>
+                    <dt className="text-slate-400 font-medium">{t("Stock")}</dt>
                     <dd className="mt-0.5 font-semibold text-slate-700 font-mono">{product.stockQuantity}</dd>
                   </div>
                   <div>
-                    <dt className="text-slate-400 font-medium">Price</dt>
+                    <dt className="text-slate-400 font-medium">{t("Price")}</dt>
                     <dd className="mt-0.5 font-semibold text-slate-900 font-mono text-[13px]">NOK {product.salePrice}</dd>
                   </div>
                 </dl>
@@ -121,28 +127,28 @@ const ProductTable = ({
                   className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm"
                 >
                   <FiEye size={14} className="text-slate-400" />
-                  View
+                  {t("view")}
                 </button>
                 <button
                   onClick={() => navigate(`/products/barcode/${product.id}`)}
                   className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
                 >
                   <FiTag size={14} className="text-blue-500" />
-                  Barcode
+                  {t("barcode")}
                 </button>
                 <button
                   onClick={() => navigate(`/products/edit/${product.id}`)}
                   className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
                 >
                   <FiEdit2 size={14} className="text-amber-500" />
-                  Edit
+                  {t("edit")}
                 </button>
                 <button
                   onClick={() => onDelete(product)}
                   className="inline-flex items-center gap-1.5 rounded-lg border border-red-100 bg-red-50/30 px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors"
                 >
                   <FiTrash2 size={14} className="text-red-500" />
-                  Delete
+                  {t("delete")}
                 </button>
               </div>
             </article>
@@ -156,31 +162,31 @@ const ProductTable = ({
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50/75">
               <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Garment
+                {t("Garment")}
               </th>
               <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Style No
+                {t("Style No")}
               </th>
               <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Article & Color
+                {t("Article & Color")}
               </th>
               <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 SKU
               </th>
               <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Barcode
+                {t("barcode")}
               </th>
               <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Stock
+                {t("Stock")}
               </th>
               <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Price
+                {t("Price")}
               </th>
               <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Status
+                {t("status")}
               </th>
               <th className="px-4 py-3.5 text-right text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Actions
+                {t("actions")}
               </th>
             </tr>
           </thead>
@@ -201,7 +207,7 @@ const ProductTable = ({
                     <div
                       onClick={() => navigate(`/products/${product.id}`)}
                       className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 cursor-pointer overflow-hidden shadow-xs hover:border-blue-400 transition"
-                      title="Click to view garment colors & details"
+                      title={isNo ? "Klikk for å se farger og detaljer" : "Click to view garment colors & details"}
                     >
                       <img
                         src={imgUrl}
@@ -231,7 +237,7 @@ const ProductTable = ({
                         style={{ backgroundColor: getColorHex(product.color) }}
                       />
                       <span>
-                        {product.color} • Size {product.size}
+                        {product.color} • {isNo ? `Str. ${product.size}` : `Size ${product.size}`}
                       </span>
                     </div>
                   </td>
@@ -256,7 +262,7 @@ const ProductTable = ({
                       }`}
                     >
                       <span className={`h-1.5 w-1.5 rounded-full ${lowStock ? "bg-amber-500" : "bg-emerald-500"}`} />
-                      {lowStock ? "Low Stock" : "In Stock"}
+                      {lowStock ? t("Low Stock") : t("In Stock")}
                     </span>
                   </td>
                   <td className="px-4 py-4 text-sm text-right">
@@ -264,28 +270,28 @@ const ProductTable = ({
                       <button
                         onClick={() => navigate(`/products/${product.id}`)}
                         className="rounded-lg p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600"
-                        title="View Article & Color Options"
+                        title={isNo ? "Vis artikkel og farger" : "View Article & Color Options"}
                       >
                         <FiEye size={17} />
                       </button>
                       <button
                         onClick={() => navigate(`/products/barcode/${product.id}`)}
                         className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-                        title="Article Barcode"
+                        title={isNo ? "Artikkelstrekkode" : "Article Barcode"}
                       >
                         <FiTag size={17} />
                       </button>
                       <button
                         onClick={() => navigate(`/products/edit/${product.id}`)}
                         className="rounded-lg p-1.5 text-slate-400 transition hover:bg-amber-50 hover:text-amber-600"
-                        title="Edit Article"
+                        title={isNo ? "Rediger artikkel" : "Edit Article"}
                       >
                         <FiEdit2 size={17} />
                       </button>
                       <button
                         onClick={() => onDelete(product)}
                         className="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
-                        title="Delete Article"
+                        title={isNo ? "Slett artikkel" : "Delete Article"}
                       >
                         <FiTrash2 size={17} />
                       </button>

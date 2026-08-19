@@ -24,12 +24,14 @@ import PageHeader from "../../components/ui/PageHeader";
 import Button from "../../components/ui/Button";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import { useAuth } from "../../context/useAuth";
+import { useLanguage } from "../../context/LanguageContext";
 import { updateProfile } from "../../services/auth.service";
 import { inputStyles, labelStyles } from "../../components/ui/formStyles";
 
 const SettingsPage = () => {
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
+  const { t, isNo } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("profile"); // 'profile' | 'store' | 'notifications'
 
@@ -492,6 +494,7 @@ const SettingsPage = () => {
 };
 
 const TabButton = ({ id, label, icon, activeTab, setActiveTab }) => {
+  const { t } = useLanguage();
   const isActive = activeTab === id;
   return (
     <button
@@ -503,7 +506,7 @@ const TabButton = ({ id, label, icon, activeTab, setActiveTab }) => {
       }`}
     >
       {icon}
-      {label}
+      {typeof label === "string" ? t(label) : label}
     </button>
   );
 };

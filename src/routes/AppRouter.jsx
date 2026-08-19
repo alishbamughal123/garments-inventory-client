@@ -41,6 +41,7 @@ import BarcodePage from "../pages/products/BarcodePage";
 import EditProductPage from "../pages/products/EditProductPage";
 import ProductDetailsPage from "../pages/products/ProductDetailsPage";
 import ProductsPage from "../pages/products/ProductsPage";
+import SizeChartsPage from "../pages/sizecharts/SizeChartsPage";
 import CreateSalePage from "../pages/sales/CreateSalePage";
 import EditSalePage from "../pages/sales/EditSalePage";
 import SaleDetailsPage from "../pages/sales/SaleDetailsPage";
@@ -103,6 +104,12 @@ const AppRouter = () => {
           path={appRoutes.productsAdd}
           element={protectedElement(
             <AddProductPage />
+          )}
+        />
+        <Route
+          path={appRoutes.sizeCharts}
+          element={protectedElement(
+            <SizeChartsPage />
           )}
         />
         <Route
