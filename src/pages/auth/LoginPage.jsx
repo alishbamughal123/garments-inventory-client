@@ -220,6 +220,16 @@ const LoginPage = () => {
               }
             }
           },
+          error_callback: (nonOAuthError) => {
+            console.warn("Google popup error / blocked:", nonOAuthError);
+            toast.error(
+              lang === "no"
+                ? "Nettleseren blokkerte popup-vinduet. Åpner innlogging..."
+                : "Browser blocked the Google popup window. Opening direct Google sign-in...",
+              { icon: "⚠️", duration: 4000 }
+            );
+            setShowGoogleModal(true);
+          }
         });
         tokenClient.requestAccessToken({ prompt: "select_account" });
         return;
