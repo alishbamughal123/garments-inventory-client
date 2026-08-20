@@ -299,12 +299,33 @@ export const exportMixedCartonToExcel = async ({
 
   specs.forEach((spec, idx) => {
     const row = worksheet.addRow([spec[0], spec[1], spec[2], spec[3], ""]);
-    row.height = 24;
+    row.height = 26;
     row.getCell(1).font = { name: "Calibri", size: 10, bold: true, color: { argb: "FF475569" } };
     row.getCell(2).font = { name: "Calibri", size: 10, bold: true, color: { argb: "FF0F172A" } };
     row.getCell(3).font = { name: "Calibri", size: 10, bold: true, color: { argb: "FF475569" } };
-    row.getCell(4).font = { name: "Consolas", size: 10, bold: true, color: { argb: "FF1E3A8A" } };
+    row.getCell(4).font = { name: "Consolas", size: 10.5, bold: true, color: { argb: "FF1E3A8A" } };
   });
+
+  // Embed Master Carton Barcode Image in Header (Col E, Row 2-4)
+  if (masterBarcodeVal) {
+    try {
+      const masterImg = await generateBarcodeImageBase64(masterBarcodeVal);
+      if (masterImg && masterImg.base64Data) {
+        const imageId = workbook.addImage({
+          base64: masterImg.base64Data,
+          extension: "png",
+        });
+
+        worksheet.addImage(imageId, {
+          tl: { col: 4.05, row: 1.1 },
+          ext: { width: 180, height: 55 },
+          editAs: "oneCell",
+        });
+      }
+    } catch (err) {
+      console.warn("Could not embed master barcode in Excel:", err);
+    }
+  }
 
   // Blank Row
   worksheet.addRow([]);
