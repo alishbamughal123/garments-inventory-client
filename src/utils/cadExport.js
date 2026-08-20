@@ -141,7 +141,13 @@ export const generateGarmentLabelsDXF = (products = []) => {
         const by2 = barcodeOriginY + targetBarcodeHeight - bar.y * scaleY;
         const by1 = by2 - bar.height * scaleY;
 
+        // 1. AutoCAD standard SOLID quad
         entitiesDXF += `0\nSOLID\n8\nBARCODE_BARS\n10\n${bx1.toFixed(3)}\n20\n${by1.toFixed(3)}\n30\n0.0\n11\n${bx2.toFixed(3)}\n21\n${by1.toFixed(3)}\n31\n0.0\n12\n${bx1.toFixed(3)}\n22\n${by2.toFixed(3)}\n32\n0.0\n13\n${bx2.toFixed(3)}\n23\n${by2.toFixed(3)}\n33\n0.0\n`;
+
+        // 2. Dense vector fill lines (0.06mm step) for 100% solid contrast on Web CAD viewers (ShareCAD)
+        for (let x = bx1; x <= bx2 + 0.01; x += 0.06) {
+          entitiesDXF += `0\nLINE\n8\nBARCODE_BARS\n10\n${x.toFixed(3)}\n20\n${by1.toFixed(3)}\n30\n0.0\n11\n${x.toFixed(3)}\n21\n${by2.toFixed(3)}\n31\n0.0\n`;
+        }
       });
     } catch (err) {
       console.warn("Could not generate barcode for DXF:", err);
@@ -483,7 +489,13 @@ export const generateMixedCartonStickerDXF = ({
       const by2 = barcodeOriginY + targetBarcodeHeight - bar.y * scaleY;
       const by1 = by2 - bar.height * scaleY;
 
+      // 1. AutoCAD standard SOLID quad
       entitiesDXF += `0\nSOLID\n8\nBARCODE_BARS\n10\n${bx1.toFixed(3)}\n20\n${by1.toFixed(3)}\n30\n0.0\n11\n${bx2.toFixed(3)}\n21\n${by1.toFixed(3)}\n31\n0.0\n12\n${bx1.toFixed(3)}\n22\n${by2.toFixed(3)}\n32\n0.0\n13\n${bx2.toFixed(3)}\n23\n${by2.toFixed(3)}\n33\n0.0\n`;
+
+      // 2. Dense vector fill lines (0.06mm step) for 100% solid contrast on Web CAD viewers (ShareCAD)
+      for (let x = bx1; x <= bx2 + 0.01; x += 0.06) {
+        entitiesDXF += `0\nLINE\n8\nBARCODE_BARS\n10\n${x.toFixed(3)}\n20\n${by1.toFixed(3)}\n30\n0.0\n11\n${x.toFixed(3)}\n21\n${by2.toFixed(3)}\n31\n0.0\n`;
+      }
     });
   } catch (err) {
     console.warn("Could not generate master carton barcode for DXF:", err);
