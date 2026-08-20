@@ -12,6 +12,8 @@ import {
   RefreshCw,
   FileSpreadsheet,
   Grid,
+  Boxes,
+  FileCode,
 } from "lucide-react";
 import MainLayout from "../../layouts/MainLayout";
 import Button from "../../components/ui/Button";
@@ -22,7 +24,6 @@ import BarcodePrintModal from "../../components/products/BarcodePrintModal";
 import { getProductById, getProducts } from "../../services/products.service";
 import { exportArticlesToExcelWithBarcodes } from "../../utils/barcodeExport";
 import { downloadCAD_DXF, downloadCAD_SVG } from "../../utils/cadExport";
-import { FileCode } from "lucide-react";
 
 const API_URL =
   import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes("railway")
@@ -40,6 +41,7 @@ const BarcodePage = () => {
   const [copied, setCopied] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [printModalMode, setPrintModalMode] = useState("individual");
   const [exportingExcel, setExportingExcel] = useState(false);
 
   useEffect(() => {
@@ -245,60 +247,81 @@ const BarcodePage = () => {
 
       <div className="mx-auto max-w-5xl space-y-6">
         <PageHeader
+          stacked={true}
           title={`Article Barcode - ${product.productName}`}
           description={`Style #${baseStyleNo} • Size ${product.size || "OS"} (${product.color || "Standard"}) • High-resolution single & batch barcode sticker exports.`}
           action={
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
-              {/* Single Size AutoCAD DXF Button */}
-              <button
-                type="button"
-                onClick={handleExportSingleCAD_DXF}
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/70 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-indigo-700 shadow-sm transition hover:bg-indigo-100 hover:border-indigo-300"
-                title={`Download AutoCAD DXF CAD file for Size ${product.size || "OS"}`}
-              >
-                <FileCode className="w-4 h-4 text-indigo-600 shrink-0" />
-                <span>CAD (.dxf)</span>
-              </button>
+            <>
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Single Size AutoCAD DXF Button */}
+                <button
+                  type="button"
+                  onClick={handleExportSingleCAD_DXF}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/70 px-3 py-2 text-xs sm:text-sm font-semibold text-indigo-700 shadow-2xs transition hover:bg-indigo-100 hover:border-indigo-300"
+                  title={`Download AutoCAD DXF CAD file for Size ${product.size || "OS"}`}
+                >
+                  <FileCode className="w-4 h-4 text-indigo-600 shrink-0" />
+                  <span>CAD (.dxf)</span>
+                </button>
 
-              {/* Single Size Vector SVG Button (Opens in Chrome/Edge) */}
-              <button
-                type="button"
-                onClick={handleExportSingleCAD_SVG}
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50/70 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-violet-700 shadow-sm transition hover:bg-violet-100 hover:border-violet-300"
-                title={`Download Vector SVG file for Size ${product.size || "OS"} (Opens directly in Chrome/Edge)`}
-              >
-                <Layers className="w-4 h-4 text-violet-600 shrink-0" />
-                <span>Vector (.svg)</span>
-              </button>
+                {/* Single Size Vector SVG Button (Opens in Chrome/Edge) */}
+                <button
+                  type="button"
+                  onClick={handleExportSingleCAD_SVG}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50/70 px-3 py-2 text-xs sm:text-sm font-semibold text-violet-700 shadow-2xs transition hover:bg-violet-100 hover:border-violet-300"
+                  title={`Download Vector SVG file for Size ${product.size || "OS"} (Opens directly in Chrome/Edge)`}
+                >
+                  <Layers className="w-4 h-4 text-violet-600 shrink-0" />
+                  <span>Vector (.svg)</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={handleExportArticleExcel}
-                disabled={exportingExcel}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50"
-              >
-                <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>{exportingExcel ? "Exporting..." : "Excel"}</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={handleExportArticleExcel}
+                  disabled={exportingExcel}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{exportingExcel ? "Exporting..." : "Excel"}</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => setPrintModalOpen(true)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold shadow-sm transition"
-              >
-                <Printer className="w-4 h-4 text-white shrink-0" />
-                <span>Print All Sizes ({allVariants.length})</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPrintModalMode("individual");
+                    setPrintModalOpen(true);
+                  }}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 text-xs sm:text-sm font-semibold shadow-sm transition"
+                >
+                  <Printer className="w-4 h-4 text-white shrink-0" />
+                  <span>Print All Sizes ({allVariants.length})</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => navigate(`/products/${product.id}`)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300"
-              >
-                <ArrowLeft className="w-4 h-4 shrink-0" />
-                <span>Back</span>
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPrintModalMode("mixed_carton");
+                    setPrintModalOpen(true);
+                  }}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/80 hover:bg-indigo-100 text-indigo-700 px-3.5 py-2 text-xs sm:text-sm font-semibold shadow-2xs transition"
+                  title="Generate Mixed Carton Sticker for the last leftover box"
+                >
+                  <Boxes className="w-4 h-4 text-indigo-600 shrink-0" />
+                  <span>Mixed Carton Sticker</span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/products/${product.id}`)}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300"
+                >
+                  <ArrowLeft className="w-4 h-4 shrink-0" />
+                  <span>Back</span>
+                </button>
+              </div>
+            </>
           }
         />
 
@@ -509,8 +532,9 @@ const BarcodePage = () => {
                 <Layers className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold">Export & Print Options:</span> Click{" "}
-                  <strong>"Download Excel (+ Barcodes)"</strong> to get the Excel sheet with embedded barcode images for all sizes, or{" "}
-                  <strong>"Print All Sizes"</strong> to generate standard A4/thermal sticker sheets ready to print.
+                  <strong>"Print All Sizes"</strong> for standard garment labels,{" "}
+                  <strong>"Mixed Carton Sticker"</strong> for the last leftover box sticker with master barcode & breakdown, or{" "}
+                  <strong>"Download Excel (+ Barcodes)"</strong> for embedded barcode spreadsheets.
                 </div>
               </div>
             </SurfaceCard>
@@ -523,7 +547,12 @@ const BarcodePage = () => {
         isOpen={printModalOpen}
         onClose={() => setPrintModalOpen(false)}
         products={allVariants}
-        title={`Print Barcode Labels - Article #${baseStyleNo} (${allVariants.length} Sizes)`}
+        initialMode={printModalMode}
+        title={
+          printModalMode === "mixed_carton"
+            ? `Mixed Carton Barcode Sticker (Last Box) - Article #${baseStyleNo}`
+            : `Print Barcode Labels - Article #${baseStyleNo} (${allVariants.length} Sizes)`
+        }
       />
     </MainLayout>
   );

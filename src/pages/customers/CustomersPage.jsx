@@ -6,6 +6,7 @@ import PageHeader from "../../components/ui/PageHeader";
 import StatusBadge from "../../components/ui/StatusBadge";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import DeleteModal from "../../components/common/DeleteModal";
+import Pagination from "../../components/common/Pagination";
 import { appRoutes } from "../../config/routes";
 import toast from "react-hot-toast";
 import Loader from "../../components/ui/Loader";
@@ -14,20 +15,44 @@ import { useLanguage } from "../../context/LanguageContext";
 import * as XLSX from "xlsx";
 
 const CustomersPage = () => {
-  const { t, lang } = useLanguage();
+  const { t, lang, isNo } = useLanguage();
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [customerType, setCustomerType] = useState("");
   const [status, setStatus] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
+  const [exporting, setExporting] = useState(false);
+
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
-  async function fetchCustomers(currentSearch = search) {
+  async function fetchCustomers(pageToFetch = page, pageSizeToFetch = pageSize, currentSearch = search) {
     try {
       setLoading(true);
-      const response = await getCustomers(currentSearch, customerType, status);
-      setCustomers(response.data || []);
+      const response = await getCustomers({
+        page: pageToFetch,
+        limit: pageSizeToFetch,
+        search: currentSearch.trim(),
+        customerType: customerType || undefined,
+        status: status || undefined,
+      });
+
+      const items = Array.isArray(response.data) ? response.data : response.data?.customers || [];
+      setCustomers(items);
+
+      if (response.pagination) {
+        setPaginationMeta(response.pagination);
+      } else {
+        setPaginationMeta({
+          total: items.length,
+          page: pageToFetch,
+          limit: pageSizeToFetch,
+          totalPages: Math.max(1, Math.ceil(items.length / pageSizeToFetch)),
+        });
+      }
     } catch {
       toast.error(lang === "no" ? "Kunne ikke laste kunder" : "Failed to load customers");
     } finally {
@@ -37,11 +62,11 @@ const CustomersPage = () => {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      fetchCustomers();
-    }, 400);
+      fetchCustomers(page, pageSize, search);
+    }, 350);
 
     return () => clearTimeout(timeout);
-  }, [search, customerType, status]);
+  }, [page, pageSize, search, customerType, status]);
 
   const openDeleteModal = (customer) => {
     setSelectedCustomer(customer);
@@ -53,7 +78,7 @@ const CustomersPage = () => {
     try {
       await deleteCustomer(selectedCustomer.id);
       toast.success(lang === "no" ? "Kunde slettet" : "Customer deleted");
-      fetchCustomers();
+      fetchCustomers(page, pageSize, search);
       setDeleteModalOpen(false);
       setSelectedCustomer(null);
     } catch {
@@ -61,30 +86,49 @@ const CustomersPage = () => {
     }
   };
 
-  const exportToExcel = () => {
-    if (customers.length === 0) {
+  const exportToExcel = async () => {
+    if (paginationMeta.total === 0) {
       toast.error(lang === "no" ? "Ingen data å eksportere" : "No customer data to export");
       return;
     }
 
-    const data = customers.map(c => ({
-      "Customer Code": c.customerCode || "N/A",
-      "Full Name": c.fullName,
-      "Company Name": c.companyName || "N/A",
-      "Phone": c.phoneNumber,
-      "Email": c.email || "N/A",
-      "VAT Number": c.vatNumber || "N/A",
-      "Type": c.customerType,
-      "Status": c.status,
-      "Total Orders": c.totalOrders,
-      "Total Spent (NOK)": c.totalSpent
-    }));
+    try {
+      setExporting(true);
+      toast.loading(isNo ? "Henter full kundedatabase og eksporterer..." : "Fetching full customer database and exporting...", { id: "cust-excel" });
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Customers");
-    XLSX.writeFile(workbook, `Nordic_Prowear_Customers_${new Date().toISOString().slice(0, 10)}.xlsx`);
-    toast.success(lang === "no" ? "Kundedatabase eksportert til Excel" : "Customer directory exported to Excel");
+      const response = await getCustomers({
+        all: "true",
+        search: search.trim(),
+        customerType: customerType || undefined,
+        status: status || undefined,
+      });
+
+      const allCustomers = Array.isArray(response.data) ? response.data : response.data?.customers || customers;
+
+      const data = allCustomers.map((c) => ({
+        "Customer Code": c.customerCode || "N/A",
+        "Full Name": c.fullName,
+        "Company Name": c.companyName || "N/A",
+        "Phone": c.phoneNumber,
+        "Email": c.email || "N/A",
+        "VAT Number": c.vatNumber || "N/A",
+        "Type": c.customerType,
+        "Status": c.status,
+        "Total Orders": c.totalOrders,
+        "Total Spent (NOK)": c.totalSpent,
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Customers");
+      XLSX.writeFile(workbook, `Nordic_Prowear_Customers_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      toast.success(lang === "no" ? `Kundedatabase eksportert til Excel (${allCustomers.length} kunder)` : `Customer directory exported to Excel (${allCustomers.length} customers)`, { id: "cust-excel" });
+    } catch (err) {
+      console.error(err);
+      toast.error(lang === "no" ? "Eksport mislyktes" : "Export failed", { id: "cust-excel" });
+    } finally {
+      setExporting(false);
+    }
   };
 
   return (
@@ -95,112 +139,115 @@ const CustomersPage = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={exportToExcel}
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition"
+              disabled={exporting || paginationMeta.total === 0}
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition disabled:opacity-50"
             >
               <FileSpreadsheet size={16} />
               <span>{t("exportExcel")}</span>
             </button>
-
-            <Button as={Link} to={appRoutes.crmCustomersCreate}>
-              <Plus size={16} />
-              {t("addNewCustomer")}
+            <Button
+              as={Link}
+              to={appRoutes.crmCustomerCreate}
+              icon={<Plus size={16} />}
+              className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm text-xs font-semibold"
+            >
+              {t("registerCustomer")}
             </Button>
           </div>
         }
       />
 
-      <SurfaceCard className="p-4 sm:p-6">
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)]">
-          <label className="relative block">
+      <SurfaceCard className="p-4">
+        <div className="grid gap-3 md:grid-cols-4">
+          <div className="relative md:col-span-2">
             <Search
               size={16}
-              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
             />
             <input
-              type="text"
-              placeholder={lang === "no" ? "Søk etter kundenummer, navn, telefon eller bedrift..." : "Search customer code, name, phone, or company..."}
+              type="search"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white"
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              placeholder={t("searchCustomersPlaceholder")}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50/70 py-2.5 pl-9 pr-3 text-xs outline-none focus:border-blue-500 focus:bg-white"
             />
-          </label>
+          </div>
 
           <select
             value={customerType}
-            onChange={(e) => setCustomerType(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white"
+            onChange={(e) => {
+              setCustomerType(e.target.value);
+              setPage(1);
+            }}
+            className="rounded-xl border border-slate-200 bg-slate-50/70 py-2.5 px-3 text-xs outline-none focus:border-blue-500 focus:bg-white"
           >
-            <option value="">{lang === "no" ? "Alle typer" : "All Customer Types"}</option>
-            <option value="REGULAR">{t("regular")}</option>
-            <option value="WHOLESALE">{t("wholesale")}</option>
-            <option value="VIP">{t("vip")}</option>
+            <option value="">{t("allCustomerTypes")}</option>
+            <option value="INDIVIDUAL">{t("individual")}</option>
+            <option value="BUSINESS">{t("business")}</option>
           </select>
 
           <select
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white"
+            onChange={(e) => {
+              setStatus(e.target.value);
+              setPage(1);
+            }}
+            className="rounded-xl border border-slate-200 bg-slate-50/70 py-2.5 px-3 text-xs outline-none focus:border-blue-500 focus:bg-white"
           >
-            <option value="">{lang === "no" ? "Alle statuser" : "All Statuses"}</option>
+            <option value="">{t("allStatus")}</option>
             <option value="ACTIVE">{t("active")}</option>
             <option value="INACTIVE">{t("inactive")}</option>
+            <option value="SUSPENDED">{t("suspended")}</option>
           </select>
         </div>
       </SurfaceCard>
 
-      {loading ? (
-        <Loader message={lang === "no" ? "Henter kundedatabase..." : "Loading customer directory..."} />
+      {loading && customers.length === 0 ? (
+        <Loader message="Loading customer directory..." />
       ) : (
         <section className="space-y-4">
-          <div className="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:block">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm p-4 sm:p-5 space-y-4">
             <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500">
+              <table className="min-w-full divide-y divide-slate-100 text-left text-xs text-slate-700">
+                <thead className="bg-slate-50 font-bold uppercase text-slate-400">
                   <tr>
-                    <th className="px-5 py-4 text-left">{t("customerCode")}</th>
-                    <th className="px-5 py-4 text-left">{t("fullName")}</th>
-                    <th className="px-5 py-4 text-left">{t("companyName")}</th>
-                    <th className="px-5 py-4 text-left">{t("phone")}</th>
-                    <th className="px-5 py-4 text-left">{t("customerType")}</th>
-                    <th className="px-5 py-4 text-left">{t("status")}</th>
-                    <th className="px-5 py-4 text-left">{t("totalOrders")}</th>
-                    <th className="px-5 py-4 text-left">{t("totalSpent")}</th>
-                    <th className="px-5 py-4 text-left">{t("actions")}</th>
+                    <th className="px-5 py-3.5">{t("customerCode")}</th>
+                    <th className="px-5 py-3.5">{t("name")}</th>
+                    <th className="px-5 py-3.5">{t("company")}</th>
+                    <th className="px-5 py-3.5">{t("phone")}</th>
+                    <th className="px-5 py-3.5">{t("email")}</th>
+                    <th className="px-5 py-3.5">{t("type")}</th>
+                    <th className="px-5 py-3.5">{t("status")}</th>
+                    <th className="px-5 py-3.5">{t("totalSpent")}</th>
+                    <th className="px-5 py-3.5 text-right">{t("actions")}</th>
                   </tr>
                 </thead>
-
-                <tbody>
+                <tbody className="divide-y divide-slate-100">
                   {customers.map((customer) => (
-                    <tr
-                      key={customer.id}
-                      className="border-t border-slate-100 text-sm text-slate-700 transition hover:bg-slate-50/80"
-                    >
+                    <tr key={customer.id} className="hover:bg-slate-50/60 transition">
                       <td className="px-5 py-4 font-mono font-bold text-blue-600">
-                        {customer.customerCode || "N/A"}
-                      </td>
-                      <td className="px-5 py-4 font-semibold text-slate-900">
-                        {customer.fullName}
-                      </td>
-                      <td className="px-5 py-4">
-                        {customer.companyName || "-"}
-                      </td>
-                      <td className="px-5 py-4">
-                        {customer.phoneNumber}
-                      </td>
-                      <td className="px-5 py-4">
-                        <StatusBadge value={customer.customerType} className="px-2.5" />
-                      </td>
-                      <td className="px-5 py-4">
-                        <StatusBadge value={customer.status} className="px-2.5" />
-                      </td>
-                      <td className="px-5 py-4 font-semibold text-slate-800">
-                        {customer.totalOrders}
+                        {customer.customerCode || "—"}
                       </td>
                       <td className="px-5 py-4 font-bold text-slate-900">
+                        {customer.fullName}
+                      </td>
+                      <td className="px-5 py-4 font-medium text-slate-600">
+                        {customer.companyName || "—"}
+                      </td>
+                      <td className="px-5 py-4">{customer.phoneNumber}</td>
+                      <td className="px-5 py-4 text-slate-500">{customer.email || "—"}</td>
+                      <td className="px-5 py-4 font-medium">{t(customer.customerType)}</td>
+                      <td className="px-5 py-4">
+                        <StatusBadge status={customer.status} />
+                      </td>
+                      <td className="px-5 py-4 font-mono font-bold text-slate-900">
                         NOK {Number(customer.totalSpent || 0).toLocaleString()}
                       </td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-2">
+                      <td className="px-5 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
                           <Link
                             to={appRoutes.crmCustomerDetails(customer.id)}
                             className="rounded-full border border-slate-200 p-2 text-slate-600 transition hover:bg-blue-50 hover:text-blue-600"
@@ -217,7 +264,7 @@ const CustomersPage = () => {
                           </Link>
                           <button
                             onClick={() => openDeleteModal(customer)}
-                            className="rounded-full border border-red-200 p-2 text-red-600 transition hover:bg-red-50"
+                            className="rounded-full border border-red-200 p-2 text-red-600 transition hover:bg-red-50 cursor-pointer"
                             title="Delete"
                           >
                             <Trash2 size={16} />
@@ -237,6 +284,22 @@ const CustomersPage = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Reusable Pagination */}
+            <Pagination
+              currentPage={page}
+              totalPages={paginationMeta.totalPages}
+              totalItems={paginationMeta.total}
+              pageSize={pageSize}
+              onPageChange={(newPage) => setPage(newPage)}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setPage(1);
+              }}
+              pageSizeOptions={[10, 25, 50, 100]}
+              itemLabel="customers"
+              itemLabelNo="kunder"
+            />
           </div>
         </section>
       )}

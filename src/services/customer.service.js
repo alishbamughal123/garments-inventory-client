@@ -7,18 +7,21 @@ import api, { buildQueryParams } from "./api";
 */
 
 export const getCustomers = async (
-  search = "",
+  searchOrParams = "",
   customerType = "",
-  status = ""
+  status = "",
+  page = 1,
+  limit = 25
 ) => {
+  const params =
+    typeof searchOrParams === "object" && searchOrParams !== null
+      ? searchOrParams
+      : { search: searchOrParams, customerType, status, page, limit };
+
   const response = await api.get(
     "/customers",
     {
-      params: buildQueryParams({
-        search,
-        customerType,
-        status,
-      }),
+      params: buildQueryParams(params),
     }
   );
 

@@ -16,14 +16,21 @@ import {
   QrCode,
   CheckCircle2,
   FileCode,
+  Palette,
 } from "lucide-react";
 import Button from "../ui/Button";
 import {
   generateBarcodeImageBase64,
   generateQRCodeImageBase64,
   exportArticlesToExcelWithBarcodes,
+  exportMixedCartonToExcel,
 } from "../../utils/barcodeExport";
-import { downloadCAD_DXF, downloadCAD_SVG } from "../../utils/cadExport";
+import {
+  downloadCAD_DXF,
+  downloadCAD_SVG,
+  downloadMixedCartonCAD_DXF,
+} from "../../utils/cadExport";
+import { getColorHex } from "../../utils/imageHelper";
 import toast from "react-hot-toast";
 
 const BarcodePrintModal = ({
@@ -33,8 +40,15 @@ const BarcodePrintModal = ({
   title = "Print Barcode Labels",
   initialMode = "individual", // 'individual' | 'mixed_carton'
 }) => {
-  // Modal Mode: 'individual' (garment hangtags/stickers) vs 'mixed_carton' (last box sticker)
+  // Modal Mode: 'individual' (garment hangtags/stickers) vs 'mixed_carton' (solid color / mixed sizes carton)
   const [activeTab, setActiveTab] = useState(initialMode || "individual");
+
+  // Synchronize active tab whenever modal opens or initialMode changes
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialMode || "individual");
+    }
+  }, [isOpen, initialMode]);
 
   // Individual Mode State
   const [template, setTemplate] = useState("A4-24"); // A4-24, A4-14, Thermal, Hangtag
@@ -43,10 +57,82 @@ const BarcodePrintModal = ({
   const [includeBrand, setIncludeBrand] = useState(true);
   const [includeSpecs, setIncludeSpecs] = useState(true);
 
+  // 1. Group products by Style Number (Clean multi-style support)
+  const stylesMap = useMemo(() => {
+    const map = {};
+    products.forEach((p) => {
+      const sNo = String(
+        p.baseStyleNumber ||
+        (p.styleNumber ? p.styleNumber.split("-")[0] : p.sku) ||
+        "STYLE"
+      ).trim();
+      if (!map[sNo]) {
+        map[sNo] = {
+          styleNo: sNo,
+          styleName: p.styleName || p.itemName || p.productName || "Apparel",
+          products: [],
+        };
+      }
+      map[sNo].products.push(p);
+    });
+    return map;
+  }, [products]);
+
+  const availableStyleNumbers = useMemo(() => Object.keys(stylesMap), [stylesMap]);
+  const [selectedStyleNo, setSelectedStyleNo] = useState("");
+
+  // Default to first style
+  useEffect(() => {
+    if (availableStyleNumbers.length > 0) {
+      if (!selectedStyleNo || !stylesMap[selectedStyleNo]) {
+        setSelectedStyleNo(availableStyleNumbers[0]);
+      }
+    }
+  }, [availableStyleNumbers, selectedStyleNo, stylesMap]);
+
+  const activeStyleNo = selectedStyleNo && stylesMap[selectedStyleNo] ? selectedStyleNo : (availableStyleNumbers[0] || "STYLE");
+  const activeStyleData = stylesMap[activeStyleNo] || { styleNo: activeStyleNo, styleName: "Apparel", products: [] };
+  const currentStyleProducts = activeStyleData.products;
+
+  // 2. Group ONLY the active style's products by Color
+  const colorGroups = useMemo(() => {
+    const map = {};
+    currentStyleProducts.forEach((p) => {
+      const col = (p.color || "Standard").trim();
+      if (!map[col]) {
+        map[col] = {
+          colorName: col,
+          colorCode: p.colorCode || "",
+          products: [],
+        };
+      }
+      map[col].products.push(p);
+    });
+    return map;
+  }, [currentStyleProducts]);
+
+  const availableColors = useMemo(() => Object.keys(colorGroups), [colorGroups]);
+  const [selectedColor, setSelectedColor] = useState("");
+
+  // Default to first color of current style
+  useEffect(() => {
+    if (availableColors.length > 0) {
+      if (!selectedColor || !colorGroups[selectedColor]) {
+        setSelectedColor(availableColors[0]);
+      }
+    }
+  }, [availableColors, selectedColor, colorGroups]);
+
+  const activeColor = selectedColor && colorGroups[selectedColor] ? selectedColor : (availableColors[0] || "Standard");
+  const activeColorData = colorGroups[activeColor] || { colorName: activeColor, colorCode: "", products: [] };
+  const activeColorProducts = activeColorData.products || [];
+
   // Mixed Carton Mode State
   const [orderNo, setOrderNo] = useState("NP10002");
   const [cartonNo, setCartonNo] = useState("Z15 (Last Box)");
   const [cartonQuantities, setCartonQuantities] = useState({}); // { [sku]: qty }
+
+  // Master Barcode & QR Code states for active color
   const [masterBarcodeImg, setMasterBarcodeImg] = useState("");
   const [qrCodeImg, setQrCodeImg] = useState("");
 
@@ -59,10 +145,9 @@ const BarcodePrintModal = ({
     if (products.length > 0) {
       const initialQtys = {};
       products.forEach((p, idx) => {
-        // default a reasonable mix demo: first 5 variants get items
-        initialQtys[p.sku] = idx < 5 ? Math.min(10, Math.max(2, p.stockQuantity || 5)) : 0;
+        initialQtys[p.sku] = idx < 6 ? Math.min(12, Math.max(2, p.stockQuantity || 5)) : 0;
       });
-      setCartonQuantities(initialQtys);
+      setCartonQuantities((prev) => ({ ...initialQtys, ...prev }));
     }
   }, [products]);
 
@@ -100,27 +185,21 @@ const BarcodePrintModal = ({
     };
   }, [isOpen, products]);
 
-  // Derived style info
-  const baseStyleNo = useMemo(() => {
-    if (!products[0]) return "STYLE";
-    return (
-      products[0].baseStyleNumber ||
-      (products[0].styleNumber ? products[0].styleNumber.split("-")[0] : products[0].sku)
-    );
-  }, [products]);
+  const baseStyleNo = activeStyleNo;
+  const styleName = activeStyleData.styleName;
 
-  const styleName = products[0]?.styleName || products[0]?.productName || "Apparel";
-
-  // Master barcode for mixed carton
+  // Master barcode for the selected color carton (Style + Color specific)
   const masterBarcodeVal = useMemo(() => {
     const cleanCarton = cartonNo.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) || "BOX";
     const cleanOrder = orderNo.replace(/[^a-zA-Z0-9]/g, "").slice(0, 10) || "ORD";
-    return `CTN-${cleanOrder}-${cleanCarton}-MIX`;
-  }, [orderNo, cartonNo]);
+    const cleanColor = activeColor.replace(/[^a-zA-Z0-9]/g, "").slice(0, 6).toUpperCase() || "CLR";
+    const cleanStyle = String(baseStyleNo).replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) || "STY";
+    return `CTN-${cleanOrder}-${cleanCarton}-${cleanStyle}-${cleanColor}-MIX`;
+  }, [orderNo, cartonNo, baseStyleNo, activeColor]);
 
-  // Filter mixed carton active items
-  const mixedSelectedItems = useMemo(() => {
-    return products
+  // Filter active color items with quantity > 0
+  const activeColorSelectedItems = useMemo(() => {
+    return activeColorProducts
       .filter((p) => Number(cartonQuantities[p.sku] || 0) > 0)
       .map((p) => {
         const barcodeVal =
@@ -133,13 +212,13 @@ const BarcodePrintModal = ({
           resolvedBarcode: barcodeVal,
         };
       });
-  }, [products, cartonQuantities]);
+  }, [activeColorProducts, cartonQuantities]);
 
-  const totalCartonPcs = useMemo(() => {
-    return mixedSelectedItems.reduce((sum, item) => sum + item.cartonQty, 0);
-  }, [mixedSelectedItems]);
+  const totalActiveColorPcs = useMemo(() => {
+    return activeColorSelectedItems.reduce((sum, item) => sum + item.cartonQty, 0);
+  }, [activeColorSelectedItems]);
 
-  // Generate Master Barcode & QR Code for Mixed Carton
+  // Generate Master Barcode & QR Code for the Active Color Carton
   useEffect(() => {
     if (activeTab !== "mixed_carton") return;
 
@@ -155,8 +234,10 @@ const BarcodePrintModal = ({
           carton: masterBarcodeVal,
           orderNo: orderNo,
           style: baseStyleNo,
-          totalQty: totalCartonPcs,
-          items: mixedSelectedItems.map((i) => ({
+          color: activeColor,
+          totalQty: totalActiveColorPcs,
+          items: activeColorSelectedItems.map((i) => ({
+            size: i.size,
             sku: i.sku,
             barcode: i.resolvedBarcode,
             qty: i.cartonQty,
@@ -175,7 +256,7 @@ const BarcodePrintModal = ({
     return () => {
       isMounted = false;
     };
-  }, [activeTab, masterBarcodeVal, mixedSelectedItems, totalCartonPcs, orderNo, baseStyleNo]);
+  }, [activeTab, masterBarcodeVal, activeColor, activeColorSelectedItems, totalActiveColorPcs, orderNo, baseStyleNo]);
 
   if (!isOpen) return null;
 
@@ -204,12 +285,28 @@ const BarcodePrintModal = ({
   const handleExportExcel = async () => {
     try {
       setExportingExcel(true);
-      toast.loading("Generating Excel sheet with embedded barcodes...", { id: "excel-toast" });
-      await exportArticlesToExcelWithBarcodes({
-        products,
-        fileName: products.length === 1 ? `Barcode_${products[0].sku || products[0].styleNumber}` : "Articles_Barcodes_Sheet",
-      });
-      toast.success("Excel file downloaded successfully!", { id: "excel-toast" });
+      if (activeTab === "mixed_carton") {
+        toast.loading(`Generating Excel manifest for ${activeColor} Carton...`, { id: "excel-toast" });
+        await exportMixedCartonToExcel({
+          orderNo,
+          cartonNo,
+          styleNo: baseStyleNo,
+          styleName,
+          color: activeColor,
+          totalQty: totalActiveColorPcs,
+          items: activeColorSelectedItems,
+          masterBarcodeVal,
+          fileName: `Mixed_Carton_Manifest_${baseStyleNo}_${activeColor}`,
+        });
+        toast.success(`Carton manifest for ${activeColor} downloaded!`, { id: "excel-toast" });
+      } else {
+        toast.loading("Generating Excel sheet with embedded barcodes...", { id: "excel-toast" });
+        await exportArticlesToExcelWithBarcodes({
+          products,
+          fileName: products.length === 1 ? `Barcode_${products[0].sku || products[0].styleNumber}` : "Articles_Barcodes_Sheet",
+        });
+        toast.success("Excel file downloaded successfully!", { id: "excel-toast" });
+      }
     } catch (err) {
       console.error(err);
       toast.error("Failed to export Excel file", { id: "excel-toast" });
@@ -220,18 +317,33 @@ const BarcodePrintModal = ({
 
   const handleExportCAD = () => {
     try {
-      downloadCAD_DXF({
-        products: products,
-        fileName: `Garment_CAD_Labels_${baseStyleNo}`,
-      });
-      toast.success(`AutoCAD DXF file for Style #${baseStyleNo} downloaded!`);
+      if (activeTab === "mixed_carton") {
+        downloadMixedCartonCAD_DXF({
+          orderNo,
+          cartonNo,
+          styleNo: baseStyleNo,
+          styleName,
+          color: activeColor,
+          totalQty: totalActiveColorPcs,
+          items: activeColorSelectedItems,
+          masterBarcodeVal,
+          fileName: `Mixed_Carton_Sticker_${baseStyleNo}_${activeColor}`,
+        });
+        toast.success(`AutoCAD DXF for ${activeColor} Mixed Carton Sticker downloaded!`);
+      } else {
+        downloadCAD_DXF({
+          products: products,
+          fileName: `Garment_CAD_Labels_${baseStyleNo}`,
+        });
+        toast.success(`AutoCAD DXF file for Style #${baseStyleNo} downloaded!`);
+      }
     } catch (err) {
       console.error(err);
       toast.error("Failed to generate CAD DXF file");
     }
   };
 
-  // Mixed carton qty helpers
+  // Mixed carton qty helpers (applied to active color)
   const handleQtyChange = (sku, val) => {
     const num = Math.max(0, parseInt(val, 10) || 0);
     setCartonQuantities((prev) => ({ ...prev, [sku]: num }));
@@ -245,20 +357,20 @@ const BarcodePrintModal = ({
     setCartonQuantities((prev) => ({ ...prev, [sku]: Math.max(0, (Number(prev[sku]) || 0) - 1) }));
   };
 
-  const handleResetMixed = () => {
-    const initialQtys = {};
-    products.forEach((p) => {
-      initialQtys[p.sku] = 0;
+  const handleResetActiveColor = () => {
+    const update = {};
+    activeColorProducts.forEach((p) => {
+      update[p.sku] = 0;
     });
-    setCartonQuantities(initialQtys);
+    setCartonQuantities((prev) => ({ ...prev, ...update }));
   };
 
-  const handleFillAll = () => {
-    const initialQtys = {};
-    products.forEach((p) => {
-      initialQtys[p.sku] = Math.max(1, p.stockQuantity || 5);
+  const handleFillActiveColor = () => {
+    const update = {};
+    activeColorProducts.forEach((p) => {
+      update[p.sku] = Math.max(1, p.stockQuantity || 5);
     });
-    setCartonQuantities(initialQtys);
+    setCartonQuantities((prev) => ({ ...prev, ...update }));
   };
 
   return (
@@ -294,22 +406,23 @@ const BarcodePrintModal = ({
           .no-print {
             display: none !important;
           }
-          .page-break {
-            page-break-after: always !important;
+          #barcode-print-sheet .overflow-y-auto {
+            max-height: none !important;
+            overflow: visible !important;
           }
         }
       `}</style>
 
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-5xl max-h-[94vh] flex flex-col overflow-hidden">
         {/* HEADER CONTROLS (NO-PRINT) */}
-        <div className="no-print p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
-          <div>
+        <div className="no-print p-4 sm:p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/70">
+          <div className="min-w-0">
             <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
               <Printer className="w-5 h-5 text-indigo-600" />
               {title}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Style #{baseStyleNo} • {products.length} variant(s) available
+              Style #{baseStyleNo} • {availableColors.length} Color(s) • {products.length} Total Sizes/Variants
             </p>
           </div>
 
@@ -340,7 +453,7 @@ const BarcodePrintModal = ({
               className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-xs font-semibold shadow-sm transition"
             >
               <Printer className="w-4 h-4" />
-              <span>{activeTab === "mixed_carton" ? "Print Carton Sticker" : "Print Labels"}</span>
+              <span>{activeTab === "mixed_carton" ? `Print ${activeColor} Carton Sticker` : "Print Labels"}</span>
             </button>
 
             <button
@@ -378,9 +491,9 @@ const BarcodePrintModal = ({
             }`}
           >
             <Boxes className="w-4 h-4 text-indigo-600" />
-            <span>📦 Mixed Carton Sticker (Last Box / Mix Sizes & Colours)</span>
+            <span>📦 Mixed Sizes Carton (Solid Color / Assorted Sizes)</span>
             <span className="bg-indigo-100 text-indigo-800 text-[10px] px-2 py-0.5 rounded-full font-extrabold">
-              {totalCartonPcs} pcs
+              {activeColor}: {totalActiveColorPcs} pcs
             </span>
           </button>
         </div>
@@ -454,58 +567,118 @@ const BarcodePrintModal = ({
             </div>
           </div>
         ) : (
-          /* MIXED CARTON CONFIGURATION PANEL */
-          <div className="no-print bg-slate-50 p-4 border-b border-slate-200 text-xs">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+          /* 📦 SOLID COLOR - MIXED SIZES CONFIGURATION PANEL */
+          <div className="no-print bg-slate-50 p-3 sm:p-4 border-b border-slate-200 text-xs space-y-2.5">
+            {/* 1. COMPACT 4-FIELD CONFIGURATION GRID */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              {/* Style Selection (if multiple styles in products) */}
               <div>
-                <label className="block text-slate-600 font-bold mb-1">Order No / Reference:</label>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  Style Article:
+                </label>
+                {availableStyleNumbers.length > 1 ? (
+                  <select
+                    value={activeStyleNo}
+                    onChange={(e) => {
+                      setSelectedStyleNo(e.target.value);
+                      setSelectedColor("");
+                    }}
+                    className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-900 focus:ring-1 focus:ring-indigo-500 shadow-2xs"
+                  >
+                    {availableStyleNumbers.map((sNo) => (
+                      <option key={sNo} value={sNo}>
+                        #{sNo} - {stylesMap[sNo].styleName} ({stylesMap[sNo].products.length} vars)
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="bg-slate-100/90 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-800 truncate">
+                    #{activeStyleNo} ({activeStyleData.styleName})
+                  </div>
+                )}
+              </div>
+
+              {/* Garment Color Selection for this Carton */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Carton Garment Color:</span>
+                  <span className="text-[10px] text-indigo-600 font-semibold">{availableColors.length} color(s)</span>
+                </label>
+                <select
+                  value={activeColor}
+                  onChange={(e) => setSelectedColor(e.target.value)}
+                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-bold text-indigo-900 focus:ring-1 focus:ring-indigo-500 shadow-2xs"
+                >
+                  {availableColors.map((col) => {
+                    const grp = colorGroups[col];
+                    const count = (grp?.products || []).reduce(
+                      (acc, p) => acc + (Number(cartonQuantities[p.sku]) || 0),
+                      0
+                    );
+                    return (
+                      <option key={col} value={col}>
+                        {col} ({count} pcs / {(grp?.products || []).length} sizes)
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {/* Order Reference */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  Order No / Ref:
+                </label>
                 <input
                   type="text"
                   value={orderNo}
                   onChange={(e) => setOrderNo(e.target.value)}
                   placeholder="e.g. NP10002"
-                  className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-slate-800 font-semibold focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-900 focus:ring-1 focus:ring-indigo-500 shadow-2xs"
                 />
               </div>
 
+              {/* Carton Number / Label */}
               <div>
-                <label className="block text-slate-600 font-bold mb-1">Carton No / Description:</label>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  Carton Description:
+                </label>
                 <input
                   type="text"
                   value={cartonNo}
                   onChange={(e) => setCartonNo(e.target.value)}
-                  placeholder="e.g. Z15 (Last Mixed Box)"
-                  className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-slate-800 font-semibold focus:ring-1 focus:ring-indigo-500"
+                  placeholder="e.g. Z15 (Assorted Sizes)"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-900 focus:ring-1 focus:ring-indigo-500 shadow-2xs"
                 />
-              </div>
-
-              <div>
-                <label className="block text-slate-600 font-bold mb-1">Generated Master Barcode:</label>
-                <div className="bg-indigo-50 border border-indigo-200 text-indigo-900 px-3 py-1.5 rounded-lg font-mono font-bold truncate">
-                  {masterBarcodeVal}
-                </div>
               </div>
             </div>
 
-            {/* QUICK SELECTION BUTTONS */}
-            <div className="flex items-center justify-between border-t border-slate-200 pt-2.5">
-              <div className="text-slate-600">
-                Adjust quantities of each color/size inside this specific mixed carton:
+            {/* 2. MASTER BARCODE PREVIEW STRIP & QUICK ACTIONS */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/70">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-bold text-slate-600">Master Barcode:</span>
+                <code className="bg-indigo-50 border border-indigo-200 text-indigo-900 px-2.5 py-0.5 rounded-md font-mono text-[11px] font-bold">
+                  {masterBarcodeVal}
+                </code>
+                <span className="text-[10px] text-slate-500">
+                  (Solid {activeColor} • Mixed sizes)
+                </span>
               </div>
-              <div className="flex items-center gap-2">
+
+              <div className="flex items-center gap-1.5">
                 <button
                   type="button"
-                  onClick={handleFillAll}
-                  className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-700 hover:bg-slate-50 font-medium"
+                  onClick={handleFillActiveColor}
+                  className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg font-medium text-[11px] transition shadow-2xs"
                 >
-                  Fill with Stock Qty
+                  Fill Stock ({activeColor})
                 </button>
                 <button
                   type="button"
-                  onClick={handleResetMixed}
-                  className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-1"
+                  onClick={handleResetActiveColor}
+                  className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg font-medium text-[11px] transition shadow-2xs flex items-center gap-1"
                 >
-                  <RotateCcw className="w-3 h-3" /> Clear All
+                  <RotateCcw className="w-3 h-3" /> Clear
                 </button>
               </div>
             </div>
@@ -514,37 +687,46 @@ const BarcodePrintModal = ({
 
         {/* 📄 MAIN CONTENT AREA (SPLIT OR FULL) */}
         <div className="flex-1 overflow-y-auto bg-slate-200/50 flex flex-col md:flex-row">
-          {/* If Mixed Carton Tab, show item quantity editor on Left side */}
+          {/* If Mixed Carton Tab, show item quantity editor on Left side (ONLY FOR ACTIVE COLOR) */}
           {activeTab === "mixed_carton" && (
-            <div className="no-print w-full md:w-80 bg-white border-r border-slate-200 p-4 overflow-y-auto max-h-[60vh] md:max-h-full">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider">
-                  Select Items in Box ({mixedSelectedItems.length})
-                </h4>
-                <span className="font-black text-indigo-600 text-sm">{totalCartonPcs} pcs</span>
+            <div className="no-print w-full md:w-72 bg-white border-r border-slate-200 p-3.5 overflow-y-auto max-h-[60vh] md:max-h-full">
+              <div className="flex items-center justify-between mb-2.5 border-b border-slate-100 pb-2">
+                <div>
+                  <h4 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full border border-slate-300 shrink-0"
+                      style={{ backgroundColor: getColorHex(activeColor) }}
+                    />
+                    {activeColor} ({activeColorProducts.length} Sizes)
+                  </h4>
+                  <p className="text-[10px] text-slate-400">Solid Color Carton</p>
+                </div>
+                <span className="font-black text-indigo-700 text-xs bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-full">
+                  {totalActiveColorPcs} pcs
+                </span>
               </div>
 
-              <div className="space-y-2">
-                {products.map((p) => {
+              <div className="space-y-1.5">
+                {activeColorProducts.map((p) => {
                   const qty = Number(cartonQuantities[p.sku] || 0);
                   const isSelected = qty > 0;
                   return (
                     <div
                       key={p.sku}
-                      className={`p-2.5 rounded-xl border transition flex items-center justify-between ${
+                      className={`p-2 rounded-xl border transition flex items-center justify-between ${
                         isSelected
-                          ? "bg-indigo-50/60 border-indigo-300"
-                          : "bg-slate-50/50 border-slate-200 opacity-75"
+                          ? "bg-indigo-50/70 border-indigo-300"
+                          : "bg-slate-50/60 border-slate-200 hover:border-slate-300"
                       }`}
                     >
                       <div className="min-w-0 pr-2">
-                        <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                          <span className="truncate">{p.color || "Default"}</span>
+                        <div className="flex items-center gap-1.5">
                           <span className="bg-slate-900 text-white text-[10px] px-1.5 py-0.2 rounded font-mono font-bold">
-                            {p.size || "Std"}
+                            Size {p.size || "OS"}
                           </span>
+                          <span className="text-[10px] text-slate-500 font-mono truncate">{p.sku}</span>
                         </div>
-                        <div className="text-[10px] text-slate-500 font-mono truncate">{p.sku}</div>
+                        <div className="text-[9px] text-slate-400 mt-0.5">Stock: {p.stockQuantity || 0}</div>
                       </div>
 
                       {/* Quantity Stepper */}
@@ -552,23 +734,23 @@ const BarcodePrintModal = ({
                         <button
                           type="button"
                           onClick={() => handleDecrement(p.sku)}
-                          className="w-6 h-6 rounded bg-white border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 font-bold"
+                          className="w-5 h-5 rounded bg-white border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 font-bold text-xs"
                         >
-                          <Minus className="w-3 h-3" />
+                          <Minus className="w-2.5 h-2.5" />
                         </button>
                         <input
                           type="number"
                           min="0"
                           value={qty}
                           onChange={(e) => handleQtyChange(p.sku, e.target.value)}
-                          className="w-12 text-center text-xs font-bold bg-white border border-slate-300 rounded py-0.5"
+                          className="w-10 text-center text-xs font-bold bg-white border border-slate-300 rounded py-0.5"
                         />
                         <button
                           type="button"
                           onClick={() => handleIncrement(p.sku)}
-                          className="w-6 h-6 rounded bg-white border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 font-bold"
+                          className="w-5 h-5 rounded bg-white border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 font-bold text-xs"
                         >
-                          <Plus className="w-3 h-3" />
+                          <Plus className="w-2.5 h-2.5" />
                         </button>
                       </div>
                     </div>
@@ -586,7 +768,7 @@ const BarcodePrintModal = ({
                 <p className="text-sm font-medium">Generating barcode graphics...</p>
               </div>
             ) : activeTab === "mixed_carton" ? (
-              /* 🌟 MIXED CARTON STICKER PREVIEW (Printable Container) */
+              /* 🌟 SOLID COLOR - MIXED SIZES CARTON STICKER (Printable Container) */
               <div
                 id="barcode-print-sheet"
                 className="w-[440px] max-w-full bg-white shadow-2xl rounded-2xl border-2 border-slate-900 p-4 sm:p-5 text-slate-900"
@@ -601,8 +783,8 @@ const BarcodePrintModal = ({
                       Garment Logistics & Warehousing
                     </div>
                   </div>
-                  <div className="bg-red-600 text-white text-[10px] font-black uppercase px-2 py-1 rounded tracking-wider shadow-sm">
-                    ⚠️ LAST BOX (MIXED)
+                  <div className="bg-red-600 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded tracking-wider shadow-sm">
+                    ⚠️ LAST BOX (MIXED SIZES)
                   </div>
                 </div>
 
@@ -614,7 +796,7 @@ const BarcodePrintModal = ({
                   </div>
                   <div>
                     <span className="text-slate-500 font-bold">Carton: </span>
-                    <strong className="text-slate-900">{cartonNo || "Z15 (Mixed)"}</strong>
+                    <strong className="text-slate-900">{cartonNo || "Z15 (Assorted Sizes)"}</strong>
                   </div>
                   <div>
                     <span className="text-slate-500 font-bold">Style: </span>
@@ -623,15 +805,19 @@ const BarcodePrintModal = ({
                     </strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 font-bold">Total Items: </span>
-                    <strong className="text-red-600 font-black text-xs">{totalCartonPcs} PCS</strong>
+                    <span className="text-slate-500 font-bold">Garment Color: </span>
+                    <strong className="text-indigo-900 uppercase font-black">{activeColor} (Solid Color)</strong>
+                  </div>
+                  <div className="col-span-2 pt-1 border-t border-slate-200 flex items-center justify-between">
+                    <span className="text-slate-500 font-bold">Total Items in Box: </span>
+                    <strong className="text-red-600 font-black text-sm">{totalActiveColorPcs} PCS</strong>
                   </div>
                 </div>
 
-                {/* Master Carton Barcode */}
+                {/* Master Carton Barcode for this Specific Color */}
                 <div className="bg-blue-50/80 border-2 border-dashed border-blue-400 rounded-xl p-3 text-center mb-3">
                   <div className="text-[10px] font-black text-blue-800 uppercase tracking-wider mb-1">
-                    📦 MASTER CARTON BARCODE (SCAN FOR INVENTORY RECEIVING)
+                    📦 MASTER CARTON BARCODE - {activeColor.toUpperCase()} ASSORTED SIZES
                   </div>
                   {masterBarcodeImg ? (
                     <img
@@ -644,22 +830,25 @@ const BarcodePrintModal = ({
                       {masterBarcodeVal}
                     </div>
                   )}
+                  <div className="font-mono text-[9px] font-bold text-slate-600 mt-1">
+                    {masterBarcodeVal}
+                  </div>
                 </div>
 
-                {/* Itemized Breakdown Table */}
+                {/* Itemized Size Breakdown Table for this Specific Color */}
                 <div className="mb-3">
                   <div className="flex items-center justify-between text-[11px] font-black text-slate-900 border-b border-slate-300 pb-1 mb-1.5 uppercase">
-                    <span>Colour & Size Breakdown</span>
+                    <span>Size Breakdown ({activeColor})</span>
                     <span>Unit Barcode</span>
                   </div>
 
-                  {mixedSelectedItems.length === 0 ? (
+                  {activeColorSelectedItems.length === 0 ? (
                     <div className="text-center py-6 text-slate-400 text-xs italic">
-                      No items selected for this carton. Adjust quantities on the left.
+                      No sizes selected for {activeColor}. Adjust quantities on the left.
                     </div>
                   ) : (
                     <div className="space-y-1.5 max-h-[300px] overflow-y-auto">
-                      {mixedSelectedItems.map((item) => {
+                      {activeColorSelectedItems.map((item) => {
                         const imgUrl = barcodeImages[item.resolvedBarcode];
                         return (
                           <div
@@ -668,7 +857,7 @@ const BarcodePrintModal = ({
                           >
                             <div className="min-w-0 pr-2">
                               <div className="font-bold text-slate-900 truncate">
-                                {item.color} • Size {item.size}
+                                Size {item.size || "OS"} • <span className="text-slate-500 font-normal">{item.color}</span>
                               </div>
                               <div className="text-[9px] text-slate-500 font-mono">{item.sku}</div>
                             </div>
@@ -701,7 +890,7 @@ const BarcodePrintModal = ({
                   <div className="text-[9px] text-slate-600 leading-tight pr-2">
                     <strong>Official Nordic Prowear ERP Packing Label</strong>
                     <br />
-                    Scan master barcode or individual size codes.
+                    Solid Color Assorted Sizes Carton • {activeColor}
                   </div>
                   {qrCodeImg && (
                     <img src={qrCodeImg} alt="QR Manifest" className="w-11 h-11 shrink-0" />
@@ -842,7 +1031,7 @@ const BarcodePrintModal = ({
               className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 text-xs font-semibold shadow-sm transition"
             >
               <Printer className="w-4 h-4" />
-              <span>{activeTab === "mixed_carton" ? "Print Mixed Carton Sticker" : "Print Labels Now"}</span>
+              <span>{activeTab === "mixed_carton" ? `Print ${activeColor} Carton Sticker` : "Print Labels Now"}</span>
             </button>
           </div>
         </div>

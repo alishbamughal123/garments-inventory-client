@@ -1,12 +1,28 @@
-import api from "./api";
+import api, { buildQueryParams } from "./api";
 
-export const getProducts = async () => {
-  const response = await api.get("/products");
+export const getProducts = async (params = {}) => {
+  const response = await api.get("/products", {
+    params: buildQueryParams(params),
+  });
   return response.data;
 };
 
-export const searchProducts = async (query) => {
-  const response = await api.get(`/products/search?query=${query}`);
+export const getBaseStyles = async () => {
+  const response = await api.get("/products/base-styles");
+  return response.data;
+};
+
+export const getLowStockProducts = async (params = {}) => {
+  const response = await api.get("/products/low-stock", {
+    params: buildQueryParams(params),
+  });
+  return response.data;
+};
+
+export const searchProducts = async (query, params = {}) => {
+  const response = await api.get("/products/search", {
+    params: buildQueryParams({ query, ...params }),
+  });
   return response.data;
 };
 

@@ -186,50 +186,68 @@ const ProductDetailsPage = () => {
       <div className="space-y-6">
         {/* HEADER ACTIONS */}
         <PageHeader
+          stacked={true}
           title={`${isNo ? "Artikkel" : "Article"} - ${product.styleName || product.itemName || product.productName}`}
           description={`${isNo ? "Stil #" : "Style #"}${baseStyleNo} • ${availableColors.length} ${isNo ? "Fargevalg" : "Color Option(s)"} • ${allVariants.length} ${isNo ? "Varianter totalt" : "Total Variant(s)"}`}
           action={
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={handleExportArticleExcel}
-                disabled={exportingExcel}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50"
-              >
-                <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>{exportingExcel ? (isNo ? "Eksporterer..." : "Exporting...") : t("excelWithBarcodes")}</span>
-              </button>
+            <>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleExportArticleExcel}
+                  disabled={exportingExcel}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{exportingExcel ? (isNo ? "Eksporterer..." : "Exporting...") : t("excelWithBarcodes")}</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setPrintModalMode("individual");
-                  setPrintModalOpen(true);
-                }}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300"
-              >
-                <Printer className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>{t("printLabels")} ({allVariants.length})</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPrintModalMode("individual");
+                    setPrintModalOpen(true);
+                  }}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300"
+                >
+                  <Printer className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span>{t("printLabels")} ({allVariants.length})</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => navigate(`/products/barcode/${activeVariant.id}`)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-300"
-              >
-                <Tag className="w-4 h-4 text-slate-500 shrink-0" />
-                <span>{t("Barcode Label")}</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPrintModalMode("mixed_carton");
+                    setPrintModalOpen(true);
+                  }}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/80 hover:bg-indigo-100 text-indigo-700 px-3.5 py-2 text-xs sm:text-sm font-semibold shadow-2xs transition"
+                  title={isNo ? "Generer strekkodeetikett for blandet kartong (siste eske med restvarer)" : "Generate Mixed Carton Sticker for the last leftover box"}
+                >
+                  <Boxes className="w-4 h-4 text-indigo-600 shrink-0" />
+                  <span>{isNo ? "Blandet kartong (Rest)" : "Mixed Carton (Last Box)"}</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => navigate(`/products/edit/${activeVariant.id}`)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold shadow-sm transition"
-              >
-                <Edit className="w-4 h-4 shrink-0" />
-                <span>{t("editArticle")}</span>
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/products/barcode/${activeVariant.id}`)}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300"
+                >
+                  <Tag className="w-4 h-4 text-slate-500 shrink-0" />
+                  <span>{t("Barcode Label")}</span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/products/edit/${activeVariant.id}`)}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-xs sm:text-sm font-semibold shadow-sm transition"
+                >
+                  <Edit className="w-4 h-4 shrink-0" />
+                  <span>{t("editArticle")}</span>
+                </button>
+              </div>
+            </>
           }
         />
 

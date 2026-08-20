@@ -1,12 +1,17 @@
-import api from "./api";
+import api, { buildQueryParams } from "./api";
 
 export const getCategories =
-  async (search = "") => {
+  async (searchOrParams = "") => {
+    const params =
+      typeof searchOrParams === "object" && searchOrParams !== null
+        ? searchOrParams
+        : { search: searchOrParams };
+
     const response =
       await api.get(
         "/categories",
         {
-          params: { search },
+          params: buildQueryParams(params),
         }
       );
 

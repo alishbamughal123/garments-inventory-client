@@ -29,6 +29,7 @@ import {
 } from "../../components/tasks/task.constants";
 import { appRoutes } from "../../config/routes";
 import { getUsers } from "../../services/auth.service";
+import Pagination from "../../components/common/Pagination";
 import {
   deleteTask,
   getTasks,
@@ -70,31 +71,57 @@ const TasksPage = () => {
     referencesLoading,
     setReferencesLoading,
   ] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
 
   const loadTasks =
-    async () => {
+    async (pageToFetch = page, pageSizeToFetch = pageSize) => {
       try {
         setLoading(true);
 
         const response =
-          await getTasks(filters);
+          await getTasks({
+            ...filters,
+            page: pageToFetch,
+            limit: pageSizeToFetch,
+          });
 
-        setTasks(
-          response.data.items
-        );
+        const items = response.data?.items || response.data || [];
+        setTasks(items);
         setSummary(
-          response.data.summary
+          response.data?.summary || null
         );
+
+        const pagination = response.pagination || response.data?.pagination;
+        if (pagination) {
+          setPaginationMeta(pagination);
+        } else {
+          setPaginationMeta({
+            total: items.length,
+            page: pageToFetch,
+            limit: pageSizeToFetch,
+            totalPages: Math.max(1, Math.ceil(items.length / pageSizeToFetch)),
+          });
+        }
       } catch {
         toast.error(
-          "Failed to load tasks"
+          isNo ? "Kunne ikke laste oppgaver" : "Failed to load tasks"
         );
       } finally {
         setLoading(false);
       }
     };
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      loadTasks(page, pageSize);
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [filters, page, pageSize]);
 
   useEffect(() => {
     let isMounted = true;
@@ -659,6 +686,23 @@ const TasksPage = () => {
                 )}
             </tbody>
           </table>
+        </div>
+
+        <div className="p-4 sm:p-5 pt-0">
+          <Pagination
+            currentPage={page}
+            totalPages={paginationMeta.totalPages}
+            totalItems={paginationMeta.total}
+            pageSize={pageSize}
+            onPageChange={(newPage) => setPage(newPage)}
+            onPageSizeChange={(newSize) => {
+              setPageSize(newSize);
+              setPage(1);
+            }}
+            pageSizeOptions={[10, 25, 50, 100]}
+            itemLabel="tasks"
+            itemLabelNo="oppgaver"
+          />
         </div>
       </div>
     </>

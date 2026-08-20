@@ -37,10 +37,13 @@ export const stockOut = async (data) => {
 */
 
 export const getTransactions =
-  async () => {
+  async (params = {}) => {
     const response =
       await api.get(
-        "/inventory/transactions"
+        "/inventory/transactions",
+        {
+          params: typeof params === "object" ? params : { transactionType: params },
+        }
       );
 
     return response.data;

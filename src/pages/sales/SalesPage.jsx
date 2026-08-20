@@ -22,6 +22,7 @@ import SurfaceCard from "../../components/ui/SurfaceCard";
 import DeleteModal from "../../components/common/DeleteModal";
 import Loader from "../../components/ui/Loader";
 import { formControlClass } from "../../components/ui/formStyles";
+import Pagination from "../../components/common/Pagination";
 import {
   getSales,
   deleteSale,
@@ -40,14 +41,35 @@ const SalesPage = () => {
   const [search, setSearch] =
     useState("");
 
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
+
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
 
-  const fetchSales = async () => {
+  const fetchSales = async (pageToFetch = page, pageSizeToFetch = pageSize, searchQuery = search) => {
     try {
       setLoading(true);
-      const response = await getSales();
-      setSales(response.data || []);
+      const response = await getSales({
+        page: pageToFetch,
+        limit: pageSizeToFetch,
+        search: searchQuery.trim(),
+      });
+
+      const items = Array.isArray(response.data) ? response.data : response.data?.sales || [];
+      setSales(items);
+
+      if (response.pagination) {
+        setPaginationMeta(response.pagination);
+      } else {
+        setPaginationMeta({
+          total: items.length,
+          page: pageToFetch,
+          limit: pageSizeToFetch,
+          totalPages: Math.max(1, Math.ceil(items.length / pageSizeToFetch)),
+        });
+      }
     } catch {
       toast.error("Failed to fetch sales");
     } finally {
@@ -56,8 +78,11 @@ const SalesPage = () => {
   };
 
   useEffect(() => {
-    fetchSales();
-  }, []);
+    const timeout = setTimeout(() => {
+      fetchSales(page, pageSize, search);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [page, pageSize, search]);
 
   const openDeleteModal = (sale) => {
     setSelectedSale(sale);
@@ -69,7 +94,7 @@ const SalesPage = () => {
     try {
       await deleteSale(selectedSale.id);
       toast.success("Sale deleted successfully");
-      fetchSales();
+      fetchSales(page, pageSize, search);
       setDeleteModalOpen(false);
       setSelectedSale(null);
     } catch (error) {
@@ -77,14 +102,7 @@ const SalesPage = () => {
     }
   };
 
-  const filteredSales =
-    sales.filter((sale) =>
-      sale.invoiceNumber
-        ?.toLowerCase()
-        .includes(
-          search.toLowerCase()
-        )
-    );
+  const filteredSales = sales;
 
   if (loading && sales.length === 0) {
     return (
@@ -330,6 +348,23 @@ const SalesPage = () => {
                 )}
               </tbody>
             </table>
+          </div>
+
+          <div className="p-4 sm:p-5 pt-0">
+            <Pagination
+              currentPage={page}
+              totalPages={paginationMeta.totalPages}
+              totalItems={paginationMeta.total}
+              pageSize={pageSize}
+              onPageChange={(newPage) => setPage(newPage)}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setPage(1);
+              }}
+              pageSizeOptions={[10, 25, 50, 100]}
+              itemLabel="invoices"
+              itemLabelNo="fakturaer"
+            />
           </div>
         </div>
 

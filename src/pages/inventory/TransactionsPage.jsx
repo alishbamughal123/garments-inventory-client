@@ -1,17 +1,38 @@
 import { useEffect, useState } from "react";
 import MainLayout from "../../layouts/MainLayout";
+import Pagination from "../../components/common/Pagination";
 import { getTransactions } from "../../services/inventory.service";
 import { useLanguage } from "../../context/LanguageContext";
 
 const TransactionsPage = () => {
-  const { t } = useLanguage();
+  const { t, isNo } = useLanguage();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = async (pageToFetch = page, pageSizeToFetch = pageSize) => {
     try {
-      const response = await getTransactions();
-      setTransactions(response.data || []);
+      setLoading(true);
+      const response = await getTransactions({
+        page: pageToFetch,
+        limit: pageSizeToFetch,
+      });
+
+      const items = Array.isArray(response.data) ? response.data : response.data?.transactions || [];
+      setTransactions(items);
+
+      if (response.pagination) {
+        setPaginationMeta(response.pagination);
+      } else {
+        setPaginationMeta({
+          total: items.length,
+          page: pageToFetch,
+          limit: pageSizeToFetch,
+          totalPages: Math.max(1, Math.ceil(items.length / pageSizeToFetch)),
+        });
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -20,8 +41,8 @@ const TransactionsPage = () => {
   };
 
   useEffect(() => {
-    fetchTransactions();
-  }, []);
+    fetchTransactions(page, pageSize);
+  }, [page, pageSize]);
 
   return (
     <MainLayout>
@@ -35,14 +56,16 @@ const TransactionsPage = () => {
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm p-4 sm:p-5 space-y-4">
         {loading ? (
-          <div className="p-6 text-xs text-slate-500">{t("loading")}</div>
+          <div className="p-6 text-xs text-slate-500 text-center">{t("loading")}</div>
         ) : transactions.length === 0 ? (
-          <div className="p-6 text-slate-500 text-xs">No transactions found</div>
+          <div className="p-6 text-slate-500 text-xs text-center">
+            {isNo ? "Ingen lagertransaksjoner funnet" : "No transactions found"}
+          </div>
         ) : (
           <div className="space-y-4">
-            <div className="grid gap-4 lg:hidden p-4">
+            <div className="grid gap-4 lg:hidden">
               {transactions.map((item) => (
                 <article
                   key={item.id}
@@ -142,6 +165,22 @@ const TransactionsPage = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Reusable Pagination */}
+            <Pagination
+              currentPage={page}
+              totalPages={paginationMeta.totalPages}
+              totalItems={paginationMeta.total}
+              pageSize={pageSize}
+              onPageChange={(newPage) => setPage(newPage)}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setPage(1);
+              }}
+              pageSizeOptions={[10, 25, 50, 100]}
+              itemLabel="movements"
+              itemLabelNo="bevegelser"
+            />
           </div>
         )}
       </div>

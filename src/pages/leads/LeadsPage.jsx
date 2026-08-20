@@ -21,6 +21,7 @@ import { appRoutes } from "../../config/routes";
 import toast from "react-hot-toast";
 import Loader from "../../components/ui/Loader";
 import { useLanguage } from "../../context/LanguageContext";
+import Pagination from "../../components/common/Pagination";
 import {
   deleteLead,
   getLeads,
@@ -28,40 +29,52 @@ import {
 
 const LeadsPage = () => {
   const { t, isNo } = useLanguage();
-  const [leads, setLeads] =
-    useState([]);
-  const [loading, setLoading] =
-    useState(true);
+  const [leads, setLeads] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
 
-  async function fetchLeads(currentSearch = search) {
-      try {
-        setLoading(true);
+  async function fetchLeads(pageToFetch = page, pageSizeToFetch = pageSize, currentSearch = search) {
+    try {
+      setLoading(true);
 
-        const response =
-          await getLeads(currentSearch);
+      const response = await getLeads({
+        page: pageToFetch,
+        limit: pageSizeToFetch,
+        search: currentSearch.trim(),
+      });
 
-        setLeads(
-          response.data || []
-        );
-      } catch {
-        toast.error(
-          "Failed to load leads"
-        );
-      } finally {
-        setLoading(false);
+      const items = Array.isArray(response.data) ? response.data : response.data?.leads || [];
+      setLeads(items);
+
+      if (response.pagination) {
+        setPaginationMeta(response.pagination);
+      } else {
+        setPaginationMeta({
+          total: items.length,
+          page: pageToFetch,
+          limit: pageSizeToFetch,
+          totalPages: Math.max(1, Math.ceil(items.length / pageSizeToFetch)),
+        });
       }
+    } catch {
+      toast.error(isNo ? "Kunne ikke laste leads" : "Failed to load leads");
+    } finally {
+      setLoading(false);
     }
+  }
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      fetchLeads();
-    }, 500);
+      fetchLeads(page, pageSize, search);
+    }, 350);
 
     return () => clearTimeout(timeout);
-  }, [search]);
+  }, [page, pageSize, search]);
 
   const openDeleteModal = (lead) => {
     setSelectedLead(lead);
@@ -334,6 +347,23 @@ const LeadsPage = () => {
               )}
             </tbody>
           </table>
+        </div>
+
+        <div className="p-4 sm:p-5 pt-0">
+          <Pagination
+            currentPage={page}
+            totalPages={paginationMeta.totalPages}
+            totalItems={paginationMeta.total}
+            pageSize={pageSize}
+            onPageChange={(newPage) => setPage(newPage)}
+            onPageSizeChange={(newSize) => {
+              setPageSize(newSize);
+              setPage(1);
+            }}
+            pageSizeOptions={[10, 25, 50, 100]}
+            itemLabel="leads"
+            itemLabelNo="leads"
+          />
         </div>
       </div>
     </>

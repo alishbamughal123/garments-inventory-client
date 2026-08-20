@@ -10,10 +10,46 @@ const PageHeader = ({
   action,
   children,
   className,
+  stacked = false,
 }) => {
   const { t } = useLanguage();
 
   const actionContent = action || children;
+
+  if (stacked) {
+    return (
+      <section
+        className={cn(
+          "rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm space-y-3.5",
+          className
+        )}
+      >
+        <div className="min-w-0">
+          {eyebrow && (
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-400">
+              {typeof eyebrow === "string" ? t(eyebrow) : eyebrow}
+            </p>
+          )}
+
+          <h2 className="text-xl font-semibold text-slate-900 sm:text-2xl">
+            {typeof title === "string" ? t(title) : title}
+          </h2>
+
+          {description && (
+            <p className="mt-0.5 text-sm text-slate-500">
+              {typeof description === "string" ? t(description) : description}
+            </p>
+          )}
+        </div>
+
+        {actionContent && (
+          <div className="w-full pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2.5">
+            {actionContent}
+          </div>
+        )}
+      </section>
+    );
+  }
 
   return (
     <section

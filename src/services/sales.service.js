@@ -1,4 +1,4 @@
-import api from "./api";
+import api, { buildQueryParams } from "./api";
 
 const salesEndpoint = "/sales";
 
@@ -14,10 +14,13 @@ export const createSale =
   };
 
 export const getSales =
-  async () => {
+  async (params = {}) => {
     const response =
       await api.get(
-        salesEndpoint
+        salesEndpoint,
+        {
+          params: buildQueryParams(params),
+        }
       );
 
     return response.data;

@@ -1,14 +1,19 @@
-import api from "./api";
+import api, { buildQueryParams } from "./api";
 
 const leadsEndpoint = "/leads";
 
 export const getLeads =
-  async (search = "") => {
+  async (searchOrParams = "") => {
+    const params =
+      typeof searchOrParams === "object" && searchOrParams !== null
+        ? searchOrParams
+        : { search: searchOrParams };
+
     const response =
       await api.get(
         leadsEndpoint,
         {
-          params: { search },
+          params: buildQueryParams(params),
         }
       );
 

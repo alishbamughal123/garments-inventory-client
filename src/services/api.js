@@ -1,10 +1,17 @@
 import axios from "axios";
 
-const apiBaseURL =
-  import.meta.env.VITE_API_URL || "https://garments-inventory-server.onrender.com/api/v1";
+const getApiBaseURL = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  if (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+    return "http://localhost:8000/api/v1";
+  }
+  return "https://garments-inventory-server.onrender.com/api/v1";
+};
 
 const api = axios.create({
-  baseURL: apiBaseURL,
+  baseURL: getApiBaseURL(),
 });
 
 api.interceptors.request.use(

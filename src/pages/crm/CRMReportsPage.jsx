@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import PageHeader from "../../components/ui/PageHeader";
 import SurfaceCard from "../../components/ui/SurfaceCard";
+import Pagination from "../../components/common/Pagination";
 import { useLanguage } from "../../context/LanguageContext";
 import api from "../../services/api";
 import logoImg from "../../assets/logo.png";
 import {
-  FileSpreadsheet, Printer, Filter, Box, ArrowDownCircle, ArrowUpCircle,
+  FileSpreadsheet, Filter, Box, ArrowDownCircle, ArrowUpCircle,
   FileText, Repeat, AlertTriangle, ShoppingCart, Clock, Download, FileDown
 } from "lucide-react";
 import * as XLSX from "xlsx";
@@ -14,30 +15,64 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 const CRMReportsPage = () => {
-  const { t, lang } = useLanguage();
+  const { t, lang, isNo } = useLanguage();
 
   const [activeTab, setActiveTab] = useState("inventory");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [exporting, setExporting] = useState(false);
 
-  const fetchReport = async () => {
+  const getEndpoint = () => {
+    let endpoint = "/reports/inventory";
+    if (activeTab === "stockIn") endpoint = "/reports/stock-in";
+    if (activeTab === "stockOut") endpoint = "/reports/stock-out";
+    if (activeTab === "customerOrders") endpoint = "/reports/customer-orders";
+    if (activeTab === "productMovement") endpoint = "/reports/product-movement";
+    if (activeTab === "lowStock") endpoint = "/reports/low-stock";
+    if (activeTab === "customerPurchases") endpoint = "/reports/customer-purchases";
+    if (activeTab === "openOrders") endpoint = "/reports/open-orders";
+    return endpoint;
+  };
+
+  const fetchReport = async (pageToFetch = page, pageSizeToFetch = pageSize) => {
     try {
       setLoading(true);
-      const params = { from: fromDate, to: toDate };
-      let endpoint = "/reports/inventory";
+      const params = {
+        from: fromDate || undefined,
+        to: toDate || undefined,
+        page: pageToFetch,
+        limit: pageSizeToFetch,
+      };
 
-      if (activeTab === "stockIn") endpoint = "/reports/stock-in";
-      if (activeTab === "stockOut") endpoint = "/reports/stock-out";
-      if (activeTab === "customerOrders") endpoint = "/reports/customer-orders";
-      if (activeTab === "productMovement") endpoint = "/reports/product-movement";
-      if (activeTab === "lowStock") endpoint = "/reports/low-stock";
-      if (activeTab === "customerPurchases") endpoint = "/reports/customer-purchases";
-      if (activeTab === "openOrders") endpoint = "/reports/open-orders";
+      const res = await api.get(getEndpoint(), { params });
+      const rawData = res.data.data || null;
 
-      const res = await api.get(endpoint, { params });
-      setReportData(res.data.data || null);
+      if (rawData && Array.isArray(rawData.items)) {
+        const total = rawData.pagination?.total || rawData.summary?.totalProducts || rawData.items.length;
+        const totalPages = rawData.pagination?.totalPages || Math.max(1, Math.ceil(total / pageSizeToFetch));
+
+        // If backend returned full array (e.g. from an unpaginated remote response), slice to exactly pageSize
+        const displayItems = (rawData.items.length > pageSizeToFetch)
+          ? rawData.items.slice((pageToFetch - 1) * pageSizeToFetch, pageToFetch * pageSizeToFetch)
+          : rawData.items;
+
+        setReportData({
+          ...rawData,
+          items: displayItems,
+          pagination: {
+            total,
+            page: pageToFetch,
+            limit: pageSizeToFetch,
+            totalPages,
+          },
+        });
+      } else {
+        setReportData(rawData);
+      }
     } catch {
       toast.error(lang === "no" ? "Kunne ikke hente rapport" : "Failed to load report");
     } finally {
@@ -46,36 +81,67 @@ const CRMReportsPage = () => {
   };
 
   useEffect(() => {
-    fetchReport();
+    setPage(1);
+    fetchReport(1, pageSize);
   }, [activeTab]);
 
   const handleApplyFilter = (e) => {
     e.preventDefault();
-    fetchReport();
+    setPage(1);
+    fetchReport(1, pageSize);
+  };
+
+  // Helper to fetch complete dataset for exports
+  const fetchAllForExport = async () => {
+    const res = await api.get(getEndpoint(), {
+      params: {
+        from: fromDate || undefined,
+        to: toDate || undefined,
+        all: "true",
+      },
+    });
+    return res.data.data || { items: [], summary: {} };
   };
 
   // EXPORT CURRENT REPORT TO EXCEL (.xlsx)
-  const exportToExcel = () => {
-    if (!reportData || !reportData.items || reportData.items.length === 0) {
-      toast.error(lang === "no" ? "Ingen rapportdata å eksportere" : "No report data to export");
-      return;
-    }
+  const exportToExcel = async () => {
+    try {
+      setExporting(true);
+      toast.loading(isNo ? "Henter full rapport og eksporterer til Excel..." : "Fetching full report and exporting to Excel...", { id: "rep-excel" });
+      const fullData = await fetchAllForExport();
+      const exportItems = fullData.items || reportData?.items || [];
 
-    const worksheet = XLSX.utils.json_to_sheet(reportData.items);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, activeTab.toUpperCase());
-    XLSX.writeFile(workbook, `Nordic_Prowear_${activeTab}_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
-    toast.success(lang === "no" ? "Rapport eksportert til Excel" : "Report exported to Excel (.xlsx)");
+      if (exportItems.length === 0) {
+        toast.error(lang === "no" ? "Ingen rapportdata å eksportere" : "No report data to export", { id: "rep-excel" });
+        return;
+      }
+
+      const worksheet = XLSX.utils.json_to_sheet(exportItems);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, activeTab.toUpperCase());
+      XLSX.writeFile(workbook, `Nordic_Prowear_${activeTab}_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      toast.success(lang === "no" ? `Rapport eksportert til Excel (${exportItems.length} rader)` : `Report exported to Excel (${exportItems.length} rows)`, { id: "rep-excel" });
+    } catch (err) {
+      console.error(err);
+      toast.error(lang === "no" ? "Eksport mislyktes" : "Export failed", { id: "rep-excel" });
+    } finally {
+      setExporting(false);
+    }
   };
 
   // EXPORT BEAUTIFUL PDF REPORT WITH NORDIC LOGO
   const exportToPdf = async () => {
-    if (!reportData || !reportData.items || reportData.items.length === 0) {
-      toast.error(lang === "no" ? "Ingen rapportdata å eksportere" : "No report data to export");
-      return;
-    }
-
     try {
+      setExporting(true);
+      toast.loading(isNo ? "Henter rapport og genererer PDF..." : "Fetching report and generating PDF...", { id: "rep-pdf" });
+      const fullData = await fetchAllForExport();
+      const exportItems = fullData.items || reportData?.items || [];
+
+      if (exportItems.length === 0) {
+        toast.error(lang === "no" ? "Ingen rapportdata å eksportere" : "No report data to export", { id: "rep-pdf" });
+        return;
+      }
+
       const doc = new jsPDF({
         orientation: "landscape",
         unit: "mm",
@@ -131,14 +197,15 @@ const CRMReportsPage = () => {
       doc.setFontSize(8.5);
       doc.setTextColor(71, 85, 105);
       const dateText = `Filter Period: ${fromDate || "All Time"} to ${toDate || "Present"}`;
-      const countText = `Total Items: ${reportData.items.length}`;
+      const countText = `Total Records: ${exportItems.length}`;
       doc.text(`${dateText}  |  ${countText}`, 14, startY + 5);
 
       startY += 12;
 
       // Summary Cards Grid (if summary metrics exist)
-      if (reportData.summary && Object.keys(reportData.summary).length > 0) {
-        const entries = Object.entries(reportData.summary);
+      const summaryObj = fullData.summary || reportData?.summary;
+      if (summaryObj && Object.keys(summaryObj).length > 0) {
+        const entries = Object.entries(summaryObj);
         const cardWidth = Math.min(65, (pageWidth - 28) / entries.length);
 
         entries.forEach(([k, v], idx) => {
@@ -165,11 +232,11 @@ const CRMReportsPage = () => {
       }
 
       // Styled AutoTable
-      const headers = Object.keys(reportData.items[0]).map((col) =>
+      const headers = Object.keys(exportItems[0]).map((col) =>
         col.replace(/([A-Z])/g, " $1").toUpperCase()
       );
 
-      const rows = reportData.items.map((item) =>
+      const rows = exportItems.map((item) =>
         Object.values(item).map((val) =>
           typeof val === "boolean" ? (val ? "Yes" : "No") : val != null ? String(val) : "-"
         )
@@ -196,143 +263,90 @@ const CRMReportsPage = () => {
         },
         margin: { left: 14, right: 14, bottom: 18 },
         didDrawPage: (data) => {
-          // Page Footer
           doc.setFont("helvetica", "normal");
-          doc.setFontSize(8);
+          doc.setFontSize(7.5);
           doc.setTextColor(148, 163, 184);
-          doc.text("Nordic Prowear - Confidential Business Report", 14, pageHeight - 8);
-          doc.text(
-            `Page ${data.pageNumber} of ${doc.internal.getNumberOfPages()}`,
-            pageWidth - 14,
-            pageHeight - 8,
-            { align: "right" }
-          );
+          const pageStr = `Page ${doc.internal.getNumberOfPages()}`;
+          doc.text(pageStr, pageWidth - 14, pageHeight - 8, { align: "right" });
+          doc.text("Nordic Prowear AS — Confidential Internal Report", 14, pageHeight - 8);
         },
       });
 
-      const fileName = `Nordic_Prowear_${activeTab}_Report_${new Date().toISOString().slice(0, 10)}.pdf`;
-      doc.save(fileName);
-      toast.success(lang === "no" ? "Rapport eksportert til PDF" : "Report exported to PDF (.pdf)");
-    } catch (err) {
-      console.error("PDF Export Error:", err);
-      toast.error("Failed to generate PDF report");
+      doc.save(`Nordic_Prowear_${activeTab}_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+      toast.success(lang === "no" ? "PDF lastet ned" : "PDF downloaded successfully", { id: "rep-pdf" });
+    } catch (error) {
+      console.error("PDF generation failed", error);
+      toast.error(lang === "no" ? "Kunne ikke generere PDF" : "Failed to generate PDF", { id: "rep-pdf" });
+    } finally {
+      setExporting(false);
     }
   };
 
+  const tabs = [
+    { key: "inventory", label: "Inventory Valuation", icon: Box },
+    { key: "stockIn", label: "Stock In Log", icon: ArrowDownCircle },
+    { key: "stockOut", label: "Stock Out Log (Shipments)", icon: ArrowUpCircle },
+    { key: "customerOrders", label: "Customer Orders", icon: ShoppingCart },
+    { key: "productMovement", label: "Product Movement", icon: Repeat },
+    { key: "lowStock", label: "Low Stock Alert", icon: AlertTriangle },
+    { key: "customerPurchases", label: "Customer Purchases", icon: FileText },
+    { key: "openOrders", label: "Open Orders Pipeline", icon: Clock },
+  ];
+
   return (
     <div className="space-y-6">
-      {/* PRINT-ONLY LOGO & BRANDING HEADER */}
-      <div className="hidden print:flex items-center justify-between border-b-2 border-slate-900 pb-4 mb-6">
-        <div className="flex items-center gap-3">
-          <img src={logoImg} alt="Nordic Prowear Logo" className="h-12 object-contain" />
-          <div>
-            <h1 className="text-xl font-black uppercase text-slate-900 tracking-tight">Nordic Prowear</h1>
-            <p className="text-xs text-slate-500 font-bold">System Management & CRM Reports</p>
-          </div>
-        </div>
-        <div className="text-right">
-          <span className="text-sm font-extrabold uppercase text-slate-900 block">{activeTab} Report</span>
-          <span className="text-xs text-slate-500">Date: {new Date().toLocaleDateString()}</span>
-        </div>
-      </div>
-
       <PageHeader
-        title={t("reportsHub")}
-        description={lang === "no" ? "Sanntidsrapporter for lager, varemottak, vareutgang, B2B-ordrer og pakkevekt med eksport til Excel og PDF med Nordic-logo." : "Flexible system reports for inventory, stock in/out, B2B orders, and parcel weights with Nordic branding PDF export."}
+        title={t("systemReportsHeader")}
+        description={t("systemReportsDesc")}
         action={
-          <div className="flex items-center gap-3 print:hidden">
+          <div className="flex items-center gap-2">
             <button
               onClick={exportToExcel}
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition"
+              disabled={exporting}
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition disabled:opacity-50"
             >
               <FileSpreadsheet size={16} />
               <span>{t("exportExcel")}</span>
             </button>
-
             <button
-              type="button"
               onClick={exportToPdf}
-              className="inline-flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 text-xs font-bold shadow-md transition active:scale-95 cursor-pointer"
+              disabled={exporting}
+              className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition disabled:opacity-50"
             >
-              <FileDown size={18} />
-              <span>Download PDF (.pdf)</span>
-            </button>
-
-            <button
-              onClick={() => window.print()}
-              className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition"
-            >
-              <Printer size={16} />
-              <span>Print</span>
+              <FileDown size={16} />
+              <span>{t("exportPdf")}</span>
             </button>
           </div>
         }
       />
 
-      {/* REPORT CATEGORY TABS */}
-      <div className="flex border-b border-slate-200 gap-2 overflow-x-auto text-xs font-bold print:hidden">
-        <button
-          onClick={() => setActiveTab("inventory")}
-          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "inventory" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
-        >
-          <Box size={16} /> {t("reportInventory")}
-        </button>
-
-        <button
-          onClick={() => setActiveTab("stockIn")}
-          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "stockIn" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
-        >
-          <ArrowDownCircle size={16} /> {t("reportStockIn")}
-        </button>
-
-        <button
-          onClick={() => setActiveTab("stockOut")}
-          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "stockOut" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
-        >
-          <ArrowUpCircle size={16} /> {t("reportStockOut")}
-        </button>
-
-        <button
-          onClick={() => setActiveTab("customerOrders")}
-          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "customerOrders" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
-        >
-          <FileText size={16} /> {t("reportCustomerOrders")}
-        </button>
-
-        <button
-          onClick={() => setActiveTab("productMovement")}
-          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "productMovement" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
-        >
-          <Repeat size={16} /> {t("reportProductMovement")}
-        </button>
-
-        <button
-          onClick={() => setActiveTab("lowStock")}
-          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "lowStock" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
-        >
-          <AlertTriangle size={16} /> {t("reportLowStock")}
-        </button>
-
-        <button
-          onClick={() => setActiveTab("customerPurchases")}
-          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "customerPurchases" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
-        >
-          <ShoppingCart size={16} /> {t("reportCustomerPurchases")}
-        </button>
-
-        <button
-          onClick={() => setActiveTab("openOrders")}
-          className={`pb-3 px-4 border-b-2 flex items-center gap-1.5 transition ${activeTab === "openOrders" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-900"}`}
-        >
-          <Clock size={16} /> {t("reportOpenOrders")}
-        </button>
+      {/* HORIZONTAL TAB SELECTOR */}
+      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-slate-200">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+                isActive
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              <Icon size={16} />
+              <span>{t(tab.label)}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* DATE FILTERS */}
-      <SurfaceCard className="p-4 print:hidden">
-        <form onSubmit={handleApplyFilter} className="flex flex-wrap items-center gap-4 text-xs font-semibold">
+      {/* FILTER CONTROLS BAR */}
+      <SurfaceCard className="p-4">
+        <form onSubmit={handleApplyFilter} className="flex flex-wrap items-center gap-4 text-xs font-medium text-slate-600">
           <div className="flex items-center gap-2">
-            <span className="text-slate-500">{t("fromDate")}:</span>
+            <span>{t("dateFrom")}:</span>
             <input
               type="date"
               value={fromDate}
@@ -342,7 +356,7 @@ const CRMReportsPage = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-slate-500">{t("toDate")}:</span>
+            <span>{t("dateTo")}:</span>
             <input
               type="date"
               value={toDate}
@@ -353,7 +367,7 @@ const CRMReportsPage = () => {
 
           <button
             type="submit"
-            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition"
+            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition cursor-pointer"
           >
             <Filter size={14} />
             <span>{t("filterBtn")}</span>
@@ -388,7 +402,28 @@ const CRMReportsPage = () => {
           {t("noData")}
         </div>
       ) : (
-        <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm print:border-none print:shadow-none">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm space-y-4 print:border-none print:shadow-none">
+          {/* Top Pagination Bar */}
+          <Pagination
+            currentPage={page}
+            totalPages={reportData?.pagination?.totalPages || 1}
+            totalItems={reportData?.pagination?.total || reportData?.items?.length || 0}
+            pageSize={pageSize}
+            onPageChange={(newPage) => {
+              setPage(newPage);
+              fetchReport(newPage, pageSize);
+            }}
+            onPageSizeChange={(newSize) => {
+              setPageSize(newSize);
+              setPage(1);
+              fetchReport(1, newSize);
+            }}
+            pageSizeOptions={[10, 25, 50, 100]}
+            itemLabel="records"
+            itemLabelNo="rader"
+            className="pt-0 border-t-0 pb-3 border-b border-slate-100"
+          />
+
           <div className="overflow-x-auto">
             <table className="min-w-full text-xs">
               <thead className="bg-slate-50 text-slate-500 font-bold uppercase border-b border-slate-200">
@@ -416,6 +451,26 @@ const CRMReportsPage = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Reusable Pagination */}
+          <Pagination
+            currentPage={page}
+            totalPages={reportData?.pagination?.totalPages || 1}
+            totalItems={reportData?.pagination?.total || reportData?.items?.length || 0}
+            pageSize={pageSize}
+            onPageChange={(newPage) => {
+              setPage(newPage);
+              fetchReport(newPage, pageSize);
+            }}
+            onPageSizeChange={(newSize) => {
+              setPageSize(newSize);
+              setPage(1);
+              fetchReport(1, newSize);
+            }}
+            pageSizeOptions={[10, 25, 50, 100]}
+            itemLabel="records"
+            itemLabelNo="rader"
+          />
         </div>
       )}
     </div>
@@ -423,4 +478,3 @@ const CRMReportsPage = () => {
 };
 
 export default CRMReportsPage;
-

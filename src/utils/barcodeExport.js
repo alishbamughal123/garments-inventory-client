@@ -258,3 +258,154 @@ export const exportArticlesToExcelWithBarcodes = async ({
   document.body.removeChild(anchor);
   window.URL.revokeObjectURL(downloadUrl);
 };
+
+/**
+ * Export a dedicated Mixed Carton Packing Manifest to Excel with embedded Master Barcode and unit barcodes
+ */
+export const exportMixedCartonToExcel = async ({
+  orderNo = "NP10002",
+  cartonNo = "Z15",
+  styleNo = "STYLE",
+  styleName = "Apparel",
+  color = "Standard",
+  totalQty = 0,
+  items = [],
+  masterBarcodeVal = "",
+  fileName = "",
+}) => {
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = "Nordic Inventory Management System";
+  workbook.created = new Date();
+
+  const worksheet = workbook.addWorksheet("Carton Manifest", {
+    views: [{ showGridLines: true }],
+  });
+
+  // Title Block
+  worksheet.mergeCells("A1:E1");
+  const titleCell = worksheet.getCell("A1");
+  titleCell.value = "NORDIC PROWEAR - CARTON PACKING MANIFEST (MIXED SIZES)";
+  titleCell.font = { name: "Calibri", size: 14, bold: true, color: { argb: "FFFFFFFF" } };
+  titleCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF0F172A" } };
+  titleCell.alignment = { vertical: "middle", horizontal: "center" };
+  worksheet.getRow(1).height = 36;
+
+  // Specs Rows
+  const specs = [
+    ["Order Reference:", orderNo, "Carton No:", cartonNo],
+    ["Style Number:", `#${styleNo} (${styleName})`, "Garment Color:", `${color.toUpperCase()} (Solid Color Box)`],
+    ["Total Quantity:", `${totalQty} PCS`, "Master Barcode:", masterBarcodeVal],
+  ];
+
+  specs.forEach((spec, idx) => {
+    const row = worksheet.addRow([spec[0], spec[1], spec[2], spec[3], ""]);
+    row.height = 24;
+    row.getCell(1).font = { name: "Calibri", size: 10, bold: true, color: { argb: "FF475569" } };
+    row.getCell(2).font = { name: "Calibri", size: 10, bold: true, color: { argb: "FF0F172A" } };
+    row.getCell(3).font = { name: "Calibri", size: 10, bold: true, color: { argb: "FF475569" } };
+    row.getCell(4).font = { name: "Consolas", size: 10, bold: true, color: { argb: "FF1E3A8A" } };
+  });
+
+  // Blank Row
+  worksheet.addRow([]);
+
+  // Table Headers
+  const tableHeaderRow = worksheet.addRow([
+    "Size",
+    "SKU Code",
+    "Carton Qty (PCS)",
+    "Unit Barcode Value",
+    "Unit Barcode Sticker",
+  ]);
+  tableHeaderRow.height = 28;
+  tableHeaderRow.eachCell((cell) => {
+    cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1E293B" } };
+    cell.font = { name: "Calibri", size: 11, bold: true, color: { argb: "FFFFFFFF" } };
+    cell.alignment = { vertical: "middle", horizontal: "center" };
+  });
+
+  worksheet.getColumn(1).width = 12;
+  worksheet.getColumn(2).width = 24;
+  worksheet.getColumn(3).width = 18;
+  worksheet.getColumn(4).width = 26;
+  worksheet.getColumn(5).width = 28;
+
+  // Add Item Rows
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const rowIndex = 7 + i; // Header is at row 6
+
+    const row = worksheet.addRow([
+      item.size || "OS",
+      item.sku || "-",
+      item.cartonQty || 0,
+      item.resolvedBarcode || item.sku || "-",
+      "", // Will hold image
+    ]);
+    row.height = 50;
+
+    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      cell.font = { name: "Calibri", size: 10, color: { argb: "FF1E293B" } };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+      cell.border = {
+        top: { style: "thin", color: { argb: "FFE2E8F0" } },
+        bottom: { style: "thin", color: { argb: "FFE2E8F0" } },
+        left: { style: "thin", color: { argb: "FFE2E8F0" } },
+        right: { style: "thin", color: { argb: "FFE2E8F0" } },
+      };
+
+      if (colNumber === 1) {
+        cell.font = { name: "Calibri", size: 11, bold: true, color: { argb: "FF0F172A" } };
+      }
+      if (colNumber === 3) {
+        cell.font = { name: "Calibri", size: 11, bold: true, color: { argb: "FFDC2626" } };
+      }
+      if (colNumber === 2 || colNumber === 4) {
+        cell.font = { name: "Consolas", size: 9.5, color: { argb: "FF334155" } };
+      }
+    });
+
+    // Embed Barcode Image
+    if (item.resolvedBarcode) {
+      try {
+        const barcodeImg = await generateBarcodeImageBase64(item.resolvedBarcode);
+        if (barcodeImg && barcodeImg.base64Data) {
+          const imageId = workbook.addImage({
+            base64: barcodeImg.base64Data,
+            extension: "png",
+          });
+
+          worksheet.addImage(imageId, {
+            tl: { col: 4.15, row: rowIndex - 1 + 0.1 },
+            ext: { width: 140, height: 42 },
+            editAs: "oneCell",
+          });
+        }
+      } catch (err) {
+        console.warn(`Failed to embed barcode for ${item.resolvedBarcode}:`, err);
+      }
+    }
+  }
+
+  // Summary Row
+  const summaryRow = worksheet.addRow(["Total", "", totalQty, "", ""]);
+  summaryRow.height = 24;
+  summaryRow.getCell(1).font = { name: "Calibri", size: 11, bold: true, color: { argb: "FF0F172A" } };
+  summaryRow.getCell(3).font = { name: "Calibri", size: 11, bold: true, color: { argb: "FFDC2626" } };
+
+  // Write and trigger download
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const downloadUrl = window.URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = downloadUrl;
+  const outName = fileName || `Carton_Manifest_${styleNo}_${color.replace(/[^a-zA-Z0-9]/g, "")}`;
+  anchor.download = `${outName}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  window.URL.revokeObjectURL(downloadUrl);
+};
+

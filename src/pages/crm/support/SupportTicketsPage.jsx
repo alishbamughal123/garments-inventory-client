@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import Button from "../../../components/ui/Button";
 import PageHeader from "../../../components/ui/PageHeader";
 import SurfaceCard from "../../../components/ui/SurfaceCard";
+import Pagination from "../../../components/common/Pagination";
 import { appRoutes } from "../../../config/routes";
 import { useLanguage } from "../../../context/LanguageContext";
 import { getTickets, deleteTicket } from "../../../services/support.service";
@@ -18,18 +19,36 @@ const SupportTicketsPage = () => {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [priority, setPriority] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
 
-  const fetchTickets = async (currentSearch = search) => {
+  const fetchTickets = async (pageToFetch = page, pageSizeToFetch = pageSize, currentSearch = search) => {
     try {
       setLoading(true);
       const response = await getTickets({
-        search: currentSearch,
+        page: pageToFetch,
+        limit: pageSizeToFetch,
+        search: currentSearch.trim(),
         status: status || undefined,
         priority: priority || undefined,
       });
-      setTickets(response.data || []);
+
+      const items = Array.isArray(response.data) ? response.data : response.data?.tickets || [];
+      setTickets(items);
+
+      if (response.pagination) {
+        setPaginationMeta(response.pagination);
+      } else {
+        setPaginationMeta({
+          total: items.length,
+          page: pageToFetch,
+          limit: pageSizeToFetch,
+          totalPages: Math.max(1, Math.ceil(items.length / pageSizeToFetch)),
+        });
+      }
     } catch (error) {
       console.error(error);
       toast.error(isNo ? "Kunne ikke laste støttehenvendelser" : "Failed to load support tickets");
@@ -40,10 +59,10 @@ const SupportTicketsPage = () => {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      fetchTickets();
-    }, 500);
+      fetchTickets(page, pageSize, search);
+    }, 350);
     return () => clearTimeout(timeout);
-  }, [search, status, priority]);
+  }, [page, pageSize, search, status, priority]);
 
   const openDeleteModal = (ticket) => {
     setSelectedTicket(ticket);
@@ -55,7 +74,7 @@ const SupportTicketsPage = () => {
     try {
       await deleteTicket(selectedTicket.id);
       toast.success(isNo ? "Henvendelse slettet" : "Support ticket deleted successfully");
-      fetchTickets();
+      fetchTickets(page, pageSize, search);
       setDeleteModalOpen(false);
       setSelectedTicket(null);
     } catch (error) {
@@ -88,7 +107,10 @@ const SupportTicketsPage = () => {
               type="text"
               placeholder={isNo ? "Søk etter henvendelse #, emne eller beskrivelse..." : "Search by ticket #, subject, or description..."}
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white"
             />
           </label>
@@ -98,7 +120,10 @@ const SupportTicketsPage = () => {
               <Filter size={14} className="text-slate-400" />
               <select
                 value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                onChange={(e) => {
+                  setStatus(e.target.value);
+                  setPage(1);
+                }}
                 className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 focus:outline-none"
               >
                 <option value="">{isNo ? "Alle statuser" : "All Statuses"}</option>
@@ -111,7 +136,10 @@ const SupportTicketsPage = () => {
 
             <select
               value={priority}
-              onChange={(e) => setPriority(e.target.value)}
+              onChange={(e) => {
+                setPriority(e.target.value);
+                setPage(1);
+              }}
               className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 focus:outline-none"
             >
               <option value="">{isNo ? "Alle prioriteter" : "All Priorities"}</option>
@@ -129,7 +157,26 @@ const SupportTicketsPage = () => {
           {isNo ? "Laster støttehenvendelser..." : "Loading support tickets..."}
         </div>
       ) : (
-        <SupportTicketTable tickets={tickets} onDelete={openDeleteModal} />
+        <div className="space-y-4">
+          <SupportTicketTable tickets={tickets} onDelete={openDeleteModal} />
+          
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
+            <Pagination
+              currentPage={page}
+              totalPages={paginationMeta.totalPages}
+              totalItems={paginationMeta.total}
+              pageSize={pageSize}
+              onPageChange={(newPage) => setPage(newPage)}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setPage(1);
+              }}
+              pageSizeOptions={[10, 25, 50, 100]}
+              itemLabel="tickets"
+              itemLabelNo="henvendelser"
+            />
+          </div>
+        </div>
       )}
 
       <DeleteModal

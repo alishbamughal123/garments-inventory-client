@@ -7,23 +7,43 @@ import PageHeader from "../../components/ui/PageHeader";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import StatusBadge from "../../components/ui/StatusBadge";
 import { CheckCircle, Truck, Package, Weight, Clock, Building2, Phone, Calendar, FileText, Download } from "lucide-react";
+import Pagination from "../../components/common/Pagination";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 const B2BOrdersPage = () => {
-  const { t, lang } = useLanguage();
+  const { t, lang, isNo } = useLanguage();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
   const [fulfillingId, setFulfillingId] = useState(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (pageToFetch = page, pageSizeToFetch = pageSize) => {
     try {
       setLoading(true);
       const res = await api.get("/portal/admin/orders", {
-        params: { status: statusFilter }
+        params: {
+          status: statusFilter || undefined,
+          page: pageToFetch,
+          limit: pageSizeToFetch,
+        }
       });
-      setOrders(res.data.data || []);
+      const items = res.data.data || [];
+      setOrders(items);
+
+      if (res.data.pagination) {
+        setPaginationMeta(res.data.pagination);
+      } else {
+        setPaginationMeta({
+          total: items.length,
+          page: pageToFetch,
+          limit: pageSizeToFetch,
+          totalPages: Math.max(1, Math.ceil(items.length / pageSizeToFetch)),
+        });
+      }
     } catch {
       toast.error(lang === "no" ? "Kunne ikke laste B2B-ordrer" : "Failed to load B2B orders");
     } finally {
@@ -32,8 +52,8 @@ const B2BOrdersPage = () => {
   };
 
   useEffect(() => {
-    fetchOrders();
-  }, [statusFilter]);
+    fetchOrders(page, pageSize);
+  }, [statusFilter, page, pageSize]);
 
   // Connect B2B Order Directly to Stock Out
   const handleFulfillOrder = async (orderId) => {
@@ -333,6 +353,24 @@ const B2BOrdersPage = () => {
                 </div>
               );
             })}
+
+            {/* Reusable Pagination */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+              <Pagination
+                currentPage={page}
+                totalPages={paginationMeta.totalPages}
+                totalItems={paginationMeta.total}
+                pageSize={pageSize}
+                onPageChange={(newPage) => setPage(newPage)}
+                onPageSizeChange={(newSize) => {
+                  setPageSize(newSize);
+                  setPage(1);
+                }}
+                pageSizeOptions={[10, 25, 50, 100]}
+                itemLabel="orders"
+                itemLabelNo="ordrer"
+              />
+            </div>
           </div>
         )}
       </div>

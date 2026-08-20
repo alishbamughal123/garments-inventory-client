@@ -4,6 +4,7 @@ import api from "../../services/api";
 import { useLanguage } from "../../context/LanguageContext";
 import StatusBadge from "../../components/ui/StatusBadge";
 import { Clock, Printer, Package, CheckCircle, Weight } from "lucide-react";
+import Pagination from "../../components/common/Pagination";
 import logo from "../../assets/logo.png";
 
 const PortalOrdersPage = () => {
@@ -11,12 +12,32 @@ const PortalOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePdfOrder, setActivePdfOrder] = useState(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (pageToFetch = page, pageSizeToFetch = pageSize) => {
     try {
       setLoading(true);
-      const res = await api.get("/portal/orders/my");
-      setOrders(res.data.data || []);
+      const res = await api.get("/portal/orders/my", {
+        params: {
+          page: pageToFetch,
+          limit: pageSizeToFetch,
+        },
+      });
+      const items = res.data.data || [];
+      setOrders(items);
+
+      if (res.data.pagination) {
+        setPaginationMeta(res.data.pagination);
+      } else {
+        setPaginationMeta({
+          total: items.length,
+          page: pageToFetch,
+          limit: pageSizeToFetch,
+          totalPages: Math.max(1, Math.ceil(items.length / pageSizeToFetch)),
+        });
+      }
     } catch {
       toast.error("Failed to load order history");
     } finally {
@@ -25,8 +46,8 @@ const PortalOrdersPage = () => {
   };
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    fetchOrders(page, pageSize);
+  }, [page, pageSize]);
 
   return (
     <div className="space-y-6">
@@ -88,6 +109,24 @@ const PortalOrdersPage = () => {
               </div>
             </div>
           ))}
+
+          {/* Reusable Pagination */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-4 sm:p-5 shadow-sm">
+            <Pagination
+              currentPage={page}
+              totalPages={paginationMeta.totalPages}
+              totalItems={paginationMeta.total}
+              pageSize={pageSize}
+              onPageChange={(newPage) => setPage(newPage)}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setPage(1);
+              }}
+              pageSizeOptions={[10, 25, 50, 100]}
+              itemLabel="orders"
+              itemLabelNo="ordrer"
+            />
+          </div>
         </div>
       )}
 

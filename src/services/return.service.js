@@ -1,9 +1,11 @@
-import api from "./api";
+import api, { buildQueryParams } from "./api";
 
 const returnsEndpoint = "/returns";
 
-export const getReturns = async () => {
-  const response = await api.get(returnsEndpoint);
+export const getReturns = async (params = {}) => {
+  const response = await api.get(returnsEndpoint, {
+    params: buildQueryParams(typeof params === "object" ? params : { status: params }),
+  });
   return response.data;
 };
 

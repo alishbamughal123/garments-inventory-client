@@ -1,57 +1,53 @@
-import {
-  useEffect,
-  useState,
-} from "react";
-
-import {
-  useNavigate,
-} from "react-router-dom";
-
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
 import SearchBar from "../../components/products/SearchBar";
-
-import {
-  FiPlus,
-} from "react-icons/fi";
-
+import Pagination from "../../components/common/Pagination";
+import { FiPlus } from "react-icons/fi";
 import MainLayout from "../../layouts/MainLayout";
-
 import CategoryTable from "../../components/categories/CategoryTable";
 import DeleteModal from "../../components/common/DeleteModal";
 import Loader from "../../components/ui/Loader";
 import { useLanguage } from "../../context/LanguageContext";
-
-import {
-  getCategories,
-  deleteCategory,
-} from "../../services/category.service";
+import { getCategories, deleteCategory } from "../../services/category.service";
 
 const CategoriesPage = () => {
   const { t, isNo } = useLanguage();
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
 
-  const [categories, setCategories] =
-    useState([]);
-
-  const [search, setSearch] =
-    useState("");
-
-  const [deleteModal, setDeleteModal] =
-    useState(false);
-
-  const [selectedId, setSelectedId] =
-    useState(null);
-
-  const fetchCategories = async (currentSearch = search) => {
+  const fetchCategories = async (pageToFetch = page, pageSizeToFetch = pageSize, currentSearch = search) => {
     try {
-      const response = await getCategories(currentSearch);
-      setCategories(response.data || []);
+      setLoading(true);
+      const response = await getCategories({
+        page: pageToFetch,
+        limit: pageSizeToFetch,
+        search: currentSearch.trim(),
+      });
+
+      const items = Array.isArray(response.data) ? response.data : response.data?.categories || [];
+      setCategories(items);
+
+      if (response.pagination) {
+        setPaginationMeta(response.pagination);
+      } else {
+        setPaginationMeta({
+          total: items.length,
+          page: pageToFetch,
+          limit: pageSizeToFetch,
+          totalPages: Math.max(1, Math.ceil(items.length / pageSizeToFetch)),
+        });
+      }
     } catch {
       toast.error(isNo ? "Kunne ikke laste kategorier" : "Failed to load categories");
     } finally {
@@ -61,68 +57,52 @@ const CategoriesPage = () => {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      fetchCategories();
-    }, 500);
+      fetchCategories(page, pageSize, search);
+    }, 350);
 
     return () => clearTimeout(timeout);
-  }, [search]);
+  }, [page, pageSize, search]);
 
-  const openDeleteModal = (
-    id
-  ) => {
+  const openDeleteModal = (id) => {
     setSelectedId(id);
     setDeleteModal(true);
   };
 
-  const handleDelete =
-    async () => {
-      try {
-        await deleteCategory(
-          selectedId
-        );
-
-        toast.success(
-          isNo ? "Kategori slettet" : "Category deleted successfully"
-        );
-
-        setDeleteModal(false);
-        fetchCategories();
-      } catch (error) {
-        toast.error(
-          error?.response?.data
-            ?.message ||
-            (isNo ? "Sletting mislyktes" : "Delete failed")
-        );
-      }
-    };
-
-  const handleEdit =
-    (category) => {
-      navigate(
-        `/categories/edit/${category.id}`,
-        {
-          state: category,
-        }
+  const handleDelete = async () => {
+    try {
+      await deleteCategory(selectedId);
+      toast.success(isNo ? "Kategori slettet" : "Category deleted successfully");
+      setDeleteModal(false);
+      fetchCategories(page, pageSize, search);
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message ||
+          (isNo ? "Sletting mislyktes" : "Delete failed")
       );
-    };
+    }
+  };
+
+  const handleEdit = (category) => {
+    navigate(`/categories/edit/${category.id}`, {
+      state: category,
+    });
+  };
 
   return (
     <MainLayout>
-
       <PageHeader
         title={t("categories")}
         action={
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
             <SearchBar
               search={search}
-              setSearch={setSearch}
+              setSearch={(val) => {
+                setSearch(val);
+                setPage(1);
+              }}
             />
             <Button
-              onClick={() =>
-                navigate(
-                  "/categories/add"
-                )
-              }
+              onClick={() => navigate("/categories/add")}
               size="lg"
             >
               <FiPlus />
@@ -132,35 +112,48 @@ const CategoriesPage = () => {
         }
       />
 
-      {loading ? (
+      {loading && categories.length === 0 ? (
         <Loader message={isNo ? "Synkroniserer kategorier..." : "Syncing apparel categories..."} />
       ) : (
         <div className="space-y-4">
-           <p className="text-sm text-slate-500">
-            {isNo ? "Totalt antall kategorier:" : "Total Categories:"} {categories.length}
+          <p className="text-sm text-slate-500 font-medium">
+            {isNo ? "Totalt antall kategorier:" : "Total Categories:"} {paginationMeta.total}
           </p>
           <CategoryTable
             categories={categories}
             onEdit={handleEdit}
-            onDelete={
-              openDeleteModal
-            }
+            onDelete={openDeleteModal}
           />
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+            <Pagination
+              currentPage={page}
+              totalPages={paginationMeta.totalPages}
+              totalItems={paginationMeta.total}
+              pageSize={pageSize}
+              onPageChange={(newPage) => setPage(newPage)}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setPage(1);
+              }}
+              pageSizeOptions={[10, 25, 50, 100]}
+              itemLabel="categories"
+              itemLabelNo="kategorier"
+            />
+          </div>
         </div>
       )}
 
       <DeleteModal
         isOpen={deleteModal}
-        onClose={() =>
-          setDeleteModal(false)
-        }
-        onConfirm={
-          handleDelete
-        }
+        onClose={() => setDeleteModal(false)}
+        onConfirm={handleDelete}
         title={isNo ? "Slett kategori" : "Delete Category"}
-        message={isNo ? "Er du sikker på at du vil slette denne kategorien? Dette kan ikke angres." : "Are you sure you want to delete this category? This action cannot be undone."}
+        message={
+          isNo
+            ? "Er du sikker på at du vil slette denne kategorien? Dette kan ikke angres."
+            : "Are you sure you want to delete this category? This action cannot be undone."
+        }
       />
-
     </MainLayout>
   );
 };
