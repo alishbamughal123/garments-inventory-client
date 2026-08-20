@@ -397,7 +397,7 @@ export const generateGarmentLabelsSVG = (products = []) => {
  */
 export const generateMixedCartonStickerDXF = ({
   orderNo = "NP10002",
-  cartonNo = "Z15 (Last Box)",
+  cartonNo = "Z15",
   styleNo = "STYLE",
   styleName = "Apparel",
   color = "Standard",
@@ -405,28 +405,31 @@ export const generateMixedCartonStickerDXF = ({
   items = [],
   masterBarcodeVal = "",
 }) => {
-  // Spacious 100mm x 60mm carton label size ensuring zero overflow
-  const labelWidth = 100;
-  const labelHeight = 60;
+  // Exact 80mm x 50mm standard matching garment labels DXF
+  const labelWidth = 80;
+  const labelHeight = 50;
   const originX = 0;
   const originY = 0;
 
+  const cleanOrder = String(orderNo || "ORD").replace(/[^a-zA-Z0-9]/g, "").slice(0, 7);
+  const cleanCarton = String(cartonNo || "Z15").split(/[\(\s]/)[0].replace(/[^a-zA-Z0-9]/g, "").slice(0, 5);
+  const cleanColor = (color.length <= 4 ? color : color.slice(0, 4)).toUpperCase().replace(/[^a-zA-Z0-9]/g, "") || "CLR";
+  const cleanStyle = String(styleNo || "STY").replace(/[^a-zA-Z0-9]/g, "").slice(0, 6);
+
   const barcodeVal = String(
-    masterBarcodeVal || `CTN-${orderNo}-${cartonNo}-${styleNo}-${color}-MIX`
+    masterBarcodeVal || `CTN-${cleanOrder}-${cleanCarton}-${cleanStyle}-${cleanColor}`
   ).trim();
 
   const brand = "NORDIC PROWEAR";
-  const styleText = `#${String(styleNo).toUpperCase().slice(0, 10)}`;
-  const orderText = `ORDER: ${String(orderNo).toUpperCase().slice(0, 14)}`;
-  const cartonText = `CARTON: ${String(cartonNo).toUpperCase().slice(0, 16)}`;
-  const colorText = `COLOR: ${String(color).toUpperCase().slice(0, 14)}`;
-  const qtyText = `TOTAL: ${totalQty} PCS (MIX)`;
-  const skuText = `SKU: ${styleNo}-${color.slice(0, 4).toUpperCase()}-MIX`;
-  const tagText = "LAST BOX (MIX SIZES)";
+  const styleText = `#${cleanStyle}`;
+  const line2Text = `CARTON: ${cleanCarton}  |  ORDER: ${cleanOrder}`;
+  const line3Text = `COLOR: ${cleanColor}  |  TOTAL: ${totalQty} PCS (MIX)`;
+  const skuText = `SKU: ${cleanStyle}-${cleanColor}-MIX`;
+  const tagText = "LAST BOX (MIX)";
 
   let entitiesDXF = "";
 
-  // 1. Draw RED Outer Cut Border (100mm x 60mm) on BORDER layer
+  // 1. Draw RED Outer Cut Border (80mm x 50mm) on BORDER layer
   const x0 = originX;
   const y0 = originY;
   const x1 = originX + labelWidth;
@@ -437,45 +440,39 @@ export const generateMixedCartonStickerDXF = ({
   entitiesDXF += `0\nLINE\n8\nBORDER\n10\n${x1.toFixed(2)}\n20\n${y1.toFixed(2)}\n30\n0.0\n11\n${x0.toFixed(2)}\n21\n${y1.toFixed(2)}\n31\n0.0\n`;
   entitiesDXF += `0\nLINE\n8\nBORDER\n10\n${x0.toFixed(2)}\n20\n${y1.toFixed(2)}\n30\n0.0\n11\n${x0.toFixed(2)}\n21\n${y0.toFixed(2)}\n31\n0.0\n`;
 
-  // 2. GREEN TEXT ANNOTATIONS (With Width Factor 0.72 for condensed sharp rendering):
-  // Brand (Top Left: y0 + 53.5)
-  entitiesDXF += `0\nTEXT\n8\nTEXT_INFO\n10\n${(originX + 6).toFixed(2)}\n20\n${(originY + 53.5).toFixed(2)}\n30\n0.0\n40\n2.4\n41\n0.72\n1\n${brand}\n`;
+  // 2. GREEN TEXT ANNOTATIONS (Strictly inside [originX + 4, originX + 76]):
+  // Brand (Top Left: y0 + 44.5)
+  entitiesDXF += `0\nTEXT\n8\nTEXT_INFO\n10\n${(originX + 4).toFixed(2)}\n20\n${(originY + 44.5).toFixed(2)}\n30\n0.0\n40\n2.2\n41\n0.75\n1\n${brand}\n`;
 
-  // Style Number (Top Right: y0 + 53.5)
-  entitiesDXF += `0\nTEXT\n8\nTEXT_INFO\n10\n${(originX + 74).toFixed(2)}\n20\n${(originY + 53.5).toFixed(2)}\n30\n0.0\n40\n2.2\n41\n0.72\n1\n${styleText}\n`;
+  // Style Number (Top Right: y0 + 44.5)
+  entitiesDXF += `0\nTEXT\n8\nTEXT_INFO\n10\n${(originX + 54).toFixed(2)}\n20\n${(originY + 44.5).toFixed(2)}\n30\n0.0\n40\n2.0\n41\n0.75\n1\n${styleText}\n`;
 
-  // Order No (Line 2 Left: y0 + 47.5)
-  entitiesDXF += `0\nTEXT\n8\nTEXT_INFO\n10\n${(originX + 6).toFixed(2)}\n20\n${(originY + 47.5).toFixed(2)}\n30\n0.0\n40\n2.1\n41\n0.72\n1\n${orderText}\n`;
+  // Line 2 (Carton & Order: y0 + 39.5)
+  entitiesDXF += `0\nTEXT\n8\nTEXT_INFO\n10\n${(originX + 4).toFixed(2)}\n20\n${(originY + 39.5).toFixed(2)}\n30\n0.0\n40\n2.1\n41\n0.75\n1\n${line2Text.slice(0, 32)}\n`;
 
-  // Carton No (Line 2 Right: y0 + 47.5)
-  entitiesDXF += `0\nTEXT\n8\nTEXT_INFO\n10\n${(originX + 54).toFixed(2)}\n20\n${(originY + 47.5).toFixed(2)}\n30\n0.0\n40\n2.1\n41\n0.72\n1\n${cartonText}\n`;
+  // Line 3 (Color & Qty: y0 + 34.5)
+  entitiesDXF += `0\nTEXT\n8\nTEXT_INFO\n10\n${(originX + 4).toFixed(2)}\n20\n${(originY + 34.5).toFixed(2)}\n30\n0.0\n40\n2.0\n41\n0.75\n1\n${line3Text.slice(0, 32)}\n`;
 
-  // Color (Line 3 Left: y0 + 41.5)
-  entitiesDXF += `0\nTEXT\n8\nTEXT_INFO\n10\n${(originX + 6).toFixed(2)}\n20\n${(originY + 41.5).toFixed(2)}\n30\n0.0\n40\n2.1\n41\n0.72\n1\n${colorText}\n`;
+  // Inner Separator line (y0 + 32.5)
+  const sepY = originY + 32.5;
+  entitiesDXF += `0\nLINE\n8\nTEXT_INFO\n10\n${(originX + 4).toFixed(2)}\n20\n${sepY.toFixed(2)}\n30\n0.0\n11\n${(originX + labelWidth - 4).toFixed(2)}\n21\n${sepY.toFixed(2)}\n31\n0.0\n`;
 
-  // Total Qty (Line 3 Right: y0 + 41.5)
-  entitiesDXF += `0\nTEXT\n8\nTEXT_INFO\n10\n${(originX + 54).toFixed(2)}\n20\n${(originY + 41.5).toFixed(2)}\n30\n0.0\n40\n2.1\n41\n0.72\n1\n${qtyText}\n`;
-
-  // Inner Separator line (y0 + 37.5)
-  const sepY = originY + 37.5;
-  entitiesDXF += `0\nLINE\n8\nTEXT_INFO\n10\n${(originX + 6).toFixed(2)}\n20\n${sepY.toFixed(2)}\n30\n0.0\n11\n${(originX + labelWidth - 6).toFixed(2)}\n21\n${sepY.toFixed(2)}\n31\n0.0\n`;
-
-  // 3. MASTER BARCODE BARS (Centered at 68mm width -> originX + 16 to originX + 84)
+  // 3. BARCODE BARS (Strictly centered at 56mm width -> originX + 12 to originX + 68)
   try {
     const svg = bwipjs.toSVG({
       bcid: "code128",
       text: String(barcodeVal),
       scale: 1,
-      height: 14,
+      height: 12,
       includetext: false,
     });
 
     const { bars, vbWidth, vbHeight } = parseBarcodeBars(svg);
 
-    const targetBarcodeWidth = 68; // 68mm wide (generous 16mm margin on both sides)
-    const targetBarcodeHeight = 16; // 16mm tall
-    const barcodeOriginX = originX + (labelWidth - targetBarcodeWidth) / 2; // 16mm from left
-    const barcodeOriginY = originY + 17;
+    const targetBarcodeWidth = 56; // 56mm wide (fits comfortably in 80mm)
+    const targetBarcodeHeight = 15; // 15mm tall
+    const barcodeOriginX = originX + (labelWidth - targetBarcodeWidth) / 2; // 12mm from left
+    const barcodeOriginY = originY + 14;
 
     const scaleX = targetBarcodeWidth / (vbWidth || 1);
     const scaleY = targetBarcodeHeight / (vbHeight || 40);
@@ -492,14 +489,14 @@ export const generateMixedCartonStickerDXF = ({
     console.warn("Could not generate master carton barcode for DXF:", err);
   }
 
-  // 4. Master Barcode Digits (Line 4: y0 + 10.0, Centered with Width Factor 0.72)
-  const approxDigitWidth = barcodeVal.length * 1.15;
+  // 4. Barcode Digits (Line 4: y0 + 8.5, Centered)
+  const approxDigitWidth = barcodeVal.length * 1.2;
   const digitStartX = Math.max(originX + 6, originX + (labelWidth - approxDigitWidth) / 2);
-  entitiesDXF += `0\nTEXT\n8\nBARCODE_DIGITS\n10\n${digitStartX.toFixed(2)}\n20\n${(originY + 10.0).toFixed(2)}\n30\n0.0\n40\n2.2\n41\n0.72\n1\n${barcodeVal}\n`;
+  entitiesDXF += `0\nTEXT\n8\nBARCODE_DIGITS\n10\n${digitStartX.toFixed(2)}\n20\n${(originY + 8.5).toFixed(2)}\n30\n0.0\n40\n2.2\n41\n0.75\n1\n${barcodeVal}\n`;
 
-  // 5. SKU (Bottom Left: y0 + 4.0) & Tag (Bottom Right: y0 + 4.0)
-  entitiesDXF += `0\nTEXT\n8\nTEXT_INFO\n10\n${(originX + 6).toFixed(2)}\n20\n${(originY + 4.0).toFixed(2)}\n30\n0.0\n40\n2.0\n41\n0.72\n1\n${skuText}\n`;
-  entitiesDXF += `0\nTEXT\n8\nTEXT_INFO\n10\n${(originX + 62).toFixed(2)}\n20\n${(originY + 4.0).toFixed(2)}\n30\n0.0\n40\n2.0\n41\n0.72\n1\n${tagText}\n`;
+  // 5. SKU (Bottom Left: y0 + 3.2) & Tag (Bottom Right: y0 + 3.2)
+  entitiesDXF += `0\nTEXT\n8\nTEXT_INFO\n10\n${(originX + 4).toFixed(2)}\n20\n${(originY + 3.2).toFixed(2)}\n30\n0.0\n40\n1.9\n41\n0.75\n1\n${skuText}\n`;
+  entitiesDXF += `0\nTEXT\n8\nTEXT_INFO\n10\n${(originX + 50).toFixed(2)}\n20\n${(originY + 3.2).toFixed(2)}\n30\n0.0\n40\n1.9\n41\n0.75\n1\n${tagText}\n`;
 
   // Assemble full standard AutoCAD R12 DXF file
   const dxfContent = `0

@@ -188,13 +188,13 @@ const BarcodePrintModal = ({
   const baseStyleNo = activeStyleNo;
   const styleName = activeStyleData.styleName;
 
-  // Master barcode for the selected color carton (Style + Color specific)
+  // Master barcode for the selected color carton (Compact & 100% scannable)
   const masterBarcodeVal = useMemo(() => {
-    const cleanCarton = cartonNo.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) || "BOX";
-    const cleanOrder = orderNo.replace(/[^a-zA-Z0-9]/g, "").slice(0, 10) || "ORD";
-    const cleanColor = activeColor.replace(/[^a-zA-Z0-9]/g, "").slice(0, 6).toUpperCase() || "CLR";
-    const cleanStyle = String(baseStyleNo).replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) || "STY";
-    return `CTN-${cleanOrder}-${cleanCarton}-${cleanStyle}-${cleanColor}-MIX`;
+    const cleanCarton = cartonNo.split(/[\(\s]/)[0].replace(/[^a-zA-Z0-9]/g, "").slice(0, 5) || "Z15";
+    const cleanOrder = orderNo.replace(/[^a-zA-Z0-9]/g, "").slice(0, 7) || "ORD";
+    const cleanColor = (activeColor.length <= 4 ? activeColor : activeColor.slice(0, 4)).toUpperCase().replace(/[^a-zA-Z0-9]/g, "") || "CLR";
+    const cleanStyle = String(baseStyleNo).replace(/[^a-zA-Z0-9]/g, "").slice(0, 6) || "STY";
+    return `CTN-${cleanOrder}-${cleanCarton}-${cleanStyle}-${cleanColor}`;
   }, [orderNo, cartonNo, baseStyleNo, activeColor]);
 
   // Filter active color items with quantity > 0
