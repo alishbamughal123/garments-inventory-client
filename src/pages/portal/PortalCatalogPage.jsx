@@ -16,8 +16,6 @@ import {
   X,
   Plus,
   Minus,
-  LayoutList,
-  LayoutGrid,
   Ruler,
 } from "lucide-react";
 import SizeChartCard from "../../components/products/SizeChartCard";
@@ -140,20 +138,20 @@ const PortalCatalogPage = () => {
     "Machine Wash at 40 °C • Do Not Use Chlorine Bleach • Tumble Dry Low Heat or Air Dry • Iron at Low Temperature (Max 110–150 °C) • Do Not Dry Clean (Unless Label Allows)";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Hero Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-xl">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 space-y-2">
-          <span className="text-[11px] font-bold text-blue-300 uppercase tracking-widest bg-blue-900/60 px-3 py-1 rounded-full border border-blue-700/80 inline-flex items-center gap-1">
-            <Package size={13} /> {t("b2bCatalog")}
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-7 relative overflow-hidden shadow-md sm:shadow-xl">
+        <div className="absolute top-0 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10 space-y-1.5 sm:space-y-2">
+          <span className="text-[10px] sm:text-[11px] font-bold text-blue-300 uppercase tracking-widest bg-blue-900/60 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full border border-blue-700/80 inline-flex items-center gap-1">
+            <Package size={12} /> {t("b2bCatalog") || "B2B Catalog"}
           </span>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight">
             {isNo
               ? "Eksklusiv B2B Produktkatalog"
               : "Exclusive B2B Garment Catalogue"}
           </h1>
-          <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
+          <p className="text-[11px] sm:text-xs text-slate-300 max-w-xl leading-relaxed">
             {isNo
               ? "Priser og produktutvalg er tilpasset din bedriftsavtale med Nordic Prowear."
               : "Prices and article visibility are tailored to your agreed corporate pricing with Nordic Prowear."}
@@ -162,10 +160,10 @@ const PortalCatalogPage = () => {
       </div>
 
       {/* Search Filter Bar */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm flex items-center gap-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-2.5 sm:p-3.5 shadow-xs flex items-center gap-4">
         <div className="relative flex-1">
           <Search
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
             size={16}
           />
           <input
@@ -177,24 +175,24 @@ const PortalCatalogPage = () => {
             }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none focus:border-blue-500 focus:bg-white transition"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-3 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none focus:border-blue-500 focus:bg-white transition"
           />
         </div>
       </div>
 
       {/* Product List */}
       {loading ? (
-        <div className="p-16 text-center text-xs font-semibold text-slate-400 bg-white rounded-2xl border border-slate-100">
+        <div className="p-12 sm:p-16 text-center text-xs font-semibold text-slate-400 bg-white rounded-2xl border border-slate-100">
           Loading B2B catalog items...
         </div>
       ) : products.length === 0 ? (
-        <div className="p-16 text-center bg-white rounded-2xl border border-slate-100 space-y-2">
+        <div className="p-12 sm:p-16 text-center bg-white rounded-2xl border border-slate-100 space-y-2">
           <Package className="w-10 h-10 text-slate-300 mx-auto" />
           <h3 className="text-sm font-bold text-slate-700">No articles found</h3>
           <p className="text-xs text-slate-400">Try adjusting your search keywords.</p>
         </div>
       ) : (
-        /* 🌟 EXPANDED HORIZONTAL ROW CARDS WITH FULL FRONT CARE INSTRUCTIONS */
+        /* 🌟 RESPONSIVE PRODUCT CARDS */
         <div className="space-y-4">
           {products.map((product) => {
             const qty = quantities[product.id] || 1;
@@ -209,49 +207,27 @@ const PortalCatalogPage = () => {
               (product.washingInstructions && (product.washingInstructions.includes("85°C") || product.washingInstructions.includes("85")));
 
             const isStyle10102 = !isStyle10099 && String(baseStyle).startsWith("10102");
-
             const isStyle10103 = !isStyle10099 && !isStyle10102 && String(baseStyle).startsWith("10103");
-
             const isStyle10105 = !isStyle10099 && !isStyle10102 && !isStyle10103 && String(baseStyle).startsWith("10105");
-
             const isStyle10106 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && String(baseStyle).startsWith("10106");
-
             const isStyle10107 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && String(baseStyle).startsWith("10107");
-
             const isStyle10108 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && String(baseStyle).startsWith("10108");
-
             const isStyle10109 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && (String(baseStyle).startsWith("10109") || (product.fabric && product.fabric.includes("210") && String(baseStyle).includes("10109")));
-
             const isStyle10114 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && String(baseStyle).startsWith("10114");
-
             const isStyle10115 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && String(baseStyle).startsWith("10115");
-
             const isStyle10121 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && (String(baseStyle).startsWith("10121") || (product.fabric && product.fabric.includes("320")));
-
             const isStyle10122 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && (String(baseStyle).startsWith("10122") || (product.fabric && product.fabric.includes("Anti Pilling")));
-
             const isStyle10123 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && (String(baseStyle).startsWith("10123") || (product.washingInstructions && (product.washingInstructions.includes("tørketromles") || product.washingInstructions.includes("Tåler ikke rens"))));
-
             const isStyle20110 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && String(baseStyle).startsWith("20110");
-
             const isStyle20111 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && String(baseStyle).startsWith("20111");
-
             const isStyle200121 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && String(baseStyle).startsWith("200121");
-
             const isStyle200122 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && String(baseStyle).startsWith("200122");
-
             const isStyle200123 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && String(baseStyle).startsWith("200123");
-
             const isStyle200124 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && (String(baseStyle).startsWith("200124") || (product.washingInstructions && (product.washingInstructions.includes("75°C") || product.washingInstructions.includes("75"))));
-
             const isStyle200125 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && !isStyle200124 && String(baseStyle).startsWith("200125");
-
             const isStyle200126 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && !isStyle200124 && !isStyle200125 && String(baseStyle).startsWith("200126");
-
             const isStyle200127 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && !isStyle200124 && !isStyle200125 && !isStyle200126 && String(baseStyle).startsWith("200127");
-
             const isStyle200128 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && !isStyle200124 && !isStyle200125 && !isStyle200126 && !isStyle200127 && String(baseStyle).startsWith("200128");
-
             const isStyle10101 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && !isStyle200124 && !isStyle200125 && !isStyle200126 && !isStyle200127 && !isStyle200128 && (String(baseStyle).startsWith("10101") || (product.washingInstructions && product.washingInstructions.includes("separat")));
 
             const symbolsList = isStyle10099
@@ -408,14 +384,14 @@ const PortalCatalogPage = () => {
             return (
               <div
                 key={product.id}
-                className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-200 space-y-4 group"
+                className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 shadow-xs hover:shadow-md hover:border-slate-300 transition duration-200 space-y-3 sm:space-y-4 group"
               >
                 {/* 1. TOP MAIN ROW: GARMENT PHOTO, PRODUCT INFO & CART ACTIONS */}
-                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3.5 sm:gap-5">
                   {/* Left Group: Photo + Product Info */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full lg:w-auto min-w-0 flex-1">
+                  <div className="flex flex-row items-start gap-3 sm:gap-4 w-full md:w-auto min-w-0 flex-1">
                     {/* Compact Crisp Photo Box */}
-                    <div className="relative w-36 h-36 sm:w-40 sm:h-40 rounded-2xl bg-slate-50 border border-slate-200/80 p-2.5 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs group-hover:border-blue-300 transition">
+                    <div className="relative w-24 h-24 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-200/80 p-1.5 sm:p-2.5 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs group-hover:border-blue-300 transition">
                       <img
                         src={garmentImg}
                         alt={product.productName}
@@ -427,43 +403,43 @@ const PortalCatalogPage = () => {
                       />
 
                       {/* Color Swatch Dot Tag */}
-                      <div className="absolute bottom-2 left-2 bg-white/95 backdrop-blur-xs border border-slate-200 px-2.5 py-0.5 rounded-lg text-[10px] font-semibold text-slate-700 shadow-2xs flex items-center gap-1.5">
+                      <div className="absolute bottom-1 left-1 sm:bottom-2 sm:left-2 bg-white/95 backdrop-blur-xs border border-slate-200 px-1.5 sm:px-2.5 py-0.2 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] font-semibold text-slate-700 shadow-2xs flex items-center gap-1">
                         <span
-                          className="w-2.5 h-2.5 rounded-full border border-slate-300 shrink-0"
+                          className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full border border-slate-300 shrink-0"
                           style={{ backgroundColor: getColorHex(product.color) }}
                         />
-                        <span>{product.color}</span>
+                        <span className="truncate max-w-[60px] sm:max-w-none">{product.color}</span>
                       </div>
                     </div>
 
                     {/* Middle Info Block */}
-                    <div className="space-y-1.5 min-w-0 flex-1">
+                    <div className="space-y-1 sm:space-y-1.5 min-w-0 flex-1">
                       {/* Style No, Brand & Category */}
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-bold tracking-wider uppercase font-mono">
-                          Style #{baseStyle}
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <span className="px-2 py-0.2 sm:px-2.5 sm:py-0.5 rounded-md bg-slate-100 text-slate-700 text-[9px] sm:text-[10px] font-bold tracking-wider uppercase font-mono">
+                          #{baseStyle}
                         </span>
-                        <span className="text-[10px] font-semibold text-slate-500">
+                        <span className="text-[9px] sm:text-[10px] font-semibold text-slate-500 truncate max-w-[90px] sm:max-w-none">
                           {product.brand || "Nordic Prowear"}
                         </span>
-                        <span className="text-slate-300">•</span>
-                        <span className="text-[10px] font-semibold text-slate-500">
+                        <span className="text-slate-300 hidden xs:inline">•</span>
+                        <span className="text-[9px] sm:text-[10px] font-semibold text-slate-500 hidden xs:inline">
                           {product.category?.name || "Apparel"}
                         </span>
                         {product.hasCustomPrice && (
-                          <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-md flex items-center gap-1">
-                            <Tag size={10} /> B2B Price
+                          <span className="text-[9px] sm:text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 sm:px-2 py-0.2 rounded-md flex items-center gap-0.5">
+                            <Tag size={9} /> B2B
                           </span>
                         )}
                       </div>
 
                       {/* Product Name */}
-                      <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-blue-600 transition leading-snug">
+                      <h3 className="text-sm sm:text-base md:text-lg font-bold text-slate-900 group-hover:text-blue-600 transition leading-snug">
                         {product.productName}
                       </h3>
 
                       {/* SKU, Color, Size & Weight Specs */}
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600 font-medium pt-0.5">
+                      <div className="flex flex-wrap items-center gap-x-2 sm:gap-x-3 gap-y-0.5 text-[11px] sm:text-xs text-slate-600 font-medium">
                         <span className="font-mono text-slate-400">
                           SKU: <strong className="text-slate-700">{product.sku}</strong>
                         </span>
@@ -473,12 +449,12 @@ const PortalCatalogPage = () => {
                         </span>
                         <span>•</span>
                         <span>
-                          {isNo ? "Str" : "Size"}: <strong className="text-slate-800">{product.size || "Standard"}</strong>
+                          {isNo ? "Str" : "Size"}: <strong className="text-slate-800">{product.size || "OS"}</strong>
                         </span>
                         {product.weightInKg && (
                           <>
-                            <span>•</span>
-                            <span className="flex items-center gap-1 text-slate-600">
+                            <span className="hidden sm:inline">•</span>
+                            <span className="hidden sm:flex items-center gap-1 text-slate-600">
                               <Weight size={12} className="text-slate-400" /> {product.weightInKg} kg
                             </span>
                           </>
@@ -486,19 +462,19 @@ const PortalCatalogPage = () => {
                       </div>
 
                       {/* Fabric & Size Guide pills */}
-                      <div className="pt-1 flex flex-wrap items-center gap-2">
+                      <div className="pt-0.5 flex flex-wrap items-center gap-1.5 sm:gap-2">
                         {product.fabric && (
-                          <span className="inline-block px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80 text-[11px] font-semibold text-slate-700 font-mono">
+                          <span className="inline-block px-2 py-0.5 rounded-md sm:rounded-lg bg-slate-50 border border-slate-200/80 text-[10px] sm:text-[11px] font-semibold text-slate-700 font-mono">
                             {product.fabric}
                           </span>
                         )}
                         <button
                           type="button"
                           onClick={() => setSizeChartModalProduct(product)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 text-[11px] font-bold transition shadow-2xs"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md sm:rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 text-[10px] sm:text-[11px] font-bold transition shadow-2xs cursor-pointer"
                           title="View exact size chart & measurements"
                         >
-                          <Ruler size={12} />
+                          <Ruler size={11} />
                           <span>{isNo ? "Måleskjema" : "Size Chart"}</span>
                         </button>
                       </div>
@@ -506,23 +482,23 @@ const PortalCatalogPage = () => {
                   </div>
 
                   {/* Right Group: Price, Stock, Stepper & Add to Cart */}
-                  <div className="flex flex-row lg:flex-col items-center lg:items-end justify-between w-full lg:w-auto gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100 shrink-0">
-                    {/* Price & Stock */}
-                    <div className="text-left lg:text-right">
-                      <div className="flex items-baseline lg:justify-end gap-1.5">
+                  <div className="flex flex-col sm:flex-row md:flex-col items-stretch sm:items-center md:items-end justify-between w-full md:w-auto gap-2.5 sm:gap-3 pt-2.5 md:pt-0 border-t md:border-t-0 border-slate-100 shrink-0">
+                    {/* Price & Stock status */}
+                    <div className="flex sm:flex-col items-center sm:items-start md:items-end justify-between gap-2">
+                      <div className="flex items-baseline md:justify-end gap-1.5">
                         {product.hasCustomPrice && (
                           <span className="text-xs text-slate-400 line-through font-mono">
                             NOK {Number(product.salePrice).toLocaleString()}
                           </span>
                         )}
-                        <span className="text-xl font-black text-slate-900 font-mono">
+                        <span className="text-lg sm:text-xl font-black text-slate-900 font-mono">
                           NOK {Number(product.effectivePrice || product.salePrice).toLocaleString()}
                         </span>
                       </div>
 
                       <div className="mt-0.5">
                         <span
-                          className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                          className={`inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold px-2 py-0.2 sm:px-2.5 sm:py-0.5 rounded-full ${
                             inStock
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
                               : "bg-rose-50 text-rose-700 border border-rose-200/60"
@@ -539,13 +515,14 @@ const PortalCatalogPage = () => {
                     </div>
 
                     {/* Quantity Stepper & Add Button */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center bg-slate-100 border border-slate-200 rounded-xl p-0.5">
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <div className="flex items-center bg-slate-100 border border-slate-200 rounded-xl p-0.5 shrink-0">
                         <button
                           type="button"
                           onClick={() => handleDecrement(product.id)}
                           disabled={!inStock || qty <= 1}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 disabled:opacity-30 transition"
+                          className="w-7 h-7 sm:w-7.5 sm:h-7.5 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 disabled:opacity-30 transition"
+                          aria-label="Decrease quantity"
                         >
                           <Minus size={13} />
                         </button>
@@ -556,13 +533,15 @@ const PortalCatalogPage = () => {
                           value={qty}
                           onChange={(e) => handleQtyChange(product.id, e.target.value)}
                           disabled={!inStock}
-                          className="w-10 bg-transparent text-center text-xs font-bold text-slate-900 outline-none"
+                          className="w-9 sm:w-10 bg-transparent text-center text-xs font-bold text-slate-900 outline-none"
+                          aria-label="Quantity"
                         />
                         <button
                           type="button"
                           onClick={() => handleIncrement(product.id, product.stockQuantity)}
                           disabled={!inStock || qty >= product.stockQuantity}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 disabled:opacity-30 transition"
+                          className="w-7 h-7 sm:w-7.5 sm:h-7.5 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 disabled:opacity-30 transition"
+                          aria-label="Increase quantity"
                         >
                           <Plus size={13} />
                         </button>
@@ -572,7 +551,7 @@ const PortalCatalogPage = () => {
                         type="button"
                         onClick={() => handleAddToCart(product)}
                         disabled={!inStock}
-                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-2.5 px-5 text-xs font-bold shadow-sm transition flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                        className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-2.5 px-4 sm:px-5 text-xs font-bold shadow-xs transition flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed shrink-0 cursor-pointer active:scale-95"
                       >
                         <ShoppingCart size={14} />
                         <span>{t("addToCart") || "Add to Cart"}</span>
@@ -582,26 +561,26 @@ const PortalCatalogPage = () => {
                 </div>
 
                 {/* 2. 🌟 BOTTOM SECTION: FULL FRONT WASHING CARE INSTRUCTIONS BLOCK */}
-                <div className="pt-3 border-t border-slate-100/90 space-y-3">
+                <div className="pt-2.5 sm:pt-3 border-t border-slate-100/90 space-y-2.5 sm:space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck size={16} className="text-blue-600" />
-                      <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <ShieldCheck size={15} className="text-blue-600 shrink-0" />
+                      <h4 className="text-[11px] sm:text-xs font-bold text-slate-800 uppercase tracking-wider">
                         {isNo ? "Vaskeanvisning & Tekstilpleie" : "Washing & Textile Care"}
                       </h4>
-                      <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold font-mono">
-                        {isStyle200124 ? "Style #200124" : isStyle10101 ? "Style #10101" : "ISO 3758"}
+                      <span className="px-1.5 py-0.2 sm:px-2 sm:py-0.5 rounded-md bg-blue-50 text-blue-700 text-[9px] sm:text-[10px] font-bold font-mono">
+                        {isStyle200124 ? "#200124" : isStyle10101 ? "#10101" : "ISO 3758"}
                       </span>
                     </div>
 
-                    <span className="text-[11px] text-slate-400 font-medium">
-                      {isNo ? "Nordiske Standarder" : "Nordic Standards"}
+                    <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium">
+                      {isNo ? "Nordisk Standard" : "Nordic Standards"}
                     </span>
                   </div>
 
-                  {/* VECTOR CARE SYMBOL TILES (FULL ROW - 6 TILES FOR 10101, 5 FOR WORKWEAR) */}
+                  {/* VECTOR CARE SYMBOL TILES */}
                   <div
-                    className={`grid gap-2.5 ${
+                    className={`grid gap-1.5 sm:gap-2.5 ${
                       symbolsList.length === 6
                         ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-6"
                         : "grid-cols-2 sm:grid-cols-3 md:grid-cols-5"
@@ -614,7 +593,7 @@ const PortalCatalogPage = () => {
                       return (
                         <div
                           key={s.id}
-                          className={`p-2.5 rounded-xl border flex items-center gap-2.5 ${
+                          className={`p-2 sm:p-2.5 rounded-xl border flex items-center gap-2 ${
                             isProhibited
                               ? "bg-rose-50/30 border-rose-100"
                               : isWarning
@@ -626,10 +605,10 @@ const PortalCatalogPage = () => {
                             <CareIcon type={s.iconType} />
                           </div>
                           <div className="min-w-0">
-                            <p className="text-[11px] font-bold text-slate-800 leading-tight truncate">
+                            <p className="text-[10px] sm:text-[11px] font-bold text-slate-800 leading-tight truncate">
                               {isNo ? s.titleNo : s.titleEn}
                             </p>
-                            <p className="text-[9px] text-slate-500 leading-tight truncate">
+                            <p className="text-[8px] sm:text-[9px] text-slate-500 leading-tight truncate">
                               {isNo ? s.descNo : s.descEn}
                             </p>
                           </div>
@@ -639,16 +618,16 @@ const PortalCatalogPage = () => {
                   </div>
 
                   {/* FULL CARE TEXT LINE */}
-                  <div className="p-2.5 px-3.5 rounded-xl bg-slate-50 border border-slate-200/70 text-xs text-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                    <div className="flex items-start sm:items-center gap-2">
-                      <strong className="text-slate-900 shrink-0">
+                  <div className="p-2 sm:p-2.5 sm:px-3.5 rounded-xl bg-slate-50 border border-slate-200/70 text-[11px] sm:text-xs text-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 sm:gap-2">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
+                      <strong className="text-slate-900 shrink-0 font-bold">
                         {isNo ? "Full Tekst:" : "Full Care Text:"}
                       </strong>
-                      <span className="text-slate-600 leading-relaxed">{careText}</span>
+                      <span className="text-slate-600 leading-relaxed text-[10px] sm:text-xs">{careText}</span>
                     </div>
 
                     {product.fabric && (
-                      <span className="shrink-0 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-semibold text-slate-800 font-mono self-start sm:self-auto">
+                      <span className="shrink-0 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[9px] sm:text-[10px] font-semibold text-slate-800 font-mono self-start sm:self-auto">
                         {product.fabric}
                       </span>
                     )}
@@ -662,12 +641,12 @@ const PortalCatalogPage = () => {
 
       {/* 📏 INTERACTIVE SIZE CHART MODAL POPUP */}
       {sizeChartModalProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl p-4 sm:p-6 overflow-y-auto relative shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-4xl max-h-[92vh] bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-6 overflow-y-auto overflow-x-hidden relative shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-150">
             <button
               type="button"
               onClick={() => setSizeChartModalProduct(null)}
-              className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition z-30"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 rounded-full text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition z-30 cursor-pointer"
               title="Close Size Chart"
             >
               <X size={20} />

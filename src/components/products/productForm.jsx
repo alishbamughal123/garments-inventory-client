@@ -371,7 +371,7 @@ const ProductForm = ({
 
         <div>
           <label className={formLabelClass}>
-            Purchase Price
+            Purchase Price (NOK)
           </label>
           <input
             type="number"
@@ -387,7 +387,7 @@ const ProductForm = ({
 
         <div>
           <label className={formLabelClass}>
-            Sale Price
+            Sale Price (NOK)
           </label>
           <input
             type="number"

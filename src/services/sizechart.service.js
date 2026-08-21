@@ -979,6 +979,23 @@ export const DEFAULT_SIZE_CHART_200127 = {
   ]
 };
 
+// 10. 10099 (Nordic Mopp 60 cm)
+export const DEFAULT_SIZE_CHART_10099 = {
+  title: "Måleskjema for Nordic Mopp 60 cm (Style 10099)",
+  applicableStyles: ["10099"],
+  unit: "cm",
+  sizes: [
+    { key: "60 CM", label: "60 CM", colorBadge: "blue", colorHex: "#2563eb", textHex: "#ffffff" }
+  ],
+  measurements: [
+    { code: "A", name: "Length", norwegianName: "Lengde", tolerance: "± 3%", values: { "60 CM": "60" } },
+    { code: "B", name: "Width", norwegianName: "Bredde", tolerance: "± 3%", values: { "60 CM": "12" } },
+    { code: "C", name: "Side with button - Length", norwegianName: "Side med knapp - Lengde", tolerance: "± 3%", values: { "60 CM": "11.5" } },
+    { code: "D", name: "Side with button - Width", norwegianName: "Side med knapp - Bredde", tolerance: "± 3%", values: { "60 CM": "10" } }
+  ],
+  notes: "Microfiber mopp med knappeflik. Alle mål er i centimeter med ± 3% toleranse."
+};
+
 export const getSizeChartByStyle = async (styleNumber) => {
   try {
     const cleanStyle = String(styleNumber || "").trim().split("-")[0];
@@ -991,6 +1008,7 @@ export const getSizeChartByStyle = async (styleNumber) => {
   }
 
   const clean = String(styleNumber || "").trim().split("-")[0];
+  if (["10099"].includes(clean)) return DEFAULT_SIZE_CHART_10099;
   if (["10101"].includes(clean)) return DEFAULT_SIZE_CHART_10101;
   if (["10102"].includes(clean)) return DEFAULT_SIZE_CHART_10102;
   if (["10105", "10106", "10116"].includes(clean)) return DEFAULT_SIZE_CHART_10105_10106_10116;
@@ -1018,6 +1036,7 @@ export const getAllSizeCharts = async () => {
     // fallback
   }
   return [
+    DEFAULT_SIZE_CHART_10099,
     DEFAULT_SIZE_CHART_10101,
     DEFAULT_SIZE_CHART_10102,
     DEFAULT_SIZE_CHART_10105_10106_10116,
