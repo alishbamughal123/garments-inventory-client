@@ -242,7 +242,7 @@ const TasksPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Tasks & Reminders"
+        title={isNo ? "Oppgaver & Påminnelser" : "Tasks & Reminders"}
         action={
           <>
             <Button
@@ -255,7 +255,7 @@ const TasksPage = () => {
               <CalendarDays
                 size={16}
               />
-              Calendar
+              <span>{isNo ? "Kalender" : "Calendar"}</span>
             </Button>
             <Button
               as={Link}
@@ -264,7 +264,7 @@ const TasksPage = () => {
               }
             >
               <Plus size={16} />
-              Create Task
+              <span>{isNo ? "Opprett oppgave" : "Create Task"}</span>
             </Button>
           </>
         }

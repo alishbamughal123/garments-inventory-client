@@ -14,8 +14,6 @@ import {
   Save,
   KeyRound,
   Building2,
-  Sliders,
-  Sparkles,
   Users,
   UserPlus,
 } from "lucide-react";
@@ -31,7 +29,7 @@ import { inputStyles, labelStyles } from "../../components/ui/formStyles";
 const SettingsPage = () => {
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
-  const { t, isNo } = useLanguage();
+  const { isNo } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("profile"); // 'profile' | 'store' | 'notifications'
 
@@ -47,11 +45,11 @@ const SettingsPage = () => {
   });
 
   const [storeData, setStoreData] = useState({
-    storeName: "Nordic Prowear Garments",
-    warehouseLocation: "Oslo Central Warehouse",
+    storeName: "Nordic Prowear AS",
+    warehouseLocation: "Oslo Sentrallager",
     currency: "NOK (kr)",
-    contactEmail: user?.email || "support@nordicprowear.com",
-    contactPhone: "+92 300 1234567",
+    contactEmail: user?.email || "support@nordicprowear.no",
+    contactPhone: "+47 22 12 34 56",
   });
 
   const [notifications, setNotifications] = useState({
@@ -73,14 +71,14 @@ const SettingsPage = () => {
 
   const toggleNotification = (key) => {
     setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
-    toast.success("Preference updated");
+    toast.success(isNo ? "Innstillinger oppdatert" : "Preference updated");
   };
 
   const handleSubmitProfile = async (e) => {
     e.preventDefault();
 
     if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
-      return toast.error("New passwords do not match");
+      return toast.error(isNo ? "De nye passordene samsvarer ikke" : "New passwords do not match");
     }
 
     try {
@@ -98,7 +96,7 @@ const SettingsPage = () => {
       const response = await updateProfile(payload);
 
       updateUser(response.data);
-      toast.success("Profile updated successfully!");
+      toast.success(isNo ? "Profilen ble oppdatert!" : "Profile updated successfully!");
       setFormData((prev) => ({
         ...prev,
         currentPassword: "",
@@ -106,7 +104,7 @@ const SettingsPage = () => {
         confirmPassword: "",
       }));
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Update failed");
+      toast.error(error?.response?.data?.message || (isNo ? "Oppdatering mislyktes" : "Update failed"));
     } finally {
       setLoading(false);
     }
@@ -114,7 +112,7 @@ const SettingsPage = () => {
 
   const handleSaveStore = (e) => {
     e.preventDefault();
-    toast.success("Store details saved successfully!");
+    toast.success(isNo ? "Butikkinformasjon lagret!" : "Store details saved successfully!");
   };
 
   const getInitials = (name) => {
@@ -131,8 +129,12 @@ const SettingsPage = () => {
     <MainLayout>
       <div className="space-y-6 max-w-6xl mx-auto">
         <PageHeader
-          title="Account & System Settings"
-          description="Manage your profile credentials, security preferences, store information, and system notifications."
+          title={isNo ? "Konto- & Systeminnstillinger" : "Account & System Settings"}
+          description={
+            isNo
+              ? "Administrer profilpålogging, sikkerhetsvalg, butikkinformasjon og systemvarsler."
+              : "Manage your profile credentials, security preferences, store information, and system notifications."
+          }
         />
 
         {/* HERO USER PROFILE CARD */}
@@ -145,12 +147,12 @@ const SettingsPage = () => {
 
             <div className="space-y-1.5 flex-1">
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-                <h2 className="text-xl sm:text-2xl font-bold tracking-tight">{user?.name || "System User"}</h2>
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight">{user?.name || (isNo ? "Systembruker" : "System User")}</h2>
                 <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-indigo-500/20 border border-indigo-400/30 text-indigo-300">
                   {user?.role || "ADMIN"}
                 </span>
                 <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Active
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> {isNo ? "Aktiv" : "Active"}
                 </span>
               </div>
               <p className="text-sm text-slate-300 flex items-center justify-center sm:justify-start gap-1.5">
@@ -158,7 +160,7 @@ const SettingsPage = () => {
                 {user?.email || "admin@example.com"}
               </p>
               <p className="text-xs text-slate-400 pt-1">
-                Account ID: <code className="font-mono text-slate-300">{user?.id || "admin-root"}</code>
+                {isNo ? "Konto-ID:" : "Account ID:"} <code className="font-mono text-slate-300">{user?.id || "admin-root"}</code>
               </p>
             </div>
           </div>
@@ -168,21 +170,21 @@ const SettingsPage = () => {
         <div className="flex items-center gap-2 border-b border-slate-200/80 overflow-x-auto pb-1">
           <TabButton
             id="profile"
-            label="Profile & Security"
+            label={isNo ? "Profil & Sikkerhet" : "Profile & Security"}
             icon={<User className="w-4 h-4" />}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
           />
           <TabButton
             id="store"
-            label="Store Profile"
+            label={isNo ? "Bedriftsprofil" : "Store Profile"}
             icon={<Building2 className="w-4 h-4" />}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
           />
           <TabButton
             id="notifications"
-            label="Notifications"
+            label={isNo ? "Varsler" : "Notifications"}
             icon={<Bell className="w-4 h-4" />}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
@@ -197,14 +199,16 @@ const SettingsPage = () => {
                 <form onSubmit={handleSubmitProfile} className="space-y-6">
                   <div>
                     <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 mb-1">
-                      <User className="w-5 h-5 text-indigo-600" /> Personal Information
+                      <User className="w-5 h-5 text-indigo-600" /> {isNo ? "Personlig informasjon" : "Personal Information"}
                     </h3>
-                    <p className="text-xs text-slate-500">Update your account name and primary email address.</p>
+                    <p className="text-xs text-slate-500">
+                      {isNo ? "Oppdater kontonavn og primær e-postadresse." : "Update your account name and primary email address."}
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className={labelStyles}>Full Name</label>
+                      <label className={labelStyles}>{isNo ? "Fullt navn" : "Full Name"}</label>
                       <div className="relative">
                         <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                         <input
@@ -219,7 +223,7 @@ const SettingsPage = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className={labelStyles}>Email Address</label>
+                      <label className={labelStyles}>{isNo ? "E-postadresse" : "Email Address"}</label>
                       <div className="relative">
                         <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                         <input
@@ -239,15 +243,17 @@ const SettingsPage = () => {
                   <div className="space-y-4">
                     <div>
                       <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 mb-1">
-                        <KeyRound className="w-5 h-5 text-indigo-600" /> Password & Security
+                        <KeyRound className="w-5 h-5 text-indigo-600" /> {isNo ? "Passord & Sikkerhet" : "Password & Security"}
                       </h3>
                       <p className="text-xs text-slate-500">
-                        Leave password fields empty if you do not wish to change your current password.
+                        {isNo
+                          ? "La passordfeltene stå tomme dersom du ikke ønsker å endre passordet."
+                          : "Leave password fields empty if you do not wish to change your current password."}
                       </p>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className={labelStyles}>Current Password</label>
+                      <label className={labelStyles}>{isNo ? "Nåværende passord" : "Current Password"}</label>
                       <div className="relative">
                         <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                         <input
@@ -261,7 +267,7 @@ const SettingsPage = () => {
                         <button
                           type="button"
                           onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                          className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600"
+                          className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
                         >
                           {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
@@ -270,7 +276,7 @@ const SettingsPage = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
-                        <label className={labelStyles}>New Password</label>
+                        <label className={labelStyles}>{isNo ? "Nytt passord" : "New Password"}</label>
                         <div className="relative">
                           <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                           <input
@@ -284,7 +290,7 @@ const SettingsPage = () => {
                           <button
                             type="button"
                             onClick={() => setShowNewPassword(!showNewPassword)}
-                            className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600"
+                            className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
                           >
                             {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
@@ -292,7 +298,7 @@ const SettingsPage = () => {
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className={labelStyles}>Confirm New Password</label>
+                        <label className={labelStyles}>{isNo ? "Bekreft nytt passord" : "Confirm New Password"}</label>
                         <div className="relative">
                           <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                           <input
@@ -312,10 +318,10 @@ const SettingsPage = () => {
                     <Button
                       type="submit"
                       isLoading={loading}
-                      className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 px-6 py-2.5 rounded-2xl font-semibold text-sm"
+                      className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 px-6 py-2.5 rounded-2xl font-semibold text-sm cursor-pointer"
                     >
                       <Save className="w-4 h-4" />
-                      Save Changes
+                      {isNo ? "Lagre endringer" : "Save Changes"}
                     </Button>
                   </div>
                 </form>
@@ -331,43 +337,45 @@ const SettingsPage = () => {
                     <Users className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900 text-sm">Add / Manage Users</h4>
-                    <p className="text-[11px] text-slate-500">Create staff email & passwords</p>
+                    <h4 className="font-bold text-slate-900 text-sm">{isNo ? "Brukere & Tilgang" : "Add / Manage Users"}</h4>
+                    <p className="text-[11px] text-slate-500">{isNo ? "Opprett e-post og passord for ansatte" : "Create staff email & passwords"}</p>
                   </div>
                 </div>
 
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  New staff, managers ya cashiers ko system mein add karne aur unko <strong>Email aur Login Password</strong> assign karne ke liye <strong>User Management</strong> page use karein.
+                  {isNo
+                    ? "For å legge til nye ansatte, ledere eller kasserere og tildele dem e-post og påloggingspassord, vennligst bruk Brukeradministrasjon-siden."
+                    : "To add new staff, managers, or cashiers to the system and assign them an Email and Login Password, please use the User Management page."}
                 </p>
 
                 <button
                   type="button"
                   onClick={() => navigate("/users")}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs py-2.5 shadow-sm transition"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs py-2.5 shadow-sm transition cursor-pointer"
                 >
                   <UserPlus className="w-4 h-4" />
-                  <span>Open User Management (+ Add User)</span>
+                  <span>{isNo ? "Åpne Brukeradministrasjon (+ Bruker)" : "Open User Management (+ Add User)"}</span>
                 </button>
               </SurfaceCard>
 
               <SurfaceCard className="p-6 space-y-4">
                 <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
                   <Shield className="w-5 h-5 text-blue-600" />
-                  <h4 className="font-bold text-slate-900 text-sm">Role & Permissions</h4>
+                  <h4 className="font-bold text-slate-900 text-sm">{isNo ? "Rolle & Rettigheter" : "Role & Permissions"}</h4>
                 </div>
 
                 <div className="space-y-3 text-xs">
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                    <span className="text-slate-600 font-medium">Role Level</span>
+                    <span className="text-slate-600 font-medium">{isNo ? "Rollenivå" : "Role Level"}</span>
                     <span className="font-bold text-blue-600 uppercase">{user?.role || "ADMIN"}</span>
                   </div>
 
                   <div className="space-y-2 pt-2">
-                    <PermissionItem text="Manage Products & Barcodes" />
-                    <PermissionItem text="Inventory Stock In / Stock Out" />
-                    <PermissionItem text="Sales & POS Billing Access" />
-                    <PermissionItem text="Price Revision & Audit Logs" />
-                    <PermissionItem text="CRM & Customer Management" />
+                    <PermissionItem text={isNo ? "Administrere artikler & strekkoder" : "Manage Products & Barcodes"} />
+                    <PermissionItem text={isNo ? "Varemottak & vareutgang (Stock In/Out)" : "Inventory Stock In / Stock Out"} />
+                    <PermissionItem text={isNo ? "Salg & POS-kassetilgang" : "Sales & POS Billing Access"} />
+                    <PermissionItem text={isNo ? "Prisendring & revisjonslogger" : "Price Revision & Audit Logs"} />
+                    <PermissionItem text={isNo ? "CRM & Kundeadministrasjon" : "CRM & Customer Management"} />
                   </div>
                 </div>
               </SurfaceCard>
@@ -381,14 +389,18 @@ const SettingsPage = () => {
             <form onSubmit={handleSaveStore} className="space-y-6">
               <div>
                 <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 mb-1">
-                  <Store className="w-5 h-5 text-indigo-600" /> Store & Warehouse Configuration
+                  <Store className="w-5 h-5 text-indigo-600" /> {isNo ? "Butikk- & Lagerkonfigurasjon" : "Store & Warehouse Configuration"}
                 </h3>
-                <p className="text-xs text-slate-500">Configure business information displayed on invoices and reports.</p>
+                <p className="text-xs text-slate-500">
+                  {isNo
+                    ? "Konfigurer forretningsinformasjon som vises på følgesedler, fakturaer og rapporter."
+                    : "Configure business information displayed on invoices and reports."}
+                </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className={labelStyles}>Store / Brand Name</label>
+                  <label className={labelStyles}>{isNo ? "Butikk- / Merkenavn" : "Store / Brand Name"}</label>
                   <input
                     name="storeName"
                     type="text"
@@ -399,7 +411,7 @@ const SettingsPage = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className={labelStyles}>Warehouse Location</label>
+                  <label className={labelStyles}>{isNo ? "Lagerlokasjon" : "Warehouse Location"}</label>
                   <input
                     name="warehouseLocation"
                     type="text"
@@ -410,21 +422,21 @@ const SettingsPage = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className={labelStyles}>Default Currency</label>
+                  <label className={labelStyles}>{isNo ? "Standard valuta" : "Default Currency"}</label>
                   <select
                     name="currency"
                     className={inputStyles}
                     value={storeData.currency}
                     onChange={handleStoreChange}
                   >
-                    <option value="NOK (kr)">NOK - Norwegian Krone (kr)</option>
+                    <option value="NOK (kr)">NOK - Norske Kroner (kr)</option>
                     <option value="EUR (€)">EUR - Euro (€)</option>
                     <option value="USD ($)">USD - US Dollar ($)</option>
                   </select>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className={labelStyles}>Support Phone</label>
+                  <label className={labelStyles}>{isNo ? "Kundeservice telefon" : "Support Phone"}</label>
                   <input
                     name="contactPhone"
                     type="text"
@@ -438,9 +450,9 @@ const SettingsPage = () => {
               <div className="flex justify-end pt-4 border-t border-slate-100">
                 <Button
                   type="submit"
-                  className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-2xl font-semibold text-sm"
+                  className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-2xl font-semibold text-sm cursor-pointer"
                 >
-                  <Save className="w-4 h-4" /> Save Store Settings
+                  <Save className="w-4 h-4" /> {isNo ? "Lagre butikkinnstillinger" : "Save Store Settings"}
                 </Button>
               </div>
             </form>
@@ -452,36 +464,56 @@ const SettingsPage = () => {
           <SurfaceCard className="p-6 sm:p-8 max-w-3xl space-y-6">
             <div>
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 mb-1">
-                <Bell className="w-5 h-5 text-indigo-600" /> Notification Preferences
+                <Bell className="w-5 h-5 text-indigo-600" /> {isNo ? "Varslingsinnstillinger" : "Notification Preferences"}
               </h3>
-              <p className="text-xs text-slate-500">Customize email and system alerts for inventory activities.</p>
+              <p className="text-xs text-slate-500">
+                {isNo
+                  ? "Tilpass e-post- og systemvarsler for lager- og salgsaktiviteter."
+                  : "Customize email and system alerts for inventory activities."}
+              </p>
             </div>
 
             <div className="space-y-4">
               <NotificationToggle
-                title="Low Stock Alerts"
-                desc="Receive notifications when articles drop below minimum stock alert thresholds."
+                title={isNo ? "Varsel ved lavt lager" : "Low Stock Alerts"}
+                desc={
+                  isNo
+                    ? "Motta varsel når artikler faller under fastsatt minimumsnivå på lager."
+                    : "Receive notifications when articles drop below minimum stock alert thresholds."
+                }
                 checked={notifications.lowStockAlerts}
                 onChange={() => toggleNotification("lowStockAlerts")}
               />
 
               <NotificationToggle
-                title="Daily Sales Summary Report"
-                desc="Receive a daily email snapshot of total sales, items sold, and revenue."
+                title={isNo ? "Daglig salgsoppsummering" : "Daily Sales Summary Report"}
+                desc={
+                  isNo
+                    ? "Motta en daglig e-postoppsummering av totalt salg, solgte artikler og omsetning."
+                    : "Receive a daily email snapshot of total sales, items sold, and revenue."
+                }
                 checked={notifications.emailDailyReport}
                 onChange={() => toggleNotification("emailDailyReport")}
               />
 
               <NotificationToggle
-                title="Real-Time Sales Activity"
-                desc="Get notified immediately when new invoices or orders are generated."
+                title={isNo ? "Sanntids salgsaktivitet" : "Real-Time Sales Activity"}
+                desc={
+                  isNo
+                    ? "Bli varslet umiddelbart når nye ordrer eller fakturaer opprettes i systemet."
+                    : "Get notified immediately when new invoices or orders are generated."
+                }
                 checked={notifications.salesNotifications}
                 onChange={() => toggleNotification("salesNotifications")}
               />
 
               <NotificationToggle
-                title="Security & Price Audit Alerts"
-                desc="Receive security alerts when prices are revised or admin settings change."
+                title={isNo ? "Sikkerhets- og revisjonsvarsler" : "Security & Price Audit Alerts"}
+                desc={
+                  isNo
+                    ? "Motta sikkerhetsvarsler ved prisendringer eller endring i administratorinnstillinger."
+                    : "Receive security alerts when prices are revised or admin settings change."
+                }
                 checked={notifications.securityAlerts}
                 onChange={() => toggleNotification("securityAlerts")}
               />
@@ -494,19 +526,18 @@ const SettingsPage = () => {
 };
 
 const TabButton = ({ id, label, icon, activeTab, setActiveTab }) => {
-  const { t } = useLanguage();
   const isActive = activeTab === id;
   return (
     <button
       onClick={() => setActiveTab(id)}
-      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm transition-all duration-200 shrink-0 ${
+      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm transition-all duration-200 shrink-0 cursor-pointer ${
         isActive
           ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
           : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
       }`}
     >
       {icon}
-      {typeof label === "string" ? t(label) : label}
+      {label}
     </button>
   );
 };
@@ -527,7 +558,7 @@ const NotificationToggle = ({ title, desc, checked, onChange }) => (
     <button
       type="button"
       onClick={onChange}
-      className={`w-11 h-6 rounded-full transition-colors duration-200 relative shrink-0 ${
+      className={`w-11 h-6 rounded-full transition-colors duration-200 relative shrink-0 cursor-pointer ${
         checked ? "bg-indigo-600" : "bg-slate-300"
       }`}
     >

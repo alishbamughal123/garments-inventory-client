@@ -103,14 +103,14 @@ const LeadsPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Leads"
+        title={isNo ? "Salgsmuligheter & Leads" : "Leads"}
         action={
           <Button
             as={Link}
             to={appRoutes.crmLeadsCreate}
           >
-          <Plus size={16} />
-          Add Lead
+            <Plus size={16} />
+            <span>{isNo ? "Legg til lead" : "Add Lead"}</span>
           </Button>
         }
       />

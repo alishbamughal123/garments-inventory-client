@@ -175,7 +175,7 @@ const SizeChartsPage = () => {
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                <span>{isNo ? "+ Legg til Måleskjema" : "+ Add Size Chart"}</span>
+                <span>{isNo ? "Legg til Måleskjema" : "Add Size Chart"}</span>
               </button>
             </div>
           }

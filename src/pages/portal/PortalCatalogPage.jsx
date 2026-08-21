@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
 import api from "../../services/api";
 import { useLanguage } from "../../context/LanguageContext";
@@ -80,6 +80,23 @@ const PortalCatalogPage = () => {
     const timer = setTimeout(fetchCatalog, 300);
     return () => clearTimeout(timer);
   }, [search]);
+
+  const filteredProducts = useMemo(() => {
+    if (!search || !search.trim()) return products;
+    const q = search.trim().toLowerCase();
+    return products.filter((p) => {
+      const matchName = p.productName && p.productName.toLowerCase().includes(q);
+      const matchSku = p.sku && p.sku.toLowerCase().includes(q);
+      const matchStyleNum = p.styleNumber && p.styleNumber.toLowerCase().includes(q);
+      const matchBaseStyle = p.baseStyleNumber && p.baseStyleNumber.toLowerCase().includes(q);
+      const matchStyleName = p.styleName && p.styleName.toLowerCase().includes(q);
+      const matchItemName = p.itemName && p.itemName.toLowerCase().includes(q);
+      const matchColor = p.color && p.color.toLowerCase().includes(q);
+      const matchSize = p.size && p.size.toLowerCase().includes(q);
+      const matchBarcode = p.barcodes && p.barcodes.some((b) => b.barcodeValue && b.barcodeValue.toLowerCase().includes(q));
+      return matchName || matchSku || matchStyleNum || matchBaseStyle || matchStyleName || matchItemName || matchColor || matchSize || matchBarcode;
+    });
+  }, [products, search]);
 
   const handleQtyChange = (productId, val) => {
     const num = Math.max(1, parseInt(val) || 1);
@@ -183,18 +200,18 @@ const PortalCatalogPage = () => {
       {/* Product List */}
       {loading ? (
         <div className="p-12 sm:p-16 text-center text-xs font-semibold text-slate-400 bg-white rounded-2xl border border-slate-100">
-          Loading B2B catalog items...
+          {isNo ? "Laster B2B-artikler..." : "Loading B2B catalog items..."}
         </div>
-      ) : products.length === 0 ? (
+      ) : filteredProducts.length === 0 ? (
         <div className="p-12 sm:p-16 text-center bg-white rounded-2xl border border-slate-100 space-y-2">
           <Package className="w-10 h-10 text-slate-300 mx-auto" />
-          <h3 className="text-sm font-bold text-slate-700">No articles found</h3>
-          <p className="text-xs text-slate-400">Try adjusting your search keywords.</p>
+          <h3 className="text-sm font-bold text-slate-700">{isNo ? "Ingen artikler funnet" : "No articles found"}</h3>
+          <p className="text-xs text-slate-400">{isNo ? "Prøv å endre søkeordene dine." : "Try adjusting your search keywords."}</p>
         </div>
       ) : (
         /* 🌟 RESPONSIVE PRODUCT CARDS */
         <div className="space-y-4">
-          {products.map((product) => {
+          {filteredProducts.map((product) => {
             const qty = quantities[product.id] || 1;
             const inStock = product.stockQuantity > 0;
             const baseStyle =

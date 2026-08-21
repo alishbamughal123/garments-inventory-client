@@ -168,14 +168,14 @@ const StockOutPage = () => {
               {/* Barcode & Scan */}
               <div>
                 <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <label className={formLabelClass}>Barcode / SKU *</label>
+                  <label className={formLabelClass}>{isNo ? "Strekkode / SKU *" : "Barcode / SKU *"}</label>
                   <Button
                     type="button"
                     variant="secondary"
                     onClick={() => setShowScanner(true)}
                   >
                     <ScanLine size={16} />
-                    Scan Barcode
+                    <span>{isNo ? "Skann strekkode" : "Scan Barcode"}</span>
                   </Button>
                 </div>
 
@@ -184,7 +184,7 @@ const StockOutPage = () => {
                   name="barcode"
                   value={barcode}
                   onChange={(e) => setBarcode(e.target.value)}
-                  placeholder="Scan barcode or enter SKU value"
+                  placeholder={isNo ? "Skann strekkode eller tast inn SKU" : "Scan barcode or enter SKU value"}
                   required
                   className={formControlClass}
                 />
@@ -225,7 +225,7 @@ const StockOutPage = () => {
                     name="notes"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Optional notes / PO reference"
+                    placeholder={isNo ? "Valgfrie notater / ordrereferanse" : "Optional notes / PO reference"}
                     className={formControlClass}
                   />
                 </div>
@@ -251,8 +251,8 @@ const StockOutPage = () => {
                     <th className="p-3 text-left">{t("customers")}</th>
                     <th className="p-3 text-left">{t("product")}</th>
                     <th className="p-3 text-center">{t("quantity")}</th>
-                    <th className="p-3 text-right">Parcel Wt</th>
-                    <th className="p-3 text-center">Reprint</th>
+                    <th className="p-3 text-right">{isNo ? "Pakkevekt" : "Parcel Wt"}</th>
+                    <th className="p-3 text-center">{isNo ? "Utskrift" : "Reprint"}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -272,7 +272,7 @@ const StockOutPage = () => {
                         <button
                           type="button"
                           onClick={() => handleReprint(tx)}
-                          className="inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition"
+                          className="inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition cursor-pointer"
                         >
                           <Printer size={14} />
                           <span>PDF</span>
@@ -282,7 +282,9 @@ const StockOutPage = () => {
                   ))}
                   {transactions.length === 0 && (
                     <tr>
-                      <td colSpan="7" className="p-6 text-center text-slate-400">No stock out history found.</td>
+                      <td colSpan="7" className="p-6 text-center text-slate-400">
+                        {isNo ? "Ingen vareutgangshistorikk funnet." : "No stock out history found."}
+                      </td>
                     </tr>
                   )}
                 </tbody>

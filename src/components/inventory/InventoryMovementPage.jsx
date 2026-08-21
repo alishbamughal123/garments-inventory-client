@@ -10,6 +10,7 @@ import {
 } from "../ui/formStyles";
 import PageHeader from "../ui/PageHeader";
 import SurfaceCard from "../ui/SurfaceCard";
+import { useLanguage } from "../../context/LanguageContext";
 
 const InventoryMovementPage = ({
   title,
@@ -19,85 +20,62 @@ const InventoryMovementPage = ({
   successMessage,
   action,
 }) => {
-  const [loading, setLoading] =
-    useState(false);
-  const [showScanner, setShowScanner] =
-    useState(false);
-  const [formData, setFormData] =
-    useState({
-      barcode: "",
-      quantity: "",
-      notes: "",
-    });
+  const { t, isNo } = useLanguage();
+  const [loading, setLoading] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+  const [formData, setFormData] = useState({
+    barcode: "",
+    quantity: "",
+    notes: "",
+  });
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]:
-        e.target.value,
+      [e.target.name]: e.target.value,
     });
   };
 
-  const handleScan = (
-    scannedBarcode
-  ) => {
+  const handleScan = (scannedBarcode) => {
     setFormData({
       ...formData,
-      barcode:
-        scannedBarcode,
+      barcode: scannedBarcode,
     });
-
     setShowScanner(false);
-    toast.success(
-      "Barcode scanned successfully"
-    );
+    toast.success(isNo ? "Strekkode skannet!" : "Barcode scanned successfully");
   };
 
-  const handleSubmit =
-    async (e) => {
-      e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-      if (
-        !formData.barcode ||
-        !formData.quantity
-      ) {
-        return toast.error(
-          "All fields are required"
-        );
-      }
+    if (!formData.barcode || !formData.quantity) {
+      return toast.error(isNo ? "Vennligst fyll ut strekkode og antall" : "All fields are required");
+    }
 
-      try {
-        setLoading(true);
+    try {
+      setLoading(true);
 
-        await action({
-          barcode:
-            formData.barcode,
-          quantity: Number(
-            formData.quantity
-          ),
-          notes:
-            formData.notes,
-        });
+      await action({
+        barcode: formData.barcode,
+        quantity: Number(formData.quantity),
+        notes: formData.notes,
+      });
 
-        toast.success(
-          successMessage
-        );
+      toast.success(successMessage);
 
-        setFormData({
-          barcode: "",
-          quantity: "",
-          notes: "",
-        });
-      } catch (error) {
-        toast.error(
-          error?.response?.data
-            ?.message ||
-            "Inventory update failed"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+      setFormData({
+        barcode: "",
+        quantity: "",
+        notes: "",
+      });
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || (isNo ? "Lagerjustering mislyktes" : "Inventory update failed")
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <MainLayout>
@@ -110,101 +88,64 @@ const InventoryMovementPage = ({
         <SurfaceCard>
           <div className="p-6 sm:p-8">
             <form
-              onSubmit={
-                handleSubmit
-              }
+              onSubmit={handleSubmit}
               className="space-y-5"
             >
               <div>
                 <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <label
-                    className={
-                      formLabelClass
-                    }
-                  >
-                    Barcode
+                  <label className={formLabelClass}>
+                    {isNo ? "Strekkode / SKU *" : "Barcode / SKU *"}
                   </label>
 
                   <Button
                     type="button"
                     variant="secondary"
-                    onClick={() =>
-                      setShowScanner(
-                        true
-                      )
-                    }
+                    onClick={() => setShowScanner(true)}
                   >
-                    <ScanLine
-                      size={16}
-                    />
-                    Scan Barcode
+                    <ScanLine size={16} />
+                    {isNo ? "Skann strekkode" : "Scan Barcode"}
                   </Button>
                 </div>
 
                 <input
                   type="text"
                   name="barcode"
-                  value={
-                    formData.barcode
-                  }
-                  onChange={
-                    handleChange
-                  }
-                  placeholder="Scan or enter barcode"
-                  className={
-                    formControlClass
-                  }
+                  value={formData.barcode}
+                  onChange={handleChange}
+                  placeholder={isNo ? "Skann eller tast inn strekkode / SKU" : "Scan or enter barcode"}
+                  className={formControlClass}
                 />
               </div>
 
               <div className="grid gap-5 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
                 <div>
-                  <label
-                    className={
-                      formLabelClass
-                    }
-                  >
-                    Quantity
+                  <label className={formLabelClass}>
+                    {isNo ? "Antall *" : "Quantity *"}
                   </label>
 
                   <input
                     type="number"
+                    min="1"
                     name="quantity"
-                    value={
-                      formData.quantity
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    placeholder="Enter quantity"
-                    className={
-                      formControlClass
-                    }
+                    value={formData.quantity}
+                    onChange={handleChange}
+                    placeholder={isNo ? "Angi antall" : "Enter quantity"}
+                    className={formControlClass}
                   />
                 </div>
 
                 <div>
-                  <label
-                    className={
-                      formLabelClass
-                    }
-                  >
-                    Notes
+                  <label className={formLabelClass}>
+                    {isNo ? "Notater" : "Notes"}
                   </label>
 
                   <textarea
                     rows="4"
                     name="notes"
-                    value={
-                      formData.notes
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    placeholder="Optional notes"
-                    className={
-                      formControlClass
-                    }
+                    value={formData.notes}
+                    onChange={handleChange}
+                    placeholder={isNo ? "Valgfri referanse, batch eller PO-info" : "Optional notes or PO reference"}
+                    className={formControlClass}
                   />
                 </div>
               </div>
@@ -215,8 +156,8 @@ const InventoryMovementPage = ({
                 size="lg"
               >
                 {loading
-                  ? loadingLabel
-                  : submitLabel}
+                  ? (loadingLabel || (isNo ? "Behandler..." : "Processing..."))
+                  : (submitLabel || (isNo ? "Lagre" : "Save"))}
               </Button>
             </form>
           </div>
@@ -225,11 +166,7 @@ const InventoryMovementPage = ({
 
       {showScanner && (
         <BarcodeScannerModal
-          onClose={() =>
-            setShowScanner(
-              false
-            )
-          }
+          onClose={() => setShowScanner(false)}
           onScan={handleScan}
         />
       )}
