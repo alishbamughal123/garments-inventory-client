@@ -56,6 +56,7 @@ const SizeChartsPage = () => {
     const map = new Map();
 
     // Add seeded default styles with size charts first
+    map.set("10099", { styleNumber: "10099", styleName: "Nordic Mopp 60 - Mopp 60 cm", brand: "Nordic Prowear", hasChart: true, variantsCount: 0 });
     map.set("10101", { styleNumber: "10101", styleName: "Sandefjord - Pique Polo / Tee", brand: "Nordic Prowear", hasChart: true, variantsCount: 0 });
     map.set("10102", { styleNumber: "10102", styleName: "Tønsberg - Polo Shirt", brand: "Nordic Prowear", hasChart: true, variantsCount: 0 });
     map.set("10105", { styleNumber: "10105", styleName: "Lillehammer - Scrubs unisex NS3361", brand: "Nordic Prowear", hasChart: true, variantsCount: 0 });
@@ -79,7 +80,7 @@ const SizeChartsPage = () => {
     map.set("200127", { styleNumber: "200127", styleName: "Haugesund / Risør", brand: "Nordic Prowear", hasChart: true, variantsCount: 0 });
 
     const CONFIGURED_STYLES = [
-      "10101", "10102", "10105", "10106", "10116", "10107", "10108", "10109",
+      "10099", "10101", "10102", "10105", "10106", "10116", "10107", "10108", "10109",
       "10122", "10123", "10124",
       "20110", "20111", "200120", "200121", "200122",
       "200123", "200124", "200125", "200126", "200127"
