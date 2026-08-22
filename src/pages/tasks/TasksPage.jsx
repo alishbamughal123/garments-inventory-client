@@ -160,44 +160,6 @@ const TasksPage = () => {
     };
   }, []);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    (async () => {
-      try {
-        setLoading(true);
-
-        const response =
-          await getTasks(
-            filters
-          );
-
-        if (isMounted) {
-          setTasks(
-            response.data.items
-          );
-          setSummary(
-            response.data
-              .summary
-          );
-        }
-      } catch {
-        if (isMounted) {
-          toast.error(
-            "Failed to load tasks"
-          );
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [filters]);
 
   const openDeleteModal = (task) => {
     setSelectedTask(task);
