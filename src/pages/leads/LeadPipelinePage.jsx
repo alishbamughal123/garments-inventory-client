@@ -173,47 +173,69 @@ const LeadPipelinePage = () => {
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className="rounded-2xl border border-slate-200 bg-slate-50 p-4 relative group"
+                              className="rounded-2xl border border-slate-200 bg-slate-50 p-4 relative group hover:border-slate-300 transition shadow-sm"
                             >
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h4 className="font-semibold text-slate-900">
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-1.5">
+                                    {lead.rank && (
+                                      <span className="rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-bold text-slate-700">
+                                        #{lead.rank}
+                                      </span>
+                                    )}
+                                    <h4 className="font-semibold text-slate-900 truncate text-sm">
+                                      {lead.companyName || lead.fullName}
+                                    </h4>
+                                  </div>
+
+                                  <p className="mt-0.5 text-xs text-slate-600 truncate">
                                     {lead.fullName}
-                                  </h4>
-                                  <p className="mt-0.5 text-xs text-slate-500">
-                                    {lead.companyName || (isNo ? "Ingen bedrift" : "No Company")}
+                                    {lead.designation && <span className="text-slate-400"> • {lead.designation}</span>}
                                   </p>
                                 </div>
 
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    openDeleteModal(lead);
-                                  }}
-                                  className="text-slate-400 hover:text-red-600 transition p-1 rounded-lg hover:bg-red-50"
-                                  title={t("delete")}
-                                >
-                                  <Trash2 size={14} />
-                                </button>
+                                <div className="flex items-center gap-1">
+                                  {lead.priority && (
+                                    <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-bold text-slate-700">
+                                      {lead.priority}
+                                    </span>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openDeleteModal(lead);
+                                    }}
+                                    className="text-slate-400 hover:text-red-600 transition p-1 rounded-lg hover:bg-red-50"
+                                    title={t("delete")}
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
                               </div>
 
-                              <div className="mt-3 space-y-1 text-xs text-slate-600">
-                                <p className="break-words">{lead.phoneNumber}</p>
-                                <p className="font-bold text-emerald-700">
-                                  NOK {Number(lead.expectedDealValue || 0).toLocaleString()}
-                                </p>
+                              <div className="mt-3 space-y-1 text-xs text-slate-600 border-t border-slate-200/60 pt-2">
+                                {lead.revenueMnok ? (
+                                  <p className="font-semibold text-emerald-700">
+                                    {Number(lead.revenueMnok).toLocaleString("en-US", {
+                                      minimumFractionDigits: 1,
+                                      maximumFractionDigits: 1,
+                                    })}{" "}
+                                    MNOK {lead.financialYear ? `(${lead.financialYear})` : ""}
+                                  </p>
+                                ) : (
+                                  <p className="text-slate-400">{lead.phoneNumber}</p>
+                                )}
+                                {lead.city && (
+                                  <p className="text-slate-500 truncate">
+                                    📍 {lead.city}{lead.county ? `, ${lead.county}` : ""}
+                                  </p>
+                                )}
                               </div>
 
                               {lead.assignedTo && (
-                                <div className="mt-3 text-[11px] font-medium text-[var(--color-primary-ink)]">
+                                <div className="mt-2 text-[11px] font-medium text-[var(--color-primary-ink)]">
                                   {isNo ? "Tildelt:" : "Assigned:"} {lead.assignedTo.name}
-                                </div>
-                              )}
-
-                              {lead.source && (
-                                <div className="mt-1 text-[11px] text-slate-500">
-                                  {isNo ? "Kilde:" : "Source:"} {lead.source}
                                 </div>
                               )}
                             </article>

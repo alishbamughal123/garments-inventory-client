@@ -17,21 +17,36 @@ const CreateLeadPage = () => {
   const [formData, setFormData] = useState({
     fullName: "",
     companyName: "",
+    legalEntity: "",
     designation: "",
     email: "",
     phoneNumber: "",
     address: "",
     city: "",
-    source: "WEBSITE",
+    county: "",
+    rank: "",
+    segment: "",
+    priority: "A",
+    revenueMnok: "",
+    financialYear: "2025",
+    revenueBasis: "",
+    contactType: "",
+    verificationStatus: "",
+    relevantStaff: "",
+    relevantTextiles: "",
+    healthcareNvk: "",
+    source: "TRADE_SHOW",
+    status: "NEW",
     expectedDealValue: 0,
     notes: "",
   });
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const submit = async (e) => {
@@ -39,7 +54,14 @@ const CreateLeadPage = () => {
 
     try {
       setLoading(true);
-      await createLead(formData);
+      const payload = {
+        ...formData,
+        rank: formData.rank ? parseInt(formData.rank, 10) : null,
+        revenueMnok: formData.revenueMnok ? parseFloat(formData.revenueMnok) : null,
+        expectedDealValue: formData.expectedDealValue ? parseFloat(formData.expectedDealValue) : 0,
+      };
+
+      await createLead(payload);
       toast.success(isNo ? "Lead opprettet i CRM!" : "Lead created successfully in CRM!");
       navigate(appRoutes.crmLeads);
     } catch (error) {
@@ -54,60 +76,200 @@ const CreateLeadPage = () => {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
       <PageHeader
-        title={isNo ? "Opprett nytt lead" : "Create Lead"}
+        title={isNo ? "Opprett nytt B2B Lead" : "Create New B2B Lead"}
         description={
           isNo
-            ? "Registrer en ny salgsmulighet med kontaktinfo, kilde og forventet avtaleverdi."
-            : "Capture a new opportunity with contact, source, and expected deal value."
+            ? "Registrer en ny forretningsmulighet med kontaktperson, bransje, omsetning og klesbehov."
+            : "Capture a new business opportunity with contact person, segment, revenue, and garment requirements."
         }
       />
 
       <form onSubmit={submit} className="space-y-6">
+        {/* Section 1: Company & Market Profile */}
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 space-y-4">
           <div className="border-b border-slate-100 pb-3">
             <h3 className="text-base font-bold text-slate-900">
-              {isNo ? "Lead-informasjon & Kontakt" : "Lead Information"}
+              {isNo ? "1. Bedriftsprofil & Bransje" : "1. Company Profile & Market Segment"}
             </h3>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1">
-                {isNo ? "Fullt navn *" : "Full Name *"}
-              </label>
-              <input
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                className={inputClass}
-                placeholder={isNo ? "f.eks. Ola Nordmann" : "e.g. John Doe"}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">
-                {isNo ? "Bedriftsnavn" : "Company Name"}
+                {isNo ? "Bedriftsnavn / Selskap *" : "Company Name *"}
               </label>
               <input
                 name="companyName"
                 value={formData.companyName}
                 onChange={handleChange}
                 className={inputClass}
-                placeholder={isNo ? "f.eks. Nordic Retail AS" : "e.g. Acme Corp"}
+                placeholder={isNo ? "f.eks. Volvat Medisinske Senter" : "e.g. Acme Health AS"}
+                required
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1">
-                {isNo ? "Stilling / Rolle" : "Designation / Title"}
+                {isNo ? "Juridisk enhet" : "Legal Entity"}
+              </label>
+              <input
+                name="legalEntity"
+                value={formData.legalEntity}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder={isNo ? "f.eks. Volvat Medisinske Senter AS" : "e.g. Acme Health Norge AS"}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Rangering (Rank)" : "Rank"}
+              </label>
+              <input
+                type="number"
+                name="rank"
+                value={formData.rank}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder="1"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Bransje / Segment" : "Segment / Industry"}
+              </label>
+              <input
+                name="segment"
+                value={formData.segment}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder={isNo ? "f.eks. Privat sykehus / Tannlege / HoReCa / Vaskeri" : "e.g. Private hospital / Dental / HoReCa / Laundry"}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Prioritet" : "Priority"}
+              </label>
+              <select
+                name="priority"
+                value={formData.priority}
+                onChange={handleChange}
+                className={inputClass}
+              >
+                <option value="A+">A+ (Høyest potensial / Highest Potential)</option>
+                <option value="A">A (Høyt potensial / High Potential)</option>
+                <option value="A-">A- (Middels-høyt / Medium-High)</option>
+                <option value="B+">B+ (Middels potensial / Medium Potential)</option>
+                <option value="B">B (Mindre / Standard)</option>
+                <option value="Tender">Tender (Offentlig / Anbud)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Omsetning (MNOK)" : "Annual Turnover (MNOK)"}
+              </label>
+              <input
+                type="number"
+                step="any"
+                name="revenueMnok"
+                value={formData.revenueMnok}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder="1251.2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Regnskapsår" : "Financial Year"}
+              </label>
+              <input
+                name="financialYear"
+                value={formData.financialYear}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder="2025"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Omsetningsgrunnlag" : "Revenue Basis"}
+              </label>
+              <input
+                name="revenueBasis"
+                value={formData.revenueBasis}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder={isNo ? "f.eks. Konsern / Selskap" : "e.g. Group / Company"}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Helse / NVK-status" : "Healthcare / NVK Status"}
+              </label>
+              <input
+                name="healthcareNvk"
+                value={formData.healthcareNvk}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder={isNo ? "NVK-medlem / Ja" : "NVK Member / Yes"}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Section 2: Contact Person & Verification */}
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 space-y-4">
+          <div className="border-b border-slate-100 pb-3">
+            <h3 className="text-base font-bold text-slate-900">
+              {isNo ? "2. Kontaktperson & Verifisering" : "2. Contact Person & Verification"}
+            </h3>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Anbefalt kontakt / Navn *" : "Contact Person / Full Name *"}
+              </label>
+              <input
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder={isNo ? "f.eks. Joachim Papp-Mikalsen" : "e.g. John Doe"}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Stilling / Rolle" : "Role / Designation"}
               </label>
               <input
                 name="designation"
                 value={formData.designation}
                 onChange={handleChange}
                 className={inputClass}
-                placeholder={isNo ? "f.eks. Innkjøpssjef" : "e.g. Purchasing Manager"}
+                placeholder={isNo ? "f.eks. Head of Procurement / Innkjøpssjef" : "e.g. Head of Procurement"}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Telefon *" : "Phone Number *"}
+              </label>
+              <input
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder="+47 22 54 10 00"
+                required
               />
             </div>
 
@@ -121,68 +283,59 @@ const CreateLeadPage = () => {
                 value={formData.email}
                 onChange={handleChange}
                 className={inputClass}
-                placeholder="post@bedrift.no"
+                placeholder="innkjop@bedrift.no"
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1">
-                {isNo ? "Telefon *" : "Phone Number *"}
+                {isNo ? "Kontakttype" : "Contact Type"}
               </label>
               <input
-                name="phoneNumber"
-                value={formData.phoneNumber}
+                name="contactType"
+                value={formData.contactType}
                 onChange={handleChange}
                 className={inputClass}
-                placeholder="+47 400 00 000"
-                required
+                placeholder={isNo ? "Navngitt beslutningstaker / Sentral kontakt" : "Named Decision Maker / Central"}
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1">
-                {isNo ? "Poststed / By" : "City"}
+                {isNo ? "Verifiseringsstatus" : "Verification Status"}
+              </label>
+              <input
+                name="verificationStatus"
+                value={formData.verificationStatus}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder={isNo ? "Rolle verifisert / Direkte verifisert" : "Role Verified / Direct"}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Sted / By" : "City / Location"}
               </label>
               <input
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
                 className={inputClass}
-                placeholder={isNo ? "Oslo" : "Oslo"}
+                placeholder={isNo ? "Oslo / Ski / Bergen" : "Oslo / Ski / Bergen"}
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1">
-                {isNo ? "Kilde" : "Lead Source"}
-              </label>
-              <select
-                name="source"
-                value={formData.source}
-                onChange={handleChange}
-                className={inputClass}
-              >
-                <option value="WEBSITE">{isNo ? "Nettside" : "Website"}</option>
-                <option value="FACEBOOK">Facebook</option>
-                <option value="INSTAGRAM">Instagram</option>
-                <option value="REFERRAL">{isNo ? "Anbefaling" : "Referral"}</option>
-                <option value="COLD_OUTREACH">{isNo ? "Egenkontakt" : "Cold Outreach"}</option>
-                <option value="TRADE_SHOW">{isNo ? "Messe / Utstilling" : "Trade Show"}</option>
-                <option value="OTHER">{isNo ? "Annet" : "Other"}</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">
-                {isNo ? "Forventet avtaleverdi (NOK)" : "Estimated Deal Value (NOK)"}
+                {isNo ? "Fylke" : "County"}
               </label>
               <input
-                type="number"
-                name="expectedDealValue"
-                value={formData.expectedDealValue}
+                name="county"
+                value={formData.county}
                 onChange={handleChange}
                 className={inputClass}
-                placeholder="50000"
+                placeholder={isNo ? "Akershus / Trøndelag / Vestland" : "Akershus / Trøndelag / Vestland"}
               />
             </div>
 
@@ -196,6 +349,97 @@ const CreateLeadPage = () => {
                 onChange={handleChange}
                 className={inputClass}
                 placeholder={isNo ? "Storgata 12" : "123 Main St"}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Section 3: Garments, Textiles & Requirements */}
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 space-y-4">
+          <div className="border-b border-slate-100 pb-3">
+            <h3 className="text-base font-bold text-slate-900">
+              {isNo ? "3. Klesbehov & Tekstiltjenester" : "3. Garments, Uniforms & Textile Services"}
+            </h3>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Målgruppe / Ansatte / Avdelinger" : "Target Staff / Departments"}
+              </label>
+              <input
+                name="relevantStaff"
+                value={formData.relevantStaff}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder={isNo ? "f.eks. Kokker, kjøkken, servitører / Renhold / Spa" : "e.g. Chefs, kitchen, service / Housekeeping / Spa"}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Relevante tekstiler & tjenester" : "Relevant Textiles & Services"}
+              </label>
+              <input
+                name="relevantTextiles"
+                value={formData.relevantTextiles}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder={isNo ? "f.eks. Tekstilutleie, vaskeri, mopper, matter" : "e.g. Textile rental, laundry, mops, mats"}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3 pt-2">
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Kilde" : "Lead Source"}
+              </label>
+              <select
+                name="source"
+                value={formData.source}
+                onChange={handleChange}
+                className={inputClass}
+              >
+                <option value="TRADE_SHOW">{isNo ? "B2B Prospekt / Messe" : "B2B Prospect / Trade Show"}</option>
+                <option value="WEBSITE">{isNo ? "Nettside" : "Website"}</option>
+                <option value="REFERRAL">{isNo ? "Anbefaling" : "Referral"}</option>
+                <option value="EXISTING_CUSTOMER">{isNo ? "Eksisterende kunde" : "Existing Customer"}</option>
+                <option value="OTHER">{isNo ? "Annet" : "Other"}</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Pipeline-status" : "Pipeline Status"}
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className={inputClass}
+              >
+                <option value="NEW">{isNo ? "Ny henvendelse" : "New"}</option>
+                <option value="CONTACTED">{isNo ? "Kontaktet" : "Contacted"}</option>
+                <option value="QUALIFIED">{isNo ? "Kvalifisert" : "Qualified"}</option>
+                <option value="PROPOSAL_SENT">{isNo ? "Tilbud sendt" : "Proposal Sent"}</option>
+                <option value="NEGOTIATION">{isNo ? "Forhandling" : "Negotiation"}</option>
+                <option value="WON">{isNo ? "Vunnet" : "Won"}</option>
+                <option value="LOST">{isNo ? "Tapt" : "Lost"}</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                {isNo ? "Forventet avtaleverdi (NOK)" : "Estimated Deal Value (NOK)"}
+              </label>
+              <input
+                type="number"
+                name="expectedDealValue"
+                value={formData.expectedDealValue}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder="250000"
               />
             </div>
           </div>
@@ -227,7 +471,7 @@ const CreateLeadPage = () => {
           <Button type="submit" disabled={loading}>
             {loading
               ? (isNo ? "Lagrer..." : "Saving...")
-              : (isNo ? "Lagre lead" : "Save Lead")}
+              : (isNo ? "Lagre B2B Lead" : "Save B2B Lead")}
           </Button>
         </div>
       </form>
