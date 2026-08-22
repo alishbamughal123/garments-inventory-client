@@ -11,6 +11,8 @@ import {
   Plus,
   Trash2,
   Search,
+  FileSpreadsheet,
+  FileText,
 } from "lucide-react";
 import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
@@ -26,6 +28,10 @@ import {
   deleteLead,
   getLeads,
 } from "../../services/lead.service";
+import {
+  exportLeadsToExcel,
+  exportLeadsToPDF,
+} from "../../utils/leadExport";
 
 const INDUSTRY_TABS = [
   { id: "ALL", labelEn: "All Leads (238)", labelNo: "Alle Leads (238)", query: "" },
@@ -48,6 +54,8 @@ const LeadsPage = () => {
   const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
+  const [exportingExcel, setExportingExcel] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
 
   async function fetchLeads(
     pageToFetch = page,
@@ -118,6 +126,118 @@ const LeadsPage = () => {
     }
   };
 
+  const fetchAllMatchingLeads = async () => {
+    const tabObj = INDUSTRY_TABS.find((t) => t.id === activeTab);
+    const segmentQuery = tabObj && tabObj.query ? tabObj.query : undefined;
+    const priorityQuery = priorityFilter !== "ALL" ? priorityFilter : undefined;
+
+    const response = await getLeads({
+      search: search.trim(),
+      segment: segmentQuery,
+      priority: priorityQuery,
+      all: "true",
+    });
+
+    const items = Array.isArray(response.data) ? response.data : response.data?.leads || [];
+    return items;
+  };
+
+  const handleExportExcel = async () => {
+    try {
+      setExportingExcel(true);
+      toast.loading(
+        isNo ? "Henter data og genererer Excel..." : "Fetching leads and generating Excel...",
+        { id: "leads-export" }
+      );
+      const exportItems = await fetchAllMatchingLeads();
+
+      if (!exportItems || exportItems.length === 0) {
+        toast.error(
+          isNo
+            ? "Ingen leads å eksportere med valgte filtre"
+            : "No leads found with selected filters",
+          { id: "leads-export" }
+        );
+        return;
+      }
+
+      const activeTabObj = INDUSTRY_TABS.find((t) => t.id === activeTab);
+      const tabLabel = isNo ? activeTabObj?.labelNo : activeTabObj?.labelEn;
+
+      await exportLeadsToExcel({
+        leads: exportItems,
+        activeTabLabel: tabLabel || "All Leads",
+        priorityFilter,
+        searchQuery: search,
+        isNo,
+        fileName: `Nordic_Prowear_Leads_${activeTab}`,
+      });
+
+      toast.success(
+        isNo
+          ? `Excel lastet ned! (${exportItems.length} leads)`
+          : `Excel downloaded! (${exportItems.length} leads)`,
+        { id: "leads-export" }
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        isNo ? "Kunne ikke laste ned Excel" : "Failed to download Excel",
+        { id: "leads-export" }
+      );
+    } finally {
+      setExportingExcel(false);
+    }
+  };
+
+  const handleExportPdf = async () => {
+    try {
+      setExportingPdf(true);
+      toast.loading(
+        isNo ? "Henter data og genererer PDF..." : "Fetching leads and generating PDF...",
+        { id: "leads-export" }
+      );
+      const exportItems = await fetchAllMatchingLeads();
+
+      if (!exportItems || exportItems.length === 0) {
+        toast.error(
+          isNo
+            ? "Ingen leads å eksportere med valgte filtre"
+            : "No leads found with selected filters",
+          { id: "leads-export" }
+        );
+        return;
+      }
+
+      const activeTabObj = INDUSTRY_TABS.find((t) => t.id === activeTab);
+      const tabLabel = isNo ? activeTabObj?.labelNo : activeTabObj?.labelEn;
+
+      await exportLeadsToPDF({
+        leads: exportItems,
+        activeTabLabel: tabLabel || "All Leads",
+        priorityFilter,
+        searchQuery: search,
+        isNo,
+        fileName: `Nordic_Prowear_Leads_${activeTab}`,
+      });
+
+      toast.success(
+        isNo
+          ? `PDF lastet ned! (${exportItems.length} leads)`
+          : `PDF downloaded! (${exportItems.length} leads)`,
+        { id: "leads-export" }
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        isNo ? "Kunne ikke laste ned PDF" : "Failed to download PDF",
+        { id: "leads-export" }
+      );
+    } finally {
+      setExportingPdf(false);
+    }
+  };
+
   const getPriorityBadgeClass = (priority) => {
     switch (priority) {
       case "A+":
@@ -142,10 +262,50 @@ const LeadsPage = () => {
       <PageHeader
         title={isNo ? "Salgsmuligheter & Leads" : "Leads Overview"}
         action={
-          <Button as={Link} to={appRoutes.crmLeadsCreate}>
-            <Plus size={16} />
-            <span>{isNo ? "Legg til B2B Lead" : "Add B2B Lead"}</span>
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="secondary"
+              onClick={handleExportExcel}
+              disabled={exportingExcel || loading}
+              className="bg-white border-slate-200 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition shadow-sm"
+              title={isNo ? "Last ned alle filtrerte leads til Excel" : "Download all filtered leads to Excel"}
+            >
+              <FileSpreadsheet size={16} className="text-emerald-600" />
+              <span>
+                {exportingExcel
+                  ? isNo
+                    ? "Eksporterer..."
+                    : "Exporting..."
+                  : isNo
+                  ? "Last ned Excel"
+                  : "Download Excel"}
+              </span>
+            </Button>
+
+            <Button
+              variant="secondary"
+              onClick={handleExportPdf}
+              disabled={exportingPdf || loading}
+              className="bg-white border-slate-200 text-slate-700 hover:bg-red-50 hover:text-red-700 hover:border-red-200 transition shadow-sm"
+              title={isNo ? "Last ned alle filtrerte leads til PDF" : "Download all filtered leads to PDF"}
+            >
+              <FileText size={16} className="text-red-600" />
+              <span>
+                {exportingPdf
+                  ? isNo
+                    ? "Genererer..."
+                    : "Generating..."
+                  : isNo
+                  ? "Last ned PDF"
+                  : "Download PDF"}
+              </span>
+            </Button>
+
+            <Button as={Link} to={appRoutes.crmLeadsCreate}>
+              <Plus size={16} />
+              <span>{isNo ? "Legg til B2B Lead" : "Add B2B Lead"}</span>
+            </Button>
+          </div>
         }
       />
 
