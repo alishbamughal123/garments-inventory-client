@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
-import { Printer, FileSpreadsheet, Layers, Filter, ChevronDown, X, FileCode, Boxes } from "lucide-react";
+import { Printer, FileSpreadsheet, Layers, Filter, ChevronDown, X, FileCode, Boxes, Calculator } from "lucide-react";
 import MainLayout from "../../layouts/MainLayout";
 import PageHeader from "../../components/ui/PageHeader";
 import DeleteModal from "../../components/common/DeleteModal";
 import SearchBar from "../../components/products/SearchBar";
 import ProductTable from "../../components/products/ProductTable";
 import BarcodePrintModal from "../../components/products/BarcodePrintModal";
+import CostPriceModal from "../../components/products/CostPriceModal";
 import Loader from "../../components/ui/Loader";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import Pagination from "../../components/common/Pagination";
@@ -37,11 +38,13 @@ const ProductsPage = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [costPriceModalOpen, setCostPriceModalOpen] = useState(false);
   const [printModalMode, setPrintModalMode] = useState("individual");
   const [exportingExcel, setExportingExcel] = useState(false);
   const [exportProgress, setExportProgress] = useState(null);
   const [modalProducts, setModalProducts] = useState([]);
   const [fetchingModalData, setFetchingModalData] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Load distinct base styles for the dropdown filter
   useEffect(() => {
@@ -97,7 +100,7 @@ const ProductsPage = () => {
     }, 350);
 
     return () => clearTimeout(timeout);
-  }, [page, pageSize, search, selectedStyleFilter, isNo]);
+  }, [page, pageSize, search, selectedStyleFilter, refreshTrigger, isNo]);
 
   // Helper to fetch complete matching products for bulk actions (Export / Print)
   const getFullFilteredProducts = async () => {
@@ -333,6 +336,17 @@ const ProductsPage = () => {
                   <Boxes className="w-4 h-4 text-indigo-600 shrink-0" />
                   <span>{isNo ? "Blandet kartong (Rest)" : "Mixed Carton (Last Box)"}</span>
                 </button>
+
+                {/* Cost Price Manager & Calculator Button */}
+                <button
+                  type="button"
+                  onClick={() => setCostPriceModalOpen(true)}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50/80 hover:bg-blue-100 text-blue-700 px-3.5 py-2 text-xs sm:text-sm font-semibold shadow-2xs transition"
+                  title={isNo ? "Kostprisbehandler & Valutakalkulator" : "Cost Price Manager & Calculator"}
+                >
+                  <Calculator className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span>{isNo ? "Kostpriser & Kalkulator" : "Cost Price Manager"}</span>
+                </button>
               </div>
 
               {/* Right primary action */}
@@ -519,6 +533,14 @@ const ProductsPage = () => {
             ? (isNo ? `Skriv ut strekkoder - Stil #${selectedStyleFilter}` : `Print Barcodes - Style #${selectedStyleFilter}`)
             : (isNo ? "Skriv ut strekkoder (Alle artikler)" : "Print Barcode Labels (All Articles)")
         }
+      />
+
+      {/* COST PRICE MANAGER & CALCULATOR MODAL */}
+      <CostPriceModal
+        isOpen={costPriceModalOpen}
+        onClose={() => setCostPriceModalOpen(false)}
+        baseStyles={baseStyles}
+        onSuccess={() => setRefreshTrigger((prev) => prev + 1)}
       />
     </MainLayout>
   );

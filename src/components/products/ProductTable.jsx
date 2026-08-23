@@ -42,6 +42,9 @@ const ProductTable = ({
           const lowStock = product.stockQuantity <= product.minStockAlert;
           const baseStyle = product.baseStyleNumber || (product.styleNumber ? product.styleNumber.split("-")[0] : "");
           const imgUrl = resolveProductImageUrl(product.imageUrl, baseStyle, product.color);
+          const unitCost = Number(product.purchasePrice) || 0;
+          const stockQty = Number(product.stockQuantity) || 0;
+          const totalCostVal = stockQty * unitCost;
 
           return (
             <article
@@ -112,11 +115,23 @@ const ProductTable = ({
                   </div>
                   <div>
                     <dt className="text-slate-400 font-medium">{t("Stock")}</dt>
-                    <dd className="mt-0.5 font-semibold text-slate-700 font-mono">{product.stockQuantity}</dd>
+                    <dd className="mt-0.5 font-semibold text-slate-700 font-mono">{product.stockQuantity} stk</dd>
+                  </div>
+                  <div>
+                    <dt className="text-slate-400 font-medium">{isNo ? "Kostpris / stk" : "Cost / Unit"}</dt>
+                    <dd className="mt-0.5 font-semibold text-blue-700 font-mono text-[13px]">
+                      {unitCost > 0 ? `NOK ${unitCost.toFixed(2)}` : "-"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-slate-400 font-medium">{isNo ? "Total Kostverdi" : "Total Cost"}</dt>
+                    <dd className="mt-0.5 font-bold text-slate-900 font-mono text-[13px]">
+                      {unitCost > 0 ? `NOK ${totalCostVal.toFixed(2)}` : "-"}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-slate-400 font-medium">{t("Price")}</dt>
-                    <dd className="mt-0.5 font-semibold text-slate-900 font-mono text-[13px]">NOK {product.salePrice}</dd>
+                    <dd className="mt-0.5 font-bold text-slate-900 font-mono text-[13px]">NOK {product.salePrice}</dd>
                   </div>
                 </dl>
               </div>
@@ -180,6 +195,12 @@ const ProductTable = ({
                 {t("Stock")}
               </th>
               <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                {isNo ? "Kostpris / stk" : "Cost / Unit"}
+              </th>
+              <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                {isNo ? "Total Kostverdi" : "Total Cost"}
+              </th>
+              <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 {t("Price")}
               </th>
               <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
@@ -196,6 +217,9 @@ const ProductTable = ({
               const lowStock = product.stockQuantity <= product.minStockAlert;
               const baseStyle = product.baseStyleNumber || (product.styleNumber ? product.styleNumber.split("-")[0] : "");
               const imgUrl = resolveProductImageUrl(product.imageUrl, baseStyle, product.color);
+              const unitCost = Number(product.purchasePrice) || 0;
+              const stockQty = Number(product.stockQuantity) || 0;
+              const totalCostVal = stockQty * unitCost;
 
               return (
                 <tr
@@ -249,6 +273,24 @@ const ProductTable = ({
                   </td>
                   <td className="px-4 py-4 text-sm text-slate-600 font-mono">
                     {product.stockQuantity}
+                  </td>
+                  <td className="px-4 py-4 text-sm font-mono">
+                    {unitCost > 0 ? (
+                      <span className="font-semibold text-blue-700 bg-blue-50/80 px-2 py-0.5 rounded-md border border-blue-100">
+                        NOK {unitCost.toFixed(2)}
+                      </span>
+                    ) : (
+                      <span className="text-slate-400">-</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-4 text-sm font-mono">
+                    {unitCost > 0 ? (
+                      <div className="font-semibold text-slate-900">
+                        NOK {totalCostVal.toLocaleString("no-NO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </div>
+                    ) : (
+                      <span className="text-slate-400">-</span>
+                    )}
                   </td>
                   <td className="px-4 py-4 text-sm text-slate-900 font-semibold font-mono">
                     NOK {product.salePrice}

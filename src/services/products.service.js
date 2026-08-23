@@ -64,3 +64,9 @@ export const uploadProductImages = async (id, formData) => {
   });
   return response.data;
 };
+
+export const bulkUpdateCostPrice = async (data) => {
+  const response = await api.post("/products/bulk-cost-price", data);
+  return response.data;
+};
+

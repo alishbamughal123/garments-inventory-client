@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Calculator, DollarSign, ArrowRight, Percent } from "lucide-react";
 import Button from "../ui/Button";
 import {
   formControlClass,
@@ -21,6 +22,10 @@ const ProductForm = ({
   const [washingImageFile, setWashingImageFile] = useState(null);
   const [articlePreview, setArticlePreview] = useState(initialData?.imageUrl || "");
   const [washingPreview, setWashingPreview] = useState(initialData?.washingInstructionsImageUrl || "");
+  const [showUsdCalc, setShowUsdCalc] = useState(false);
+  const [usdCalcPrice, setUsdCalcPrice] = useState("");
+  const [usdCalcMarkup, setUsdCalcMarkup] = useState(20);
+  const [usdCalcRate, setUsdCalcRate] = useState(10);
 
   const [formData, setFormData] =
     useState(
@@ -370,19 +375,98 @@ const ProductForm = ({
         </div>
 
         <div>
-          <label className={formLabelClass}>
-            Purchase Price (NOK)
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label className={formLabelClass}>
+              Purchase / Cost Price (NOK)
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowUsdCalc(!showUsdCalc)}
+              className="text-[11px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition"
+            >
+              <Calculator className="w-3.5 h-3.5" />
+              {showUsdCalc ? "Hide USD Helper" : "USD Invoice Helper"}
+            </button>
+          </div>
           <input
             type="number"
+            step="0.01"
             name="purchasePrice"
             value={
               formData.purchasePrice
             }
             onChange={handleChange}
             required
+            placeholder="e.g. 45.72"
             className={formControlClass}
           />
+
+          {showUsdCalc && (
+            <div className="mt-2.5 rounded-xl border border-blue-200 bg-blue-50/70 p-3 text-xs space-y-2">
+              <div className="font-bold text-blue-900 flex items-center gap-1.5">
+                <DollarSign className="w-3.5 h-3.5" />
+                <span>Calculate from USD Invoice</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <span className="text-[10px] font-semibold text-slate-600 block">USD Price ($)</span>
+                  <input
+                    type="number"
+                    step="0.001"
+                    placeholder="3.81"
+                    value={usdCalcPrice}
+                    onChange={(e) => setUsdCalcPrice(e.target.value)}
+                    className="w-full mt-0.5 rounded-lg border border-blue-200 bg-white px-2 py-1 text-xs font-mono font-bold"
+                  />
+                </div>
+                <div>
+                  <span className="text-[10px] font-semibold text-slate-600 block">Markup %</span>
+                  <input
+                    type="number"
+                    step="1"
+                    placeholder="20"
+                    value={usdCalcMarkup}
+                    onChange={(e) => setUsdCalcMarkup(e.target.value)}
+                    className="w-full mt-0.5 rounded-lg border border-blue-200 bg-white px-2 py-1 text-xs font-mono font-bold"
+                  />
+                </div>
+                <div>
+                  <span className="text-[10px] font-semibold text-slate-600 block">1 USD = NOK</span>
+                  <input
+                    type="number"
+                    step="0.1"
+                    placeholder="10"
+                    value={usdCalcRate}
+                    onChange={(e) => setUsdCalcRate(e.target.value)}
+                    className="w-full mt-0.5 rounded-lg border border-blue-200 bg-white px-2 py-1 text-xs font-mono font-bold"
+                  />
+                </div>
+              </div>
+              {(() => {
+                const uPrice = parseFloat(usdCalcPrice) || 0;
+                const uMarkup = parseFloat(usdCalcMarkup) || 0;
+                const uRate = parseFloat(usdCalcRate) || 0;
+                const calcNOK = Number((uPrice * (1 + uMarkup / 100) * uRate).toFixed(2));
+                return (
+                  <div className="flex items-center justify-between pt-1.5 border-t border-blue-100">
+                    <span className="text-[11px] font-mono text-slate-700">
+                      = <strong>NOK {calcNOK}</strong>
+                    </span>
+                    <button
+                      type="button"
+                      disabled={calcNOK <= 0}
+                      onClick={() => {
+                        setFormData((prev) => ({ ...prev, purchasePrice: calcNOK }));
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold disabled:opacity-50 transition"
+                    >
+                      Apply NOK Price
+                    </button>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
         </div>
 
         <div>
