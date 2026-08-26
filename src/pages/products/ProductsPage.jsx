@@ -262,107 +262,117 @@ const ProductsPage = () => {
   return (
     <MainLayout>
       <div className="space-y-5">
-        {/* CLEAN PAGE HEADER */}
+        {/* CLEAN PAGE HEADER WITH PRIMARY ACTION */}
         <PageHeader
-          stacked={true}
           title={t("articlesAndBarcodes")}
           description={t("articlesPageDesc")}
           action={
-            <>
-              {/* Left group of tools */}
-              <div className="flex flex-wrap items-center gap-2">
-                {/* CAD DXF Export Button */}
-                <button
-                  type="button"
-                  onClick={handleExportAllCAD_DXF}
-                  disabled={paginationMeta.total === 0}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/70 px-3 py-2 text-xs sm:text-sm font-semibold text-indigo-700 shadow-2xs transition hover:bg-indigo-100 hover:border-indigo-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={isNo ? "Last ned AutoCAD DXF CAD-fil" : "Download AutoCAD DXF CAD file"}
-                >
-                  <FileCode className="w-4 h-4 text-indigo-600 shrink-0" />
-                  <span>CAD (.dxf)</span>
-                </button>
-
-                {/* Vector SVG Button */}
-                <button
-                  type="button"
-                  onClick={handleExportAllCAD_SVG}
-                  disabled={paginationMeta.total === 0}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50/70 px-3 py-2 text-xs sm:text-sm font-semibold text-violet-700 shadow-2xs transition hover:bg-violet-100 hover:border-violet-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={isNo ? "Last ned Vector SVG-fil" : "Download Vector SVG CAD file"}
-                >
-                  <Layers className="w-4 h-4 text-violet-600 shrink-0" />
-                  <span>Vector (.svg)</span>
-                </button>
-
-                {/* Excel Export Button */}
-                <button
-                  type="button"
-                  onClick={handleExportAllExcel}
-                  disabled={exportingExcel || paginationMeta.total === 0}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={isNo ? "Last ned Excel-regneark med strekkoder" : "Download Excel spreadsheet with barcodes"}
-                >
-                  <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>
-                    {exportingExcel
-                      ? (isNo
-                          ? `Eksporterer (${exportProgress?.current || 0}/${exportProgress?.total || paginationMeta.total})...`
-                          : `Exporting (${exportProgress?.current || 0}/${exportProgress?.total || paginationMeta.total})...`)
-                      : t("excelWithBarcodes")}
-                  </span>
-                </button>
-
-                {/* Print Labels Sheet Button */}
-                <button
-                  type="button"
-                  onClick={() => handleOpenPrintModal("individual")}
-                  disabled={paginationMeta.total === 0 || fetchingModalData}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={isNo ? "Åpne utskriftsklare strekkodeetiketter" : "Open printable barcode sticker labels"}
-                >
-                  <Printer className="w-4 h-4 text-blue-600 shrink-0" />
-                  <span>{t("printLabels")}</span>
-                </button>
-
-                {/* Mixed Carton (Last Box) Button */}
-                <button
-                  type="button"
-                  onClick={() => handleOpenPrintModal("mixed_carton")}
-                  disabled={paginationMeta.total === 0 || fetchingModalData}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/80 hover:bg-indigo-100 text-indigo-700 px-3.5 py-2 text-xs sm:text-sm font-semibold shadow-2xs transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={isNo ? "Blandet kartong strekkode (restvarer)" : "Mixed sizes carton sticker for leftover box"}
-                >
-                  <Boxes className="w-4 h-4 text-indigo-600 shrink-0" />
-                  <span>{isNo ? "Blandet kartong (Rest)" : "Mixed Carton (Last Box)"}</span>
-                </button>
-
-                {/* Cost Price Manager & Calculator Button */}
-                <button
-                  type="button"
-                  onClick={() => setCostPriceModalOpen(true)}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50/80 hover:bg-blue-100 text-blue-700 px-3.5 py-2 text-xs sm:text-sm font-semibold shadow-2xs transition"
-                  title={isNo ? "Kostprisbehandler & Valutakalkulator" : "Cost Price Manager & Calculator"}
-                >
-                  <Calculator className="w-4 h-4 text-blue-600 shrink-0" />
-                  <span>{isNo ? "Kostpriser & Kalkulator" : "Cost Price Manager"}</span>
-                </button>
-              </div>
-
-              {/* Right primary action */}
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => navigate("/products/add")}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-xs sm:text-sm font-semibold shadow-sm transition"
-                >
-                  <FiPlus size={16} className="shrink-0" />
-                  <span>{t("addArticle")}</span>
-                </button>
-              </div>
-            </>
+            <button
+              type="button"
+              onClick={() => navigate("/products/add")}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold shadow-sm transition"
+            >
+              <FiPlus size={16} className="shrink-0" />
+              <span>{t("addArticle")}</span>
+            </button>
           }
         />
+
+        {/* TOOLS & EXPORT ACTIONS BAR */}
+        <SurfaceCard className="p-3 sm:p-3.5">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+            {/* Export Actions */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline">
+                {isNo ? "Eksport:" : "Export:"}
+              </span>
+
+              {/* Excel Export Button */}
+              <button
+                type="button"
+                onClick={handleExportAllExcel}
+                disabled={exportingExcel || paginationMeta.total === 0}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50/80 hover:bg-emerald-100 text-emerald-800 px-3 py-2 text-xs sm:text-sm font-semibold shadow-2xs transition disabled:opacity-50 disabled:cursor-not-allowed"
+                title={isNo ? "Last ned Excel-regneark med strekkoder" : "Download Excel spreadsheet with barcodes"}
+              >
+                <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>
+                  {exportingExcel
+                    ? (isNo
+                        ? `Eksporterer (${exportProgress?.current || 0}/${exportProgress?.total || paginationMeta.total})...`
+                        : `Exporting (${exportProgress?.current || 0}/${exportProgress?.total || paginationMeta.total})...`)
+                    : t("excelWithBarcodes")}
+                </span>
+              </button>
+
+              {/* CAD DXF Export Button */}
+              <button
+                type="button"
+                onClick={handleExportAllCAD_DXF}
+                disabled={paginationMeta.total === 0}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/70 px-3 py-2 text-xs sm:text-sm font-semibold text-indigo-700 shadow-2xs transition hover:bg-indigo-100 hover:border-indigo-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                title={isNo ? "Last ned AutoCAD DXF CAD-fil" : "Download AutoCAD DXF CAD file"}
+              >
+                <FileCode className="w-4 h-4 text-indigo-600 shrink-0" />
+                <span>CAD (.dxf)</span>
+              </button>
+
+              {/* Vector SVG Button */}
+              <button
+                type="button"
+                onClick={handleExportAllCAD_SVG}
+                disabled={paginationMeta.total === 0}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50/70 px-3 py-2 text-xs sm:text-sm font-semibold text-violet-700 shadow-2xs transition hover:bg-violet-100 hover:border-violet-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                title={isNo ? "Last ned Vector SVG-fil" : "Download Vector SVG CAD file"}
+              >
+                <Layers className="w-4 h-4 text-violet-600 shrink-0" />
+                <span>Vector (.svg)</span>
+              </button>
+            </div>
+
+            {/* Printing & Management Tools */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline">
+                {isNo ? "Verktøy:" : "Tools:"}
+              </span>
+
+              {/* Print Labels Sheet Button */}
+              <button
+                type="button"
+                onClick={() => handleOpenPrintModal("individual")}
+                disabled={paginationMeta.total === 0 || fetchingModalData}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                title={isNo ? "Åpne utskriftsklare strekkodeetiketter" : "Open printable barcode sticker labels"}
+              >
+                <Printer className="w-4 h-4 text-blue-600 shrink-0" />
+                <span>{t("printLabels")}</span>
+              </button>
+
+              {/* Mixed Carton (Last Box) Button */}
+              <button
+                type="button"
+                onClick={() => handleOpenPrintModal("mixed_carton")}
+                disabled={paginationMeta.total === 0 || fetchingModalData}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/80 hover:bg-indigo-100 text-indigo-700 px-3.5 py-2 text-xs sm:text-sm font-semibold shadow-2xs transition disabled:opacity-50 disabled:cursor-not-allowed"
+                title={isNo ? "Blandet kartong strekkode (restvarer)" : "Mixed sizes carton sticker for leftover box"}
+              >
+                <Boxes className="w-4 h-4 text-indigo-600 shrink-0" />
+                <span>{t("mixedCarton")}</span>
+              </button>
+
+              {/* Cost Price Manager & Calculator Button */}
+              <button
+                type="button"
+                onClick={() => setCostPriceModalOpen(true)}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50/80 hover:bg-blue-100 text-blue-700 px-3.5 py-2 text-xs sm:text-sm font-semibold shadow-2xs transition"
+                title={isNo ? "Kostprisbehandler & Valutakalkulator" : "Cost Price Manager & Calculator"}
+              >
+                <Calculator className="w-4 h-4 text-blue-600 shrink-0" />
+                <span>{t("costPriceManager")}</span>
+              </button>
+            </div>
+          </div>
+        </SurfaceCard>
 
         {/* TOOLBAR: SEARCH & STYLE FILTER */}
         <SurfaceCard className="p-3.5 sm:p-4">

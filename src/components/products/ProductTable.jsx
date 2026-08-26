@@ -120,13 +120,13 @@ const ProductTable = ({
                   <div>
                     <dt className="text-slate-400 font-medium">{isNo ? "Kostpris / stk" : "Cost / Unit"}</dt>
                     <dd className="mt-0.5 font-semibold text-blue-700 font-mono text-[13px]">
-                      {unitCost > 0 ? `NOK ${unitCost.toFixed(2)}` : "-"}
+                      {stockQty > 0 && unitCost > 0 ? `NOK ${unitCost.toFixed(2)}` : "-"}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-slate-400 font-medium">{isNo ? "Total Kostverdi" : "Total Cost"}</dt>
                     <dd className="mt-0.5 font-bold text-slate-900 font-mono text-[13px]">
-                      {unitCost > 0 ? `NOK ${totalCostVal.toFixed(2)}` : "-"}
+                      {stockQty > 0 && unitCost > 0 ? `NOK ${totalCostVal.toFixed(2)}` : "-"}
                     </dd>
                   </div>
                   <div>
@@ -275,7 +275,7 @@ const ProductTable = ({
                     {product.stockQuantity}
                   </td>
                   <td className="px-4 py-4 text-sm font-mono">
-                    {unitCost > 0 ? (
+                    {stockQty > 0 && unitCost > 0 ? (
                       <span className="font-semibold text-blue-700 bg-blue-50/80 px-2 py-0.5 rounded-md border border-blue-100">
                         NOK {unitCost.toFixed(2)}
                       </span>
@@ -284,7 +284,7 @@ const ProductTable = ({
                     )}
                   </td>
                   <td className="px-4 py-4 text-sm font-mono">
-                    {unitCost > 0 ? (
+                    {stockQty > 0 && unitCost > 0 ? (
                       <div className="font-semibold text-slate-900">
                         NOK {totalCostVal.toLocaleString("no-NO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
