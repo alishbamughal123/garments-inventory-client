@@ -14,6 +14,7 @@ import {
   Grid,
   Boxes,
   FileCode,
+  FolderArchive,
 } from "lucide-react";
 import MainLayout from "../../layouts/MainLayout";
 import Button from "../../components/ui/Button";
@@ -23,7 +24,11 @@ import Loader from "../../components/ui/Loader";
 import BarcodePrintModal from "../../components/products/BarcodePrintModal";
 import { getProductById, getProducts } from "../../services/products.service";
 import { exportArticlesToExcelWithBarcodes } from "../../utils/barcodeExport";
-import { downloadCAD_DXF, downloadCAD_SVG } from "../../utils/cadExport";
+import {
+  downloadCAD_DXF,
+  downloadCAD_SVG,
+  downloadAllMixedCartonsZIP,
+} from "../../utils/cadExport";
 
 const API_URL =
   import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes("railway")
@@ -52,7 +57,7 @@ const BarcodePage = () => {
         setLoading(true);
         const [productRes, allProductsRes] = await Promise.all([
           getProductById(id),
-          getProducts().catch(() => ({ data: [] })),
+          getProducts({ all: "true", limit: 5000 }).catch(() => ({ data: [] })),
         ]);
 
         const productData = productRes.data;
@@ -68,11 +73,15 @@ const BarcodePage = () => {
         // Find all sibling variants of the same base style / style name
         const baseStyle =
           productData.baseStyleNumber ||
-          (productData.styleNumber ? productData.styleNumber.split("-")[0] : null);
+          (productData.styleNumber ? productData.styleNumber.split("-")[0] : productData.sku ? productData.sku.split("-")[0] : null);
 
-        const siblings = (allProductsRes.data || []).filter((p) => {
+        const allItemsList = Array.isArray(allProductsRes.data)
+          ? allProductsRes.data
+          : allProductsRes.data?.products || [];
+
+        const siblings = allItemsList.filter((p) => {
           const pBase =
-            p.baseStyleNumber || (p.styleNumber ? p.styleNumber.split("-")[0] : null);
+            p.baseStyleNumber || (p.styleNumber ? p.styleNumber.split("-")[0] : p.sku ? p.sku.split("-")[0] : null);
           return (
             (baseStyle && pBase === baseStyle) ||
             (p.styleName && productData.styleName && p.styleName === productData.styleName)
@@ -182,6 +191,24 @@ const BarcodePage = () => {
     } catch (err) {
       console.error(err);
       toast.error("Failed to generate Vector CAD file");
+    }
+  };
+
+  const handleExportAllMixedCartonsZIP = async () => {
+    try {
+      toast.loading("Packaging all mixed carton CAD (.dxf) & SVG files in ZIP...", { id: "zip-toast" });
+      const baseCode =
+        product.baseStyleNumber ||
+        (product.styleNumber ? product.styleNumber.split("-")[0] : product.sku);
+
+      await downloadAllMixedCartonsZIP({
+        products: allVariants.length > 0 ? allVariants : [product],
+        fileName: `Mixed_Cartons_CAD_Style_${baseCode}`,
+      });
+      toast.success("1-Click Mixed Cartons CAD ZIP bundle downloaded!", { id: "zip-toast" });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate ZIP archive", { id: "zip-toast" });
     }
   };
 
@@ -295,6 +322,16 @@ const BarcodePage = () => {
                 >
                   <Printer className="w-4 h-4 text-white shrink-0" />
                   <span>Print All Sizes ({allVariants.length})</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleExportAllMixedCartonsZIP}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 px-3.5 py-2 text-xs sm:text-sm font-bold shadow-2xs transition"
+                  title="1-Click download ALL mixed cartons DXF & SVG files inside a ZIP"
+                >
+                  <FolderArchive className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>All Cartons ZIP (1-Click)</span>
                 </button>
 
                 <button

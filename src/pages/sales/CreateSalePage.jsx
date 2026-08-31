@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import MainLayout from "../../layouts/MainLayout";
@@ -7,7 +7,7 @@ import PageHeader from "../../components/ui/PageHeader";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import { formControlClass, formLabelClass } from "../../components/ui/formStyles";
 import { createSale } from "../../services/sales.service";
-import { getProducts } from "../../services/products.service";
+import { getProducts, getProductByBarcode } from "../../services/products.service";
 import { getCustomers } from "../../services/customer.service";
 import { useLanguage } from "../../context/LanguageContext";
 import logo from "../../assets/logo.png";
@@ -51,23 +51,26 @@ const CreateSalePage = () => {
     (async () => {
       try {
         const [prodRes, custRes] = await Promise.all([
-          getProducts(),
-          getCustomers(),
+          getProducts({ all: "true", limit: 5000 }),
+          getCustomers({ limit: 500 }),
         ]);
 
         if (!isMounted) return;
 
-        setProducts(
-          Array.isArray(prodRes.data)
-            ? prodRes.data
-            : prodRes.data?.data || []
-        );
+        const prodList = Array.isArray(prodRes.data)
+          ? prodRes.data
+          : Array.isArray(prodRes.products)
+          ? prodRes.products
+          : prodRes.data?.products || prodRes.data?.data || [];
 
-        setCustomers(
-          Array.isArray(custRes.data)
-            ? custRes.data
-            : custRes.data?.data || []
-        );
+        const custList = Array.isArray(custRes.data)
+          ? custRes.data
+          : Array.isArray(custRes.customers)
+          ? custRes.customers
+          : custRes.data?.customers || custRes.data?.data || [];
+
+        setProducts(prodList);
+        setCustomers(custList);
       } catch (error) {
         console.error(error);
         toast.error("Failed to fetch sale setup data");
@@ -79,17 +82,62 @@ const CreateSalePage = () => {
     };
   }, []);
 
-  // Filter products by search term or SKU barcode
-  const filteredProducts = products.filter((p) => {
-    if (!productSearch) return true;
-    const query = productSearch.toLowerCase();
-    return (
-      p.productName?.toLowerCase().includes(query) ||
-      p.sku?.toLowerCase().includes(query) ||
-      p.styleNumber?.toLowerCase().includes(query) ||
-      p.color?.toLowerCase().includes(query)
-    );
-  });
+  // Live backend search fallback as user types (covers massive catalogues or newly added items)
+  useEffect(() => {
+    if (!productSearch.trim() || productSearch.trim().length < 2) return;
+    const timer = setTimeout(async () => {
+      try {
+        const res = await getProducts({ search: productSearch.trim(), all: "true" });
+        const list = Array.isArray(res.data)
+          ? res.data
+          : res.data?.products || res.products || [];
+        if (list.length > 0) {
+          setProducts((prev) => {
+            const map = new Map(prev.map((p) => [p.id, p]));
+            list.forEach((item) => map.set(item.id, item));
+            return Array.from(map.values());
+          });
+        }
+      } catch {
+        // silent fallback to local filter
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [productSearch]);
+
+  // Comprehensive in-memory matching across all product fields
+  const filteredProducts = useMemo(() => {
+    if (!productSearch.trim()) return [];
+    const query = productSearch.toLowerCase().trim();
+    return products.filter((p) => {
+      const matchName = p.productName?.toLowerCase().includes(query);
+      const matchItem = p.itemName?.toLowerCase().includes(query);
+      const matchStyle = p.styleName?.toLowerCase().includes(query);
+      const matchStyleNo = p.styleNumber?.toLowerCase().includes(query);
+      const matchBase = p.baseStyleNumber?.toLowerCase().includes(query);
+      const matchSku = p.sku?.toLowerCase().includes(query);
+      const matchColor = p.color?.toLowerCase().includes(query);
+      const matchBrand = p.brand?.toLowerCase().includes(query);
+      const matchCategory = p.category?.name?.toLowerCase().includes(query);
+      const matchBarcode = p.barcodes?.some((b) =>
+        b.barcodeValue?.toLowerCase().includes(query)
+      );
+
+      return (
+        matchName ||
+        matchItem ||
+        matchStyle ||
+        matchStyleNo ||
+        matchBase ||
+        matchSku ||
+        matchColor ||
+        matchBrand ||
+        matchCategory ||
+        matchBarcode
+      );
+    });
+  }, [products, productSearch]);
 
   const handleAddProductToCart = (product) => {
     if (!product) return;
@@ -136,13 +184,28 @@ const CreateSalePage = () => {
     toast.success(`Added ${product.productName} to cart`);
   };
 
-  // Handle scanned barcode input
-  const handleBarcodeScan = (scannedCode) => {
-    const matched = products.find(
+  // Handle scanned barcode input (instant match in memory + API fallback)
+  const handleBarcodeScan = async (scannedCode) => {
+    const code = String(scannedCode || "").trim().toLowerCase();
+    let matched = products.find(
       (p) =>
-        p.sku?.toLowerCase() === scannedCode.toLowerCase() ||
-        p.styleNumber?.toLowerCase() === scannedCode.toLowerCase()
+        p.sku?.toLowerCase() === code ||
+        p.styleNumber?.toLowerCase() === code ||
+        p.baseStyleNumber?.toLowerCase() === code ||
+        p.barcodes?.some((b) => b.barcodeValue?.toLowerCase() === code)
     );
+
+    if (!matched) {
+      try {
+        const res = await getProductByBarcode(scannedCode);
+        if (res?.data) {
+          matched = res.data;
+          setProducts((prev) => [...prev, matched]);
+        }
+      } catch {
+        // Not found by direct barcode endpoint
+      }
+    }
 
     if (matched) {
       handleAddProductToCart(matched);

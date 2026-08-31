@@ -61,7 +61,7 @@ const ProductDetailsPage = () => {
         const [productRes, historyRes, allProductsRes] = await Promise.all([
           getProductById(id),
           getPriceHistory(id).catch(() => ({ data: [] })),
-          getProducts().catch(() => ({ data: [] })),
+          getProducts({ all: "true", limit: 5000 }).catch(() => ({ data: [] })),
         ]);
 
         if (isMounted) {
@@ -73,11 +73,15 @@ const ProductDetailsPage = () => {
 
           const baseStyle =
             productData.baseStyleNumber ||
-            (productData.styleNumber ? productData.styleNumber.split("-")[0] : null);
+            (productData.styleNumber ? productData.styleNumber.split("-")[0] : productData.sku ? productData.sku.split("-")[0] : null);
 
-          const siblings = (allProductsRes.data || []).filter((p) => {
+          const allItemsList = Array.isArray(allProductsRes.data)
+            ? allProductsRes.data
+            : allProductsRes.data?.products || [];
+
+          const siblings = allItemsList.filter((p) => {
             const pBase =
-              p.baseStyleNumber || (p.styleNumber ? p.styleNumber.split("-")[0] : null);
+              p.baseStyleNumber || (p.styleNumber ? p.styleNumber.split("-")[0] : p.sku ? p.sku.split("-")[0] : null);
             if (baseStyle && pBase) {
               return pBase === baseStyle;
             }

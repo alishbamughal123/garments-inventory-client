@@ -124,19 +124,25 @@ const CustomerDetailsPage = () => {
           <div className="min-w-0">
             <div className="flex items-center gap-3">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 font-bold border border-blue-100">
-                <UserRound size={26} />
+                {customer.companyName ? <Building2 size={26} /> : <UserRound size={26} />}
               </div>
               <div>
                 <span className="text-xs font-mono font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100">
                   {customer.customerCode || "CUST-LEGACY"}
                 </span>
                 <h2 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">
-                  {customer.fullName}
+                  {customer.companyName || customer.fullName}
                 </h2>
-                {customer.companyName && (
+                {customer.companyName ? (
                   <p className="text-sm font-semibold text-slate-600 flex items-center gap-1.5 mt-0.5">
-                    <Building2 size={15} /> {customer.companyName} {customer.vatNumber && `(VAT: ${customer.vatNumber})`}
+                    <UserRound size={15} /> Kontaktperson: {customer.fullName} {customer.vatNumber && `• (MVA: ${customer.vatNumber})`}
                   </p>
+                ) : (
+                  customer.vatNumber && (
+                    <p className="text-sm font-medium text-slate-500 mt-0.5">
+                      MVA: {customer.vatNumber}
+                    </p>
+                  )
                 )}
               </div>
             </div>

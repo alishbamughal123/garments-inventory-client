@@ -278,9 +278,20 @@ const SalesPage = () => {
                         }
                       </td>
                       <td className="p-5 text-slate-600">
-                        {sale.customer
-                          ?.fullName ||
-                          "Walk-in Customer"}
+                        {sale.customer ? (
+                          <div>
+                            <span className="font-bold text-slate-900 block text-xs">
+                              {sale.customer.companyName || sale.customer.fullName}
+                            </span>
+                            {sale.customer.companyName && (
+                              <span className="text-[11px] text-slate-500 block">
+                                {sale.customer.fullName}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-slate-500 font-medium text-xs">Walk-in Customer</span>
+                        )}
                       </td>
                       <td className="p-5 font-bold text-slate-900">
                         NOK{" "}

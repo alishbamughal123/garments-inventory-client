@@ -12,7 +12,10 @@ import {
   Boxes, 
   Calculator, 
   Download,
-  Tag
+  Tag,
+  FolderArchive,
+  Grid,
+  Package
 } from "lucide-react";
 import MainLayout from "../../layouts/MainLayout";
 import PageHeader from "../../components/ui/PageHeader";
@@ -31,7 +34,12 @@ import {
   getBaseStyles,
 } from "../../services/products.service";
 import { exportArticlesToExcelWithBarcodes } from "../../utils/barcodeExport";
-import { downloadCAD_DXF, downloadCAD_SVG } from "../../utils/cadExport";
+import {
+  downloadCAD_DXF,
+  downloadCAD_SVG,
+  downloadAllMixedCartonsZIP,
+  downloadAllMixedCartonsCombinedDXF,
+} from "../../utils/cadExport";
 import toast from "react-hot-toast";
 
 const ProductsPage = () => {
@@ -136,11 +144,12 @@ const ProductsPage = () => {
 
   // Helper to fetch complete matching products for bulk actions (Export / Print)
   const getFullFilteredProducts = async () => {
-    if (paginationMeta.total <= products.length && page === 1) {
+    if (paginationMeta.total > 0 && paginationMeta.total <= products.length && page === 1 && selectedStyleFilter === "ALL" && !search.trim()) {
       return products;
     }
     const response = await getProducts({
       all: "true",
+      limit: 5000,
       search: search.trim(),
       styleFilter: selectedStyleFilter,
     });
@@ -244,6 +253,62 @@ const ProductsPage = () => {
     } catch (error) {
       console.error(error);
       toast.error(isNo ? "Kunne ikke generere SVG CAD-fil" : "Failed to generate SVG CAD file", { id: "svg-toast" });
+    }
+  };
+
+  const handleExportAllMixedCartonsZIP = async () => {
+    if (paginationMeta.total === 0) {
+      toast.error(isNo ? "Ingen artikler å eksportere." : "No articles to export.");
+      return;
+    }
+
+    try {
+      toast.loading(isNo ? "Pakker alle kartong CAD-filer i ZIP..." : "Packaging all mixed carton CAD (.dxf) & SVG files into 1-Click ZIP...", { id: "zip-toast" });
+      const allItems = await getFullFilteredProducts();
+      const filterSuffix =
+        selectedStyleFilter !== "ALL" ? `_Style_${selectedStyleFilter}` : "_All_Mixed_Cartons";
+
+      await downloadAllMixedCartonsZIP({
+        products: allItems,
+        fileName: `Mixed_Cartons_CAD${filterSuffix}`,
+      });
+      toast.success(
+        isNo
+          ? "1-Klikk Mixed Cartons ZIP-arkiv lastet ned!"
+          : "1-Click Mixed Cartons CAD ZIP bundle downloaded!",
+        { id: "zip-toast" }
+      );
+    } catch (error) {
+      console.error(error);
+      toast.error(isNo ? "Kunne ikke generere ZIP-fil" : "Failed to generate ZIP file", { id: "zip-toast" });
+    }
+  };
+
+  const handleExportAllMixedCartonsCombinedDXF = async () => {
+    if (paginationMeta.total === 0) {
+      toast.error(isNo ? "Ingen artikler å eksportere." : "No articles to export.");
+      return;
+    }
+
+    try {
+      toast.loading(isNo ? "Genererer kombinert kartong CAD-ark..." : "Generating combined multi-carton CAD sheet (.dxf)...", { id: "cad-toast" });
+      const allItems = await getFullFilteredProducts();
+      const filterSuffix =
+        selectedStyleFilter !== "ALL" ? `_Style_${selectedStyleFilter}` : "_All_Cartons";
+
+      downloadAllMixedCartonsCombinedDXF({
+        products: allItems,
+        fileName: `Combined_Mixed_Cartons_Sheet${filterSuffix}`,
+      });
+      toast.success(
+        isNo
+          ? "Kombinert kartong CAD-ark (.dxf) lastet ned!"
+          : "Combined Mixed Cartons CAD Sheet (.dxf) downloaded!",
+        { id: "cad-toast" }
+      );
+    } catch (error) {
+      console.error(error);
+      toast.error(isNo ? "Kunne ikke generere kombinert CAD-fil" : "Failed to generate combined CAD file", { id: "cad-toast" });
     }
   };
 
@@ -365,6 +430,38 @@ const ProductsPage = () => {
                       <div>
                         <div className="text-slate-900 font-semibold">Vector Graphics (.svg)</div>
                         <div className="text-[11px] text-slate-500 font-normal">{isNo ? "Skalerbar vektorgrafikk" : "Scalable vector graphics"}</div>
+                      </div>
+                    </button>
+
+                    <div className="my-1 border-t border-slate-100" />
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setExportDropdownOpen(false);
+                        handleExportAllMixedCartonsZIP();
+                      }}
+                      className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-amber-900 hover:bg-amber-50 transition-colors"
+                    >
+                      <FolderArchive className="w-4 h-4 text-amber-600 shrink-0" />
+                      <div>
+                        <div className="text-amber-950 font-bold">Mixed Cartons ZIP (.zip)</div>
+                        <div className="text-[11px] text-amber-700/80 font-normal">{isNo ? "Alle kartong DXF & SVG i 1 klikk" : "1-Click all carton DXF & SVG files"}</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setExportDropdownOpen(false);
+                        handleExportAllMixedCartonsCombinedDXF();
+                      }}
+                      className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-teal-900 hover:bg-teal-50 transition-colors"
+                    >
+                      <Grid className="w-4 h-4 text-teal-600 shrink-0" />
+                      <div>
+                        <div className="text-teal-950 font-bold">Combined Cartons Sheet (.dxf)</div>
+                        <div className="text-[11px] text-teal-700/80 font-normal">{isNo ? "Alle kartonger på ett CAD-ark" : "All cartons on single CAD plotter sheet"}</div>
                       </div>
                     </button>
                   </div>

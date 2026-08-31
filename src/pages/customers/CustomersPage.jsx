@@ -215,8 +215,8 @@ const CustomersPage = () => {
                 <thead className="bg-slate-50 font-bold uppercase text-slate-400">
                   <tr>
                     <th className="px-5 py-3.5">{t("customerCode")}</th>
-                    <th className="px-5 py-3.5">{t("name")}</th>
                     <th className="px-5 py-3.5">{t("company")}</th>
+                    <th className="px-5 py-3.5">{t("contactPerson")}</th>
                     <th className="px-5 py-3.5">{t("phone")}</th>
                     <th className="px-5 py-3.5">{t("email")}</th>
                     <th className="px-5 py-3.5">{t("type")}</th>
@@ -231,14 +231,31 @@ const CustomersPage = () => {
                       <td className="px-5 py-4 font-mono font-bold text-blue-600">
                         {customer.customerCode || "—"}
                       </td>
-                      <td className="px-5 py-4 font-bold text-slate-900">
-                        {customer.fullName}
+                      <td className="px-5 py-4">
+                        <Link
+                          to={appRoutes.crmCustomerDetails(customer.id)}
+                          className="font-bold text-slate-900 hover:text-blue-600 transition block text-sm"
+                        >
+                          {customer.companyName || customer.fullName}
+                        </Link>
+                        {customer.vatNumber && (
+                          <span className="text-[11px] font-mono text-slate-400 block">
+                            MVA: {customer.vatNumber}
+                          </span>
+                        )}
                       </td>
-                      <td className="px-5 py-4 font-medium text-slate-600">
-                        {customer.companyName || "—"}
+                      <td className="px-5 py-4 text-slate-600 font-medium text-xs">
+                        <span className="block font-semibold text-slate-700">
+                          {customer.fullName}
+                        </span>
+                        {customer.designation && (
+                          <span className="text-[11px] text-slate-400 block">
+                            {customer.designation}
+                          </span>
+                        )}
                       </td>
-                      <td className="px-5 py-4">{customer.phoneNumber}</td>
-                      <td className="px-5 py-4 text-slate-500">{customer.email || "—"}</td>
+                      <td className="px-5 py-4 font-mono text-xs text-slate-700">{customer.phoneNumber}</td>
+                      <td className="px-5 py-4 text-slate-500 text-xs">{customer.email || "—"}</td>
                       <td className="px-5 py-4 font-medium">{t(customer.customerType)}</td>
                       <td className="px-5 py-4">
                         <StatusBadge status={customer.status} />

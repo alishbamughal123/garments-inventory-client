@@ -17,6 +17,8 @@ import {
   CheckCircle2,
   FileCode,
   Palette,
+  Grid,
+  FolderArchive,
 } from "lucide-react";
 import Button from "../ui/Button";
 import {
@@ -29,8 +31,12 @@ import {
   downloadCAD_DXF,
   downloadCAD_SVG,
   downloadMixedCartonCAD_DXF,
+  downloadMixedCartonCAD_SVG,
+  downloadAllMixedCartonsZIP,
+  downloadAllMixedCartonsCombinedDXF,
 } from "../../utils/cadExport";
 import { getColorHex } from "../../utils/imageHelper";
+import { getProducts } from "../../services/products.service";
 import toast from "react-hot-toast";
 
 const BarcodePrintModal = ({
@@ -57,10 +63,42 @@ const BarcodePrintModal = ({
   const [includeBrand, setIncludeBrand] = useState(true);
   const [includeSpecs, setIncludeSpecs] = useState(true);
 
+  // Maintain local products list with auto-expansion for single variants
+  const [modalProductsList, setModalProductsList] = useState(products || []);
+
+  useEffect(() => {
+    setModalProductsList(products || []);
+
+    // If only 1 product / variant passed (e.g. from single table row or barcode page), automatically fetch all sibling sizes of that style!
+    if (products && products.length === 1 && products[0]) {
+      const p = products[0];
+      const baseStyle =
+        p.baseStyleNumber ||
+        (p.styleNumber ? p.styleNumber.split("-")[0] : p.sku ? p.sku.split("-")[0] : null);
+
+      if (baseStyle) {
+        getProducts({ search: baseStyle, limit: 1000, all: "true" })
+          .then((res) => {
+            const list = Array.isArray(res.data) ? res.data : res.data?.products || [];
+            const siblings = list.filter((item) => {
+              const itemBase =
+                item.baseStyleNumber ||
+                (item.styleNumber ? item.styleNumber.split("-")[0] : item.sku ? item.sku.split("-")[0] : null);
+              return itemBase === baseStyle;
+            });
+            if (siblings.length > 1) {
+              setModalProductsList(siblings);
+            }
+          })
+          .catch((e) => console.error("Could not auto-load sibling sizes", e));
+      }
+    }
+  }, [products]);
+
   // 1. Group products by Style Number (Clean multi-style support)
   const stylesMap = useMemo(() => {
     const map = {};
-    products.forEach((p) => {
+    (modalProductsList || []).forEach((p) => {
       const sNo = String(
         p.baseStyleNumber ||
         (p.styleNumber ? p.styleNumber.split("-")[0] : p.sku) ||
@@ -76,7 +114,7 @@ const BarcodePrintModal = ({
       map[sNo].products.push(p);
     });
     return map;
-  }, [products]);
+  }, [modalProductsList]);
 
   const availableStyleNumbers = useMemo(() => Object.keys(stylesMap), [stylesMap]);
   const [selectedStyleNo, setSelectedStyleNo] = useState("");
@@ -332,7 +370,7 @@ const BarcodePrintModal = ({
         toast.success(`AutoCAD DXF for ${activeColor} Mixed Carton Sticker downloaded!`);
       } else {
         downloadCAD_DXF({
-          products: products,
+          products: modalProductsList,
           fileName: `Garment_CAD_Labels_${baseStyleNo}`,
         });
         toast.success(`AutoCAD DXF file for Style #${baseStyleNo} downloaded!`);
@@ -340,6 +378,68 @@ const BarcodePrintModal = ({
     } catch (err) {
       console.error(err);
       toast.error("Failed to generate CAD DXF file");
+    }
+  };
+
+  const handleExportSVG = () => {
+    try {
+      if (activeTab === "mixed_carton") {
+        downloadMixedCartonCAD_SVG({
+          orderNo,
+          cartonNo,
+          styleNo: baseStyleNo,
+          styleName,
+          color: activeColor,
+          totalQty: totalActiveColorPcs,
+          items: activeColorSelectedItems,
+          masterBarcodeVal,
+          fileName: `Mixed_Carton_Vector_${baseStyleNo}_${activeColor}`,
+        });
+        toast.success(`Vector SVG for ${activeColor} Mixed Carton Sticker downloaded!`);
+      } else {
+        downloadCAD_SVG({
+          products: modalProductsList,
+          fileName: `Garment_Vector_Labels_${baseStyleNo}`,
+        });
+        toast.success(`Vector SVG file for Style #${baseStyleNo} downloaded!`);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate Vector SVG file");
+    }
+  };
+  const handleDownloadAllMixedCartonsZIP = async () => {
+    try {
+      toast.loading("Generating 1-Click ZIP with all mixed carton CAD (.dxf) & Vector (.svg) files...", { id: "zip-toast" });
+      await downloadAllMixedCartonsZIP({
+        products: modalProductsList,
+        fileName: `Mixed_Cartons_CAD_${availableStyleNumbers.join("_") || "Styles"}`,
+        customOptions: {
+          orderNo,
+          cartonNo,
+        },
+      });
+      toast.success("1-Click Mixed Cartons ZIP bundle downloaded!", { id: "zip-toast" });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate ZIP archive", { id: "zip-toast" });
+    }
+  };
+
+  const handleDownloadCombinedCartonDXF = () => {
+    try {
+      downloadAllMixedCartonsCombinedDXF({
+        products: modalProductsList,
+        fileName: `All_Mixed_Cartons_Combined_Sheet_${availableStyleNumbers.join("_") || "Styles"}`,
+        customOptions: {
+          orderNo,
+          cartonNo,
+        },
+      });
+      toast.success("Combined Multi-Carton CAD Sheet (.dxf) downloaded!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate combined CAD sheet");
     }
   };
 
@@ -427,6 +527,30 @@ const BarcodePrintModal = ({
           </div>
 
           <div className="flex items-center gap-2">
+            {activeTab === "mixed_carton" && (
+              <>
+                <button
+                  type="button"
+                  onClick={handleDownloadAllMixedCartonsZIP}
+                  className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50/80 hover:bg-amber-100 text-amber-800 px-3 py-2 text-xs font-bold shadow-sm transition"
+                  title="1-Click Download ALL Mixed Cartons (.dxf & .svg) in a ZIP"
+                >
+                  <FolderArchive className="w-4 h-4 text-amber-600" />
+                  <span>All Cartons ZIP (.zip)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleDownloadCombinedCartonDXF}
+                  className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-teal-300 bg-teal-50/80 hover:bg-teal-100 text-teal-800 px-3 py-2 text-xs font-bold shadow-sm transition"
+                  title="Download All Mixed Cartons combined on 1 continuous CAD sheet (.dxf)"
+                >
+                  <Grid className="w-4 h-4 text-teal-600" />
+                  <span>Combined Sheet (.dxf)</span>
+                </button>
+              </>
+            )}
+
             <button
               type="button"
               onClick={handleExportCAD}
@@ -434,7 +558,17 @@ const BarcodePrintModal = ({
               title="Download AutoCAD DXF CAD format"
             >
               <FileCode className="w-4 h-4 text-indigo-600" />
-              <span>CAD (.dxf)</span>
+              <span>{activeTab === "mixed_carton" ? `${activeColor} CAD (.dxf)` : "CAD (.dxf)"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleExportSVG}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50/70 hover:bg-violet-100 text-violet-700 px-3.5 py-2 text-xs font-semibold shadow-sm transition"
+              title="Download Vector SVG format (Opens in Chrome, Edge, Illustrator, Plotters)"
+            >
+              <Layers className="w-4 h-4 text-violet-600" />
+              <span>Vector (.svg)</span>
             </button>
 
             <button
@@ -665,7 +799,23 @@ const BarcodePrintModal = ({
                 </span>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={handleDownloadAllMixedCartonsZIP}
+                  className="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-[11px] transition shadow-2xs flex items-center gap-1"
+                  title="1-Click Download ALL Mixed Cartons in a ZIP"
+                >
+                  <FolderArchive className="w-3.5 h-3.5" /> All Cartons ZIP (1-Click)
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadCombinedCartonDXF}
+                  className="px-2.5 py-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-bold text-[11px] transition shadow-2xs flex items-center gap-1"
+                  title="Combined multi-carton CAD sheet (.dxf)"
+                >
+                  <Grid className="w-3.5 h-3.5" /> Combined DXF Sheet
+                </button>
                 <button
                   type="button"
                   onClick={handleFillActiveColor}
@@ -995,7 +1145,31 @@ const BarcodePrintModal = ({
 
         {/* FOOTER (NO-PRINT) */}
         <div className="no-print p-4 bg-slate-50 border-t border-slate-200/60 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {activeTab === "mixed_carton" && (
+              <>
+                <button
+                  type="button"
+                  onClick={handleDownloadAllMixedCartonsZIP}
+                  className="inline-flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 px-4 py-2 text-xs font-bold shadow-sm transition"
+                  title="1-Click Download ALL Mixed Cartons in a ZIP"
+                >
+                  <FolderArchive className="w-4 h-4 text-amber-600" />
+                  <span>Download All Cartons ZIP</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleDownloadCombinedCartonDXF}
+                  className="inline-flex items-center gap-2 rounded-xl border border-teal-300 bg-teal-50 hover:bg-teal-100 text-teal-800 px-4 py-2 text-xs font-bold shadow-sm transition"
+                  title="Download all mixed cartons in 1 combined CAD sheet"
+                >
+                  <Grid className="w-4 h-4 text-teal-600" />
+                  <span>Combined Sheet (.dxf)</span>
+                </button>
+              </>
+            )}
+
             <button
               type="button"
               onClick={handleExportCAD}
@@ -1003,7 +1177,17 @@ const BarcodePrintModal = ({
               title="Download AutoCAD DXF CAD format"
             >
               <FileCode className="w-4 h-4 text-indigo-600" />
-              <span>Export CAD (.dxf)</span>
+              <span>{activeTab === "mixed_carton" ? `${activeColor} CAD (.dxf)` : "Export CAD (.dxf)"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleExportSVG}
+              className="inline-flex items-center gap-2 rounded-xl border border-violet-200 bg-violet-50/70 hover:bg-violet-100 text-violet-700 px-4 py-2 text-xs font-semibold shadow-sm transition"
+              title="Download Vector SVG format (Opens directly in Chrome, Edge, Illustrator, Plotters)"
+            >
+              <Layers className="w-4 h-4 text-violet-600" />
+              <span>Export Vector (.svg)</span>
             </button>
 
             <button
