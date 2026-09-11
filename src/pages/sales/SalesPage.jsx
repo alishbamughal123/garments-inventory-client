@@ -139,7 +139,7 @@ const SalesPage = () => {
 
           <input
             type="text"
-            placeholder="Search invoice..."
+            placeholder="Search invoice, customer, or product..."
             value={search}
             onChange={(e) =>
               setSearch(
@@ -198,6 +198,27 @@ const SalesPage = () => {
                 </div>
               </div>
 
+              {/* Mobile Products List */}
+              {sale.saleItems && sale.saleItems.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-slate-100 space-y-1.5">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                    Products ({sale.saleItems.reduce((acc, it) => acc + (it.quantity || 0), 0)} items)
+                  </span>
+                  <div className="space-y-1">
+                    {sale.saleItems.map((item, i) => (
+                      <div key={i} className="flex items-center justify-between text-xs text-slate-700">
+                        <span className="font-medium text-slate-900 truncate mr-2">
+                          {item.product?.productName || "Product"}
+                        </span>
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-700 flex-shrink-0">
+                          ×{item.quantity}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
                 <div>
                   <dt className="text-slate-400">
@@ -251,6 +272,9 @@ const SalesPage = () => {
                     Customer
                   </th>
                   <th className="p-5 text-left">
+                    Products
+                  </th>
+                  <th className="p-5 text-left">
                     Total
                   </th>
                   <th className="p-5 text-left">
@@ -291,6 +315,34 @@ const SalesPage = () => {
                           </div>
                         ) : (
                           <span className="text-slate-500 font-medium text-xs">Walk-in Customer</span>
+                        )}
+                      </td>
+                      <td className="p-5 text-slate-700">
+                        {sale.saleItems && sale.saleItems.length > 0 ? (
+                          <div className="space-y-1 max-w-xs">
+                            {sale.saleItems.slice(0, 3).map((item, i) => (
+                              <div key={i} className="flex items-center gap-1.5 text-xs">
+                                <span className="font-medium text-slate-900 truncate" title={item.product?.productName}>
+                                  {item.product?.productName || "Product"}
+                                </span>
+                                <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold bg-slate-100 text-slate-700 flex-shrink-0">
+                                  ×{item.quantity}
+                                </span>
+                                {(item.product?.color || item.product?.size) && (
+                                  <span className="text-[10px] text-slate-400 truncate">
+                                    ({[item.product?.color, item.product?.size].filter(Boolean).join("/")})
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                            {sale.saleItems.length > 3 && (
+                              <span className="inline-block text-[11px] font-semibold text-teal-600">
+                                +{sale.saleItems.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 text-xs italic">—</span>
                         )}
                       </td>
                       <td className="p-5 font-bold text-slate-900">
@@ -350,7 +402,7 @@ const SalesPage = () => {
                   0 && (
                   <tr>
                     <td
-                      colSpan="6"
+                      colSpan="7"
                       className="p-10 text-center text-sm text-slate-500"
                     >
                       No sales found.

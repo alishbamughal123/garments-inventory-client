@@ -6,8 +6,9 @@ import MainLayout from "../../layouts/MainLayout";
 import PageHeader from "../../components/ui/PageHeader";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import StatusBadge from "../../components/ui/StatusBadge";
-import { CheckCircle, Truck, Package, Weight, Clock, Building2, Phone, Calendar, FileText, Download } from "lucide-react";
+import { CheckCircle, Truck, Package, Weight, Clock, Building2, Phone, Calendar, FileText, Download, Trash2 } from "lucide-react";
 import Pagination from "../../components/common/Pagination";
+import DeleteModal from "../../components/common/DeleteModal";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -20,6 +21,8 @@ const B2BOrdersPage = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedOrderToDelete, setSelectedOrderToDelete] = useState(null);
 
   const fetchOrders = async (pageToFetch = page, pageSizeToFetch = pageSize) => {
     try {
@@ -67,6 +70,25 @@ const B2BOrdersPage = () => {
     } finally {
       setFulfillingId(null);
     }
+  };
+
+  // Delete B2B Order
+  const handleDeleteOrder = async () => {
+    if (!selectedOrderToDelete) return;
+    try {
+      await api.delete(`/portal/admin/orders/${selectedOrderToDelete.id}`);
+      toast.success(lang === "no" ? "Ordre slettet fra databasen" : "Order deleted from database");
+      setDeleteModalOpen(false);
+      setSelectedOrderToDelete(null);
+      fetchOrders();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to delete order");
+    }
+  };
+
+  const openDeleteModal = (order) => {
+    setSelectedOrderToDelete(order);
+    setDeleteModalOpen(true);
   };
 
   // Generate Delivery Note PDF (Pakkeseddel)
@@ -241,11 +263,20 @@ const B2BOrdersPage = () => {
                       </div>
                     </div>
 
-                    <div className="text-left sm:text-right bg-slate-50 px-3.5 py-1.5 rounded-2xl border border-slate-100 w-full sm:w-auto">
-                      <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Grand Total</span>
-                      <span className="text-base font-black text-slate-900 font-mono">
-                        NOK {Number(order.totalAmount).toLocaleString()}
-                      </span>
+                    <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
+                      <div className="text-left sm:text-right bg-slate-50 px-3.5 py-1.5 rounded-2xl border border-slate-100">
+                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Grand Total</span>
+                        <span className="text-base font-black text-slate-900 font-mono">
+                          NOK {Number(order.totalAmount).toLocaleString()}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => openDeleteModal(order)}
+                        className="rounded-xl border border-red-200 bg-red-50/50 p-2.5 text-red-600 transition hover:bg-red-100 hover:text-red-700 cursor-pointer flex-shrink-0"
+                        title={lang === "no" ? "Slett ordre" : "Delete Order"}
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </div>
                   </div>
 
@@ -373,6 +404,21 @@ const B2BOrdersPage = () => {
             </div>
           </div>
         )}
+
+        <DeleteModal
+          isOpen={deleteModalOpen}
+          onClose={() => {
+            setDeleteModalOpen(false);
+            setSelectedOrderToDelete(null);
+          }}
+          onConfirm={handleDeleteOrder}
+          title={lang === "no" ? "Slett B2B-ordre" : "Delete B2B Order"}
+          message={
+            lang === "no"
+              ? `Er du sikker på at du vil slette ordre ${selectedOrderToDelete?.orderNumber}? Denne handlingen kan ikke angres.`
+              : `Are you sure you want to delete B2B Order ${selectedOrderToDelete?.orderNumber}? This action cannot be undone.`
+          }
+        />
       </div>
     </MainLayout>
   );

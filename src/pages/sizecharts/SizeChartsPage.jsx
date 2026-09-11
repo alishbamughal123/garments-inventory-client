@@ -65,6 +65,7 @@ const SizeChartsPage = () => {
     map.set("10107", { styleNumber: "10107", styleName: "Hamar - Healthcare bukse", brand: "Nordic Prowear", hasChart: true, variantsCount: 0 });
     map.set("10108", { styleNumber: "10108", styleName: "Bergen - Trouser Unisex NS3357", brand: "Nordic Prowear", hasChart: true, variantsCount: 0 });
     map.set("10109", { styleNumber: "10109", styleName: "Ålesund - Coat", brand: "Nordic Prowear", hasChart: true, variantsCount: 0 });
+    map.set("10121", { styleNumber: "10121", styleName: "Drammen - Sweat shirt", brand: "Nordic Prowear", hasChart: true, variantsCount: 0 });
     map.set("10122", { styleNumber: "10122", styleName: "Kalmar - Fleece Jakke", brand: "Nordic Prowear", hasChart: true, variantsCount: 0 });
     map.set("10123", { styleNumber: "10123", styleName: "Bodø - Fleece Vest", brand: "Nordic Prowear", hasChart: true, variantsCount: 0 });
     map.set("10124", { styleNumber: "10124", styleName: "Oslo - Workwear Bukse", brand: "Nordic Prowear", hasChart: true, variantsCount: 0 });
@@ -81,7 +82,7 @@ const SizeChartsPage = () => {
 
     const CONFIGURED_STYLES = [
       "10099", "10101", "10102", "10105", "10106", "10116", "10107", "10108", "10109",
-      "10122", "10123", "10124",
+      "10121", "10122", "10123", "10124",
       "20110", "20111", "200120", "200121", "200122",
       "200123", "200124", "200125", "200126", "200127"
     ];
