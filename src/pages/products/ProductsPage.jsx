@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import useQueryParamState from "../../hooks/useQueryParamState";
 import { FiPlus } from "react-icons/fi";
 import { 
   Printer, 
@@ -49,10 +50,11 @@ const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [baseStyles, setBaseStyles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [selectedStyleFilter, setSelectedStyleFilter] = useState("ALL");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(25);
+  // List state lives in the URL so Back from a product page returns to the same page/filters
+  const [search, setSearch] = useQueryParamState("q", "");
+  const [selectedStyleFilter, setSelectedStyleFilter] = useQueryParamState("style", "ALL");
+  const [page, setPage] = useQueryParamState("page", 1);
+  const [pageSize, setPageSize] = useQueryParamState("size", 25);
   const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
