@@ -287,58 +287,38 @@ import {
   FiLayers,
   FiAlertTriangle,
   FiArchive,
-  FiCheckCircle,
 } from "react-icons/fi";
 
 import MainLayout from "../../layouts/MainLayout";
 import StatCard from "../../components/dashboard/StatCard";
 import LowStockTable from "../../components/dashboard/LowStockTable";
-import TaskSummaryCards from "../../components/tasks/TaskSummaryCards";
 import Loader from "../../components/ui/Loader";
-import StatusBadge from "../../components/ui/StatusBadge";
 import { useLanguage } from "../../context/LanguageContext";
 
 import {
   getDashboardData,
 } from "../../services/dashboard.service";
-import { getTasks } from "../../services/task.service";
 
 const DashboardPage = () => {
-  const { t, lang, isNo } = useLanguage();
+  const { t, isNo } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [dashboard, setDashboard] = useState(null);
-  const [taskSummary, setTaskSummary] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
 
     (async () => {
       try {
-        const [
-          dashboardResult,
-          tasksResult,
-        ] = await Promise.allSettled([
-          getDashboardData(),
-          getTasks({
-            includeSummary: "true",
-          }),
-        ]);
+        const dashboardResult = await getDashboardData();
 
         if (isMounted) {
-          if (dashboardResult.status === "fulfilled") {
-            setDashboard(dashboardResult.value.data);
-          } else {
-            toast.error(isNo ? "Kunne ikke laste oversiktsdata" : "Failed to load dashboard data");
-          }
-
-          if (tasksResult.status === "fulfilled") {
-            setTaskSummary(tasksResult.value.data.summary);
-          } else {
-            console.log(tasksResult.reason);
-          }
+          setDashboard(dashboardResult.data);
         }
       } catch (error) {
         console.log(error);
+        if (isMounted) {
+          toast.error(isNo ? "Kunne ikke laste oversiktsdata" : "Failed to load dashboard data");
+        }
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -380,15 +360,12 @@ const DashboardPage = () => {
         </p>
       </div>
 
-      <div className="mb-8">
-        <TaskSummaryCards summary={taskSummary} />
-      </div>
-
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
         <StatCard
           title={t("totalArticles")}
           value={dashboard.totalProducts}
+          bg="bg-blue-50"
           icon={
             <FiBox
               size={22}
@@ -400,6 +377,7 @@ const DashboardPage = () => {
         <StatCard
           title={t("totalStock")}
           value={dashboard.totalStock}
+          bg="bg-emerald-50"
           icon={
             <FiLayers
               size={22}
@@ -413,6 +391,7 @@ const DashboardPage = () => {
           value={`NOK ${Number(
             dashboard.inventoryValue || 0
           ).toLocaleString()}`}
+          bg="bg-violet-50"
           icon={
             <FiArchive
               size={22}
@@ -422,19 +401,9 @@ const DashboardPage = () => {
         />
 
         <StatCard
-          title={isNo ? "Friske artikler" : "Healthy Articles"}
-          value={dashboard.healthyProducts}
-          icon={
-            <FiCheckCircle
-              size={22}
-              className="text-green-600"
-            />
-          }
-        />
-
-        <StatCard
           title={t("lowStockItems")}
           value={dashboard.lowStockItems}
+          bg="bg-amber-50"
           icon={
             <FiAlertTriangle
               size={22}
@@ -442,108 +411,10 @@ const DashboardPage = () => {
             />
           }
         />
-
-        <StatCard
-          title={t("outOfStock")}
-          value={dashboard.outOfStockItems}
-          icon={
-            <FiArchive
-              size={22}
-              className="text-slate-600"
-            />
-          }
-        />
       </div>
 
       {/* Low Stock */}
-      <div className="mb-8">
-        <LowStockTable products={dashboard.topLowStockProducts} />
-      </div>
-
-      {/* Transactions */}
-      <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold mb-5 text-slate-900">
-          {t("recentTransactions")}
-        </h2>
-
-        <div className="overflow-x-auto">
-          <table className="min-w-[640px] w-full text-left">
-            <thead>
-              <tr className="text-slate-500 text-sm border-b border-slate-100">
-                <th className="py-3 font-semibold">{t("product")}</th>
-                <th className="py-3 font-semibold">{t("type")}</th>
-                <th className="py-3 font-semibold text-right">{t("quantity")}</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-slate-100">
-              {dashboard.recentTransactions?.length === 0 ? (
-                <tr>
-                  <td colSpan={3} className="py-6 text-center text-slate-400 text-sm">
-                    {t("noData")}
-                  </td>
-                </tr>
-              ) : (
-                dashboard.recentTransactions?.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50 transition">
-                    <td className="py-4 font-semibold text-slate-800">
-                      {item.product?.productName || "Article"}
-                      <span className="block text-xs font-mono text-slate-400 font-normal">
-                        {item.product?.sku}
-                      </span>
-                    </td>
-                    <td>
-                      <StatusBadge value={item.transactionType} />
-                    </td>
-                    <td className="py-4 text-right font-bold text-slate-900">
-                      {item.quantity}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Returns */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold mb-5 text-slate-900">
-          {t("recentReturns")}
-        </h2>
-
-        <div className="overflow-x-auto">
-          <table className="min-w-[520px] w-full text-left">
-            <thead>
-              <tr className="text-slate-500 text-sm border-b border-slate-100">
-                <th className="py-3 font-semibold">{t("product")}</th>
-                <th className="py-3 font-semibold text-right">{t("quantity")}</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-slate-100">
-              {dashboard.recentReturns?.length === 0 ? (
-                <tr>
-                  <td colSpan={2} className="py-6 text-center text-slate-400 text-sm">
-                    {t("noData")}
-                  </td>
-                </tr>
-              ) : (
-                dashboard.recentReturns?.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50 transition">
-                    <td className="py-4 font-semibold text-slate-800">
-                      {item.product?.productName || "Article"}
-                    </td>
-                    <td className="py-4 text-right font-bold text-slate-900">
-                      {item.returnQuantity}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <LowStockTable products={dashboard.topLowStockProducts} />
     </MainLayout>
   );
 };

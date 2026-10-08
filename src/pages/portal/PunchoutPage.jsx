@@ -61,7 +61,7 @@ const PunchoutPage = () => {
               color: "Dark Navy",
               size: "M",
               category: { name: "Work Trousers" },
-              washingInstructions: "40°C Standard Wash",
+              washingInstructions: "Do Not Bleach",
               imageUrl: null
             },
             {
@@ -334,7 +334,7 @@ const PunchoutPage = () => {
 
                 {/* Washing Instructions Info */}
                 <div className="mt-2 text-[10px] text-blue-300 bg-blue-950/60 border border-blue-800/60 p-2 rounded-xl">
-                  <strong className="text-blue-200">Care: </strong> {product.washingInstructions || "40°C Standard Wash. Do Not Bleach."}
+                  <strong className="text-blue-200">Care: </strong> {product.washingInstructions || "Do Not Bleach."}
                 </div>
 
                 {/* Logo Customization Option */}

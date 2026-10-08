@@ -626,7 +626,7 @@ const ProductForm = ({
           name="washingInstructions"
           value={formData.washingInstructions || ""}
           onChange={handleChange}
-          placeholder="40°C Standard Wash. Do Not Bleach. Tumble Dry Low."
+          placeholder="Do Not Bleach. Tumble Dry Low."
           className={formControlClass}
         />
       </div>

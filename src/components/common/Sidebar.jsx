@@ -12,7 +12,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import logo from "../../assets/logo-icon.png";
+import logo from "../../assets/newlogo.png";
 import { sidebarNavigation } from "../../config/navigation";
 import { cn } from "../../utils/cn";
 import { useAuth } from "../../context/useAuth";
@@ -99,7 +99,7 @@ const Sidebar = () => {
           <img
             src={logo}
             alt="Nordic Prowear"
-            className="h-11 w-11 flex-shrink-0 rounded-md object-contain"
+            className="h-11 w-11 flex-shrink-0 object-contain"
           />
           <div className="flex min-w-0 flex-col leading-none">
             <span className="truncate text-[17px] font-black uppercase tracking-wide text-[#0a3866]">

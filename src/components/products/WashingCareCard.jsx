@@ -1,6 +1,7 @@
 import React from "react";
 import { ShieldCheck, Check, X, AlertCircle } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
+import wash85Logo from "../../assets/wash85logo.png";
 
 /**
  * 1. Style #10101 Specific Care Symbols (Exactly matching wahing-instructions 10101.png)
@@ -67,11 +68,20 @@ export const STYLE_10101_SYMBOLS = [
  */
 export const STYLE_10099_SYMBOLS = [
   {
+    id: "wash60",
+    titleNo: "Standard maskinvask 60°C",
+    titleEn: "Standard Machine Wash 60°C",
+    descNo: "Normal maskinvask på 60 °C.",
+    descEn: "Standard machine wash at 60 °C.",
+    status: "allowed",
+    iconType: "wash60",
+  },
+  {
     id: "wash85",
-    titleNo: "Vask 85°C (Industri)",
-    titleEn: "Wash 85°C (Industrial)",
-    descNo: "Tåler kraftig industrivask opptil 85 °C.",
-    descEn: "Withstands heavy industrial wash up to 85 °C.",
+    titleNo: "Industriell vask 85°C",
+    titleEn: "Industrial Wash 85°C",
+    descNo: "Industriell vask på 85 °C.",
+    descEn: "Industrial wash at 85 °C.",
     status: "allowed",
     iconType: "wash85",
   },
@@ -169,13 +179,22 @@ export const STYLE_10121_SYMBOLS = [
  */
 export const STYLE_10109_SYMBOLS = [
   {
-    id: "wash75",
-    titleNo: "Vask 85°C",
-    titleEn: "Wash 85°C",
-    descNo: "Normal maskinvask på 85 °C (industrivask).",
-    descEn: "Standard machine wash at 85 °C (industrial wash).",
+    id: "wash60",
+    titleNo: "Standard maskinvask 60°C",
+    titleEn: "Standard Machine Wash 60°C",
+    descNo: "Normal maskinvask på 60 °C.",
+    descEn: "Standard machine wash at 60 °C.",
     status: "allowed",
-    iconType: "wash75",
+    iconType: "wash60",
+  },
+  {
+    id: "wash85",
+    titleNo: "Industriell vask 85°C",
+    titleEn: "Industrial Wash 85°C",
+    descNo: "Industriell vask på 85 °C.",
+    descEn: "Industrial wash at 85 °C.",
+    status: "allowed",
+    iconType: "wash85",
   },
   {
     id: "noBleach",
@@ -373,13 +392,22 @@ export const STYLE_10123_SYMBOLS = [
  */
 export const STYLE_200123_SYMBOLS = [
   {
-    id: "wash75",
-    titleNo: "Vask 85°C",
-    titleEn: "Wash 85°C",
-    descNo: "Normal maskinvask på 85 °C (industrivask).",
-    descEn: "Standard machine wash at 85 °C (industrial wash).",
+    id: "wash60",
+    titleNo: "Standard maskinvask 60°C",
+    titleEn: "Standard Machine Wash 60°C",
+    descNo: "Normal maskinvask på 60 °C.",
+    descEn: "Standard machine wash at 60 °C.",
     status: "allowed",
-    iconType: "wash75",
+    iconType: "wash60",
+  },
+  {
+    id: "wash85",
+    titleNo: "Industriell vask 85°C",
+    titleEn: "Industrial Wash 85°C",
+    descNo: "Industriell vask på 85 °C.",
+    descEn: "Industrial wash at 85 °C.",
+    status: "allowed",
+    iconType: "wash85",
   },
   {
     id: "washSeparate",
@@ -433,13 +461,22 @@ export const STYLE_200123_SYMBOLS = [
  */
 export const STYLE_200124_SYMBOLS = [
   {
-    id: "wash75",
-    titleNo: "Vask 85°C",
-    titleEn: "Wash 85°C",
-    descNo: "Normal maskinvask på 85 °C (industrivask).",
-    descEn: "Machine wash at 85 °C (industrial wash).",
+    id: "wash60",
+    titleNo: "Standard maskinvask 60°C",
+    titleEn: "Standard Machine Wash 60°C",
+    descNo: "Normal maskinvask på 60 °C.",
+    descEn: "Standard machine wash at 60 °C.",
     status: "allowed",
-    iconType: "wash75",
+    iconType: "wash60",
+  },
+  {
+    id: "wash85",
+    titleNo: "Industriell vask 85°C",
+    titleEn: "Industrial Wash 85°C",
+    descNo: "Industriell vask på 85 °C.",
+    descEn: "Industrial wash at 85 °C.",
+    status: "allowed",
+    iconType: "wash85",
   },
   {
     id: "washSeparate",
@@ -661,20 +698,9 @@ export const DEFAULT_WORKWEAR_SYMBOLS = [
 export const CareIcon = ({ type }) => {
   switch (type) {
     case "wash85":
-      return (
-        <svg viewBox="0 0 48 48" className="w-8 h-8 stroke-slate-800 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M6 16 L10 38 Q10 42 14 42 L34 42 Q38 42 38 38 L42 16" />
-          <path d="M6 19 Q12 15 18 19 T30 19 T42 19" strokeWidth="2" />
-          <text x="24" y="33" textAnchor="middle" fill="currentColor" stroke="none" className="text-[11px] font-extrabold font-mono" style={{ fill: "#1e293b" }}>85</text>
-        </svg>
-      );
     case "wash75":
       return (
-        <svg viewBox="0 0 48 48" className="w-8 h-8 stroke-slate-800 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M6 16 L10 38 Q10 42 14 42 L34 42 Q38 42 38 38 L42 16" />
-          <path d="M6 19 Q12 15 18 19 T30 19 T42 19" strokeWidth="2" />
-          <text x="24" y="33" textAnchor="middle" fill="currentColor" stroke="none" className="text-[11px] font-extrabold font-mono" style={{ fill: "#1e293b" }}>85</text>
-        </svg>
+        <img src={wash85Logo} alt="Standard machine wash 60°C • Industrial wash 85°C" className="w-8 h-8 object-contain" />
       );
     case "wash60":
       return (
@@ -1186,9 +1212,9 @@ const WashingCareCard = ({
     : DEFAULT_WORKWEAR_SYMBOLS;
 
   const fullText10099No =
-    "Vask 85°C (Industrivask) • Må ikke blekes • Tørketrommel tillatt • Må ikke strykes • Tåler ikke rens";
+    "Standard maskinvask 60°C • Industriell vask 85°C (Industrivask) • Må ikke blekes • Tørketrommel tillatt • Må ikke strykes • Tåler ikke rens";
   const fullText10099En =
-    "Wash 85°C (Industrial Wash) • Do Not Bleach • Tumble Dry Allowed • Do Not Iron • Do Not Dry Clean";
+    "Standard machine wash 60°C • Industrial wash 85°C (Industrial Wash) • Do Not Bleach • Tumble Dry Allowed • Do Not Iron • Do Not Dry Clean";
 
   const fullText10102No =
     "Vask 40°C • Vaskes separat • Må ikke blekes • Strykes på middels varme • Profesjonell rens tillatt";
@@ -1201,29 +1227,29 @@ const WashingCareCard = ({
     "Wash 40°C • Do Not Bleach • Do Not Tumble Dry • Iron Low Heat • Professional Dry Clean (P) Allowed";
 
   const fullText10105No =
-    "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText10105En =
-    "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+    "Standard machine wash 60°C • Industrial wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText10106No =
-    "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText10106En =
-    "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+    "Standard machine wash 60°C • Industrial wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText10107No =
-    "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText10107En =
-    "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+    "Standard machine wash 60°C • Industrial wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText10108No =
-    "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText10108En =
-    "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+    "Standard machine wash 60°C • Industrial wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText10109No =
-    "Vask 85°C • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText10109En =
-    "Wash 85°C • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+    "Standard machine wash 60°C • Industrial wash 85°C • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText10114No =
     "Vask 60°C • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
@@ -1231,9 +1257,9 @@ const WashingCareCard = ({
     "Wash 60°C • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText10115No =
-    "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText10115En =
-    "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+    "Standard machine wash 60°C • Industrial wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText10121No =
     "Vask 40°C • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
@@ -1251,54 +1277,54 @@ const WashingCareCard = ({
     "Wash 40°C • Do Not Bleach • Do Not Tumble Dry • Iron Low Heat • Do Not Dry Clean";
 
   const fullText20110No =
-    "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText20110En =
-    "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+    "Standard machine wash 60°C • Industrial wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText20111No =
-    "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText20111En =
-    "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+    "Standard machine wash 60°C • Industrial wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText200121No =
-    "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText200121En =
-    "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+    "Standard machine wash 60°C • Industrial wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText200122No =
-    "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText200122En =
-    "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+    "Standard machine wash 60°C • Industrial wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText200123No =
-    "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText200123En =
-    "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+    "Standard machine wash 60°C • Industrial wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText200124No =
-    "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText200124En =
-    "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
+    "Standard machine wash 60°C • Industrial wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText200125No =
-    "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText200125En =
-    "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+    "Standard machine wash 60°C • Industrial wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText200126No =
-    "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText200126En =
-    "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+    "Standard machine wash 60°C • Industrial wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText200127No =
-    "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText200127En =
-    "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+    "Standard machine wash 60°C • Industrial wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText200128No =
-    "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)";
+    "Standard maskinvask 60°C • Industriell vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";
   const fullText200128En =
-    "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)";
+    "Standard machine wash 60°C • Industrial wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed";
 
   const fullText10101No =
     "Vask 40°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt";

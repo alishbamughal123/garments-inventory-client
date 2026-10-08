@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { loginUser, loginCustomerPortal, registerCustomerPortal, googleAuthCustomerPortal } from "../../services/auth.service";
 import { useAuth } from "../../context/useAuth";
 import { useLanguage } from "../../context/LanguageContext";
-import logo from "../../assets/logo-login.png";
+import logo from "../../assets/newlogo.png";
 import {
   FiMail,
   FiLock,
@@ -298,7 +298,7 @@ const LoginPage = () => {
             <img
               src={logo}
               alt="Nordic Prowear Logo"
-              className="h-20 sm:h-24 w-auto object-contain mb-2"
+              className="h-20 sm:h-24 w-auto object-contain mb-3"
             />
             <h1 className="text-xl font-extrabold text-[#0a3866] tracking-tight">
               {lang === "no" ? "Logg inn på kontoen din" : "Sign in to your account"}

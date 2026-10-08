@@ -1,7 +1,6 @@
 import { LogOut, UserRound, Globe } from "lucide-react";
 import { useAuth } from "../../context/useAuth";
 import { useLanguage } from "../../context/LanguageContext";
-
 const Navbar = () => {
   const { user, logout } = useAuth();
   const { lang, setLang, t } = useLanguage();
