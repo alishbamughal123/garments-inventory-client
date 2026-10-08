@@ -273,10 +273,10 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#eef3f9] text-slate-900 font-sans">
+    <div className="login-page min-h-screen w-full overflow-x-hidden bg-[#eef3f9] text-slate-900 font-sans">
       {/* FORM PANEL */}
       <section className="relative flex w-full flex-col min-h-screen bg-[#eef3f9]">
-        <header className="absolute top-3 right-4 sm:right-8 z-10">
+        <header className="flex justify-end px-4 pt-3 sm:absolute sm:top-3 sm:right-8 sm:px-0 sm:pt-0 z-10">
           <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 hover:border-[#07599a] transition">
             <FiGlobe className="text-[#07599a] text-sm" />
             <select
@@ -290,8 +290,8 @@ const LoginPage = () => {
           </div>
         </header>
 
-        <main className="flex flex-1 items-start justify-center px-5 sm:px-10 pt-14 sm:pt-6 pb-4">
-        <div className="w-full max-w-[580px] bg-white rounded-2xl border border-slate-200 shadow-[0_8px_30px_rgba(10,56,102,0.08)] px-6 py-6 sm:px-12 sm:py-7">
+        <main className="flex flex-1 items-start justify-center px-3 sm:px-10 pt-3 sm:pt-6 pb-4">
+        <div className="w-full max-w-[580px] bg-white rounded-2xl border border-slate-200 shadow-[0_8px_30px_rgba(10,56,102,0.08)] px-4 py-5 sm:px-12 sm:py-7">
 
           {/* Brand Header */}
           <div className="flex flex-col items-center text-center mb-4">
@@ -308,7 +308,7 @@ const LoginPage = () => {
             </p>
           </div>
           {/* Mode Switcher Tabs */}
-          <div className="grid grid-cols-3 gap-1 p-1 bg-slate-100 border border-slate-200 rounded-2xl mb-5 text-xs sm:text-[13px] font-bold">
+          <div className="grid grid-cols-3 gap-1 p-1 bg-slate-100 border border-slate-200 rounded-2xl mb-5 text-[11px] sm:text-[13px] font-bold whitespace-nowrap">
             <button
               type="button"
               onClick={() => { setActiveTab("staff"); setLoginError(""); }}
@@ -469,7 +469,7 @@ const LoginPage = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-2">
                 <div>
                   <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">Email</label>
                   <input
@@ -496,7 +496,7 @@ const LoginPage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-2">
                 <div>
                   <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
                     {lang === "no" ? "Leveringsadresse" : "Street Address"}

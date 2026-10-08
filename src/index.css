@@ -70,6 +70,14 @@
     var(--color-primary-shadow);
 }
 
+/* Prevent iOS auto-zoom on input focus (inputs under 16px) on the login page */
+@media (max-width: 640px) {
+  .login-page input,
+  .login-page select {
+    font-size: 16px;
+  }
+}
+
 .sidebar-scroll::-webkit-scrollbar {
   display: none;
 }

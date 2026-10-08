@@ -1188,11 +1188,13 @@ const phraseLookupNo = (() => {
 })();
 
 const DEFAULT_LANGUAGE = "no";
+// v2: older browsers may have a stored "en" from before Norwegian became the default
+const LANGUAGE_STORAGE_KEY = "app_language_v2";
 
 export const LanguageProvider = ({ children }) => {
   const [lang, setLang] = useState(() => {
     try {
-      return localStorage.getItem("app_language") || DEFAULT_LANGUAGE;
+      return localStorage.getItem(LANGUAGE_STORAGE_KEY) || DEFAULT_LANGUAGE;
     } catch {
       return DEFAULT_LANGUAGE;
     }
@@ -1200,7 +1202,7 @@ export const LanguageProvider = ({ children }) => {
 
   const changeLanguage = (newLang) => {
     setLang(newLang);
-    localStorage.setItem("app_language", newLang);
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, newLang);
   };
 
   // Keep <html lang> in sync and translate any text that is not wired to t()
