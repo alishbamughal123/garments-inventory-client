@@ -1,17 +1,18 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { loginUser, loginCustomerPortal, registerCustomerPortal, googleAuthCustomerPortal } from "../../services/auth.service";
 import { useAuth } from "../../context/useAuth";
 import { useLanguage } from "../../context/LanguageContext";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/logo-login.png";
 import {
   FiMail,
   FiLock,
   FiEye,
   FiEyeOff,
   FiShield,
-  FiTag,
+  FiAlertCircle,
+  FiCheck,
   FiGlobe,
   FiUserCheck,
   FiShoppingBag,
@@ -46,6 +47,10 @@ const LoginPage = () => {
   const [activeTab, setActiveTab] = useState("staff"); // "staff", "customer_login", "customer_register"
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState("");
+
+  const withSupport = (message) =>
+    `${String(message).replace(/[.\s]+$/, "")}. ${lang === "no" ? "Kontakt IT-support: Alishba Ramzan (alishbaramzan795@gmail.com)" : "Please contact IT Support: Alishba Ramzan (alishbaramzan795@gmail.com)"}`;
 
   // Real Google Sign-In Fallback modal state
   const [showGoogleModal, setShowGoogleModal] = useState(false);
@@ -91,7 +96,7 @@ const LoginPage = () => {
       setShowGoogleModal(false);
       navigate("/portal/catalog");
     } catch (error) {
-      toast.error(error?.response?.data?.message || (lang === "no" ? "Google-godkjenning mislyktes" : "Google verification failed"));
+      toast.error(withSupport(error?.response?.data?.message || (lang === "no" ? "Google-godkjenning mislyktes" : "Google verification failed")), { duration: 5000 });
     } finally {
       setLoading(false);
     }
@@ -126,6 +131,7 @@ const LoginPage = () => {
   }, []);
 
   const handleLoginChange = (e) => {
+    setLoginError("");
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
 
@@ -164,7 +170,8 @@ const LoginPage = () => {
         navigate(response.data.user.role === "CUSTOMER" ? "/portal/catalog" : "/dashboard");
       }
     } catch (error) {
-      toast.error(error?.response?.data?.message || (lang === "no" ? "Innlogging mislyktes" : "Login failed"));
+      const msg = withSupport(error?.response?.data?.message || (lang === "no" ? "Innlogging mislyktes" : "Login failed"));
+      setLoginError(msg);
     } finally {
       setLoading(false);
     }
@@ -179,7 +186,7 @@ const LoginPage = () => {
       toast.success(lang === "no" ? "Kundeportalkonto registrert!" : "B2B Account registered successfully!");
       navigate("/portal/catalog");
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Registration failed");
+      toast.error(withSupport(error?.response?.data?.message || "Registration failed"), { duration: 5000 });
     } finally {
       setLoading(false);
     }
@@ -266,36 +273,12 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="relative flex h-screen w-screen bg-slate-50 text-slate-900 overflow-hidden font-sans">
-      <style>{`
-        @keyframes float-tag {
-          0%, 100% { transform: translateY(0px) rotate(-1deg); }
-          50% { transform: translateY(-12px) rotate(1deg); }
-        }
-        @keyframes pulse-light {
-          0%, 100% { opacity: 0.2; transform: scale(1); }
-          50% { opacity: 0.4; transform: scale(1.08); }
-        }
-        .animate-float-tag {
-          animation: float-tag 6s ease-in-out infinite;
-        }
-        .animate-pulse-light {
-          animation: pulse-light 8s ease-in-out infinite;
-        }
-      `}</style>
-
-      {/* LEFT SIDE - LIGHT APPAREL CONSOLE LOGIN */}
-      <div className="w-full lg:w-[55%] xl:w-[58%] flex flex-col justify-between p-6 sm:p-10 bg-white relative overflow-hidden h-full border-r border-slate-200 overflow-y-auto">
-        
-        {/* Top Header Bar */}
-        <div className="flex items-center justify-between w-full z-10 pt-1 pb-3 border-b border-slate-100">
-          <div className="flex items-center gap-2 text-xs text-blue-600 font-bold tracking-wider uppercase">
-            <span className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
-            Nordic Prowear ERP
-          </div>
-
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1 shadow-sm hover:border-blue-500 transition">
-            <FiGlobe className="text-blue-600 text-sm" />
+    <div className="min-h-screen w-full bg-[#eef3f9] text-slate-900 font-sans">
+      {/* FORM PANEL */}
+      <section className="relative flex w-full flex-col min-h-screen bg-[#eef3f9]">
+        <header className="absolute top-3 right-4 sm:right-8 z-10">
+          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 hover:border-[#07599a] transition">
+            <FiGlobe className="text-[#07599a] text-sm" />
             <select
               value={lang}
               onChange={(e) => setLang(e.target.value)}
@@ -305,37 +288,33 @@ const LoginPage = () => {
               <option value="no">🇳🇴 NO</option>
             </select>
           </div>
-        </div>
+        </header>
 
-        {/* Login Card */}
-        <div className="my-auto mx-auto w-full max-w-[420px] bg-white border border-slate-200/90 rounded-3xl p-8 shadow-xl shadow-slate-200/60 z-10">
-          
+        <main className="flex flex-1 items-start justify-center px-5 sm:px-10 pt-14 sm:pt-6 pb-4">
+        <div className="w-full max-w-[580px] bg-white rounded-2xl border border-slate-200 shadow-[0_8px_30px_rgba(10,56,102,0.08)] px-6 py-6 sm:px-12 sm:py-7">
+
           {/* Brand Header */}
-          <div className="flex flex-col items-center text-center mb-6">
-            <div className="flex h-14 w-14 items-center justify-center p-2 bg-blue-50 border border-blue-100 rounded-2xl shadow-sm mb-3">
-              <img
-                src={logo}
-                alt="Nordic Prowear Logo"
-                className="h-full w-full object-contain"
-              />
-            </div>
-            
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1">
-              Nordic Prowear
+          <div className="flex flex-col items-center text-center mb-4">
+            <img
+              src={logo}
+              alt="Nordic Prowear Logo"
+              className="h-20 sm:h-24 w-auto object-contain mb-2"
+            />
+            <h1 className="text-xl font-extrabold text-[#0a3866] tracking-tight">
+              {lang === "no" ? "Logg inn på kontoen din" : "Sign in to your account"}
             </h1>
-            <p className="text-slate-500 text-xs font-medium leading-relaxed max-w-[300px]">
-              Garment Inventory, CRM & B2B Portal
+            <p className="mt-0.5 text-slate-500 text-xs sm:text-sm">
+              {lang === "no" ? "Velg innloggingstype nedenfor" : "Choose your access type below"}
             </p>
           </div>
-
           {/* Mode Switcher Tabs */}
-          <div className="grid grid-cols-3 p-1 bg-slate-100 border border-slate-200 rounded-2xl mb-5 text-xs font-bold">
+          <div className="grid grid-cols-3 gap-1 p-1 bg-slate-100 border border-slate-200 rounded-2xl mb-5 text-xs sm:text-[13px] font-bold">
             <button
               type="button"
-              onClick={() => setActiveTab("staff")}
-              className={`py-2 rounded-xl transition ${
+              onClick={() => { setActiveTab("staff"); setLoginError(""); }}
+              className={`py-2.5 rounded-xl transition ${
                 activeTab === "staff"
-                  ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
+                  ? "bg-[#0a3866] text-white shadow-md shadow-[#0a3866]/30"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -343,10 +322,10 @@ const LoginPage = () => {
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab("customer_login")}
-              className={`py-2 rounded-xl transition ${
+              onClick={() => { setActiveTab("customer_login"); setLoginError(""); }}
+              className={`py-2.5 rounded-xl transition ${
                 activeTab === "customer_login"
-                  ? "bg-teal-600 text-white shadow-md shadow-teal-600/30"
+                  ? "bg-[#07599a] text-white shadow-md shadow-[#07599a]/30"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -355,9 +334,9 @@ const LoginPage = () => {
             <button
               type="button"
               onClick={() => setActiveTab("customer_register")}
-              className={`py-2 rounded-xl transition ${
+              className={`py-2.5 rounded-xl transition ${
                 activeTab === "customer_register"
-                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30"
+                  ? "bg-[#07599a] text-white shadow-md shadow-[#07599a]/30"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -386,7 +365,13 @@ const LoginPage = () => {
 
           {/* Form */}
           {activeTab !== "customer_register" ? (
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
+            <form onSubmit={handleLoginSubmit} className="space-y-3">
+              {loginError && (
+                <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-xs font-semibold text-red-700">
+                  <FiAlertCircle size={16} className="mt-0.5 shrink-0" />
+                  <span>{loginError}</span>
+                </div>
+              )}
               <div>
                 <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
                   {activeTab === "customer_login" ? "Email or Phone" : "Email Address"}
@@ -401,7 +386,7 @@ const LoginPage = () => {
                     value={loginData.emailOrPhone}
                     onChange={handleLoginChange}
                     placeholder={activeTab === "customer_login" ? "client@company.com or +47..." : "admin@nordicprowear.com"}
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-4 text-sm font-semibold text-slate-900 placeholder-slate-400 outline-none transition duration-200 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm font-semibold text-slate-900 placeholder-slate-400 outline-none transition duration-200 focus:border-[#07599a] focus:bg-white focus:ring-2 focus:ring-[#07599a]/20"
                     required
                   />
                 </div>
@@ -415,7 +400,7 @@ const LoginPage = () => {
                   <button
                     type="button"
                     onClick={handleForgotPassword}
-                    className="text-xs font-bold text-blue-600 hover:underline transition"
+                    className="text-xs font-bold text-[#07599a] hover:underline transition"
                   >
                     Forgot?
                   </button>
@@ -430,7 +415,7 @@ const LoginPage = () => {
                     value={loginData.password}
                     onChange={handleLoginChange}
                     placeholder="••••••••"
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-12 text-sm font-semibold text-slate-900 placeholder-slate-400 outline-none transition duration-200 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-12 text-sm font-semibold text-slate-900 placeholder-slate-400 outline-none transition duration-200 focus:border-[#07599a] focus:bg-white focus:ring-2 focus:ring-[#07599a]/20"
                     required
                   />
                   <button
@@ -445,10 +430,10 @@ const LoginPage = () => {
 
               <button
                 type="submit"
-                className={`w-full mt-2 font-bold py-4 rounded-2xl shadow-md text-white transition-all duration-300 disabled:opacity-60 text-sm flex items-center justify-center gap-2 ${
+                className={`w-full mt-2 font-bold py-3.5 rounded-xl shadow-lg text-white transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 text-sm flex items-center justify-center gap-2 ${
                   activeTab === "customer_login"
-                    ? "bg-teal-600 hover:bg-teal-700 shadow-teal-600/20"
-                    : "bg-blue-600 hover:bg-blue-700 shadow-blue-600/20"
+                    ? "bg-[#07599a] hover:bg-[#0a3866] shadow-[#07599a]/25"
+                    : "bg-[#0a3866] hover:bg-[#07599a] shadow-[#0a3866]/25"
                 }`}
                 disabled={loading}
               >
@@ -466,7 +451,7 @@ const LoginPage = () => {
                   value={registerData.companyName}
                   onChange={handleRegisterChange}
                   placeholder="Nordic Retail AS"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:bg-white"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-[#07599a] focus:bg-white"
                   required
                 />
               </div>
@@ -479,7 +464,7 @@ const LoginPage = () => {
                   value={registerData.fullName}
                   onChange={handleRegisterChange}
                   placeholder="Ola Nordmann"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:bg-white"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-[#07599a] focus:bg-white"
                   required
                 />
               </div>
@@ -493,7 +478,7 @@ const LoginPage = () => {
                     value={registerData.email}
                     onChange={handleRegisterChange}
                     placeholder="client@company.com"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:bg-white"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-[#07599a] focus:bg-white"
                     required
                   />
                 </div>
@@ -505,7 +490,7 @@ const LoginPage = () => {
                     value={registerData.phone}
                     onChange={handleRegisterChange}
                     placeholder="+47 987 65 432"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:bg-white"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-[#07599a] focus:bg-white"
                     required
                   />
                 </div>
@@ -522,7 +507,7 @@ const LoginPage = () => {
                     value={registerData.address}
                     onChange={handleRegisterChange}
                     placeholder="Storgata 100"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:bg-white"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-[#07599a] focus:bg-white"
                   />
                 </div>
                 <div>
@@ -535,7 +520,7 @@ const LoginPage = () => {
                     value={registerData.city}
                     onChange={handleRegisterChange}
                     placeholder="0182 Oslo"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:bg-white"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-[#07599a] focus:bg-white"
                   />
                 </div>
               </div>
@@ -548,7 +533,7 @@ const LoginPage = () => {
                   value={registerData.password}
                   onChange={handleRegisterChange}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:bg-white"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-[#07599a] focus:bg-white"
                   required
                 />
               </div>
@@ -556,7 +541,7 @@ const LoginPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl text-xs shadow-md transition"
+                className="w-full mt-2 bg-[#0a3866] hover:bg-[#07599a] text-white font-bold py-3 rounded-2xl text-xs shadow-md transition"
               >
                 {loading ? "Creating Account..." : "Create Account & Browse Catalog"}
               </button>
@@ -564,107 +549,17 @@ const LoginPage = () => {
           )}
 
           {/* Security Stamp */}
-          <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-center gap-2 text-xs text-slate-500 font-medium">
-            <FiShield className="text-emerald-600" size={16} />
+          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-center gap-2 text-xs text-slate-500 font-medium">
+            <FiShield className="text-[#07599a]" size={16} />
             <span>Secure encrypted access portal</span>
           </div>
         </div>
+        </main>
 
-        {/* Footer info */}
-        <div className="flex justify-between items-center text-xs text-slate-400 border-t border-slate-100 pt-3 z-10">
-          <span>&copy; {new Date().getFullYear()} Nordic Prowear AS</span>
-          <span>GDPR Compliant</span>
-        </div>
-      </div>
-
-      {/* RIGHT SIDE - DARKER CONTRAST BACKGROUND FOR HANGTAG SHOWCASE */}
-      <div className="hidden lg:flex lg:w-[45%] xl:w-[42%] bg-slate-800 text-slate-100 p-12 flex-col justify-between relative overflow-hidden h-full select-none border-l border-slate-700">
-        
-        {/* Background light glow */}
-        <div className="absolute top-[-20%] right-[-10%] w-[550px] h-[550px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none animate-pulse-light" />
-        <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-teal-500/10 rounded-full blur-[130px] pointer-events-none" />
-        
-        {/* Darker Blueprint overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#334155_1px,transparent_1px),linear-gradient(to_bottom,#334155_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-35 pointer-events-none" />
-
-        {/* Top Header info */}
-        <div className="flex items-center justify-between z-10">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-slate-900 border border-slate-700 rounded-xl text-blue-400 shadow-sm">
-              <FiTag size={20} />
-            </div>
-            <span className="text-xs font-bold tracking-wider text-slate-300 uppercase">Nordic ERP & B2B Suite</span>
-          </div>
-          <span className="text-[10px] px-3 py-1 bg-slate-900 border border-slate-700 text-blue-400 rounded-full font-mono font-bold shadow-sm">
-            v2026.8-NORWAY
-          </span>
-        </div>
-
-        {/* Central White Hang Tag Showcase */}
-        <div className="my-auto mx-auto w-full max-w-sm flex flex-col items-center justify-center z-10 text-center">
-          <div className="relative w-[280px] bg-white text-slate-800 rounded-3xl p-7 shadow-2xl border border-slate-100 animate-float-tag flex flex-col justify-between">
-            {/* Hang Tag Eyelet */}
-            <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-4 h-4 bg-slate-900 rounded-full border border-slate-700 shadow-inner flex items-center justify-center">
-              <div className="w-1.5 h-1.5 bg-white rounded-full" />
-            </div>
-
-            <div className="mt-4 border-b border-slate-100 pb-3">
-              <span className="text-xs font-black tracking-[0.25em] text-slate-900 uppercase">
-                N O R D I C &nbsp; P R O W E A R
-              </span>
-            </div>
-
-            <div className="py-5 space-y-3 text-left text-xs border-b border-slate-100">
-              <div className="flex justify-between">
-                <span className="text-slate-400 font-medium">GARMENT</span>
-                <span className="text-slate-900 font-bold">Pro Heavy Winter Jacket</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400 font-medium">SKU</span>
-                <span className="text-slate-900 font-mono font-semibold">NP-WJK-808</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400 font-medium">UNIT WEIGHT</span>
-                <span className="text-blue-600 font-bold">0.85 kg</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400 font-medium">B2B PORTAL</span>
-                <span className="text-emerald-600 font-semibold">Active Catalog</span>
-              </div>
-            </div>
-
-            {/* Barcode */}
-            <div className="pt-4">
-              <div className="flex justify-center items-end gap-[2px] h-11 w-full bg-slate-50 p-2 rounded-xl border border-slate-200">
-                <div className="w-[2px] h-full bg-slate-900" />
-                <div className="w-[1px] h-full bg-slate-900" />
-                <div className="w-[3px] h-full bg-slate-900" />
-                <div className="w-[1px] h-full bg-slate-900" />
-                <div className="w-[2px] h-full bg-slate-900" />
-                <div className="w-[4px] h-full bg-slate-900" />
-                <div className="w-[1px] h-full bg-slate-900" />
-                <div className="w-[2px] h-full bg-slate-900" />
-                <div className="w-[3px] h-full bg-slate-900" />
-                <div className="w-[1px] h-full bg-slate-900" />
-                <div className="w-[4px] h-full bg-slate-900" />
-                <div className="w-[2px] h-full bg-slate-900" />
-              </div>
-              <span className="text-[10px] text-slate-400 tracking-[0.15em] block mt-1.5 font-mono">
-                7090012345678
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom system status */}
-        <div className="flex justify-between items-center z-10 text-xs text-slate-400 border-t border-slate-700 pt-4">
-          <span>Norwegian & English language support</span>
-          <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            GDPR Compliant
-          </span>
-        </div>
-      </div>
+        <footer className="flex justify-center px-5 py-3 text-xs text-slate-400">
+          &copy; {new Date().getFullYear()} Nordic Prowear AS &middot; GDPR Compliant
+        </footer>
+      </section>
 
       {/* GOOGLE SIGN-IN INTERACTIVE MODAL */}
       {showGoogleModal && (
@@ -710,7 +605,7 @@ const LoginPage = () => {
                     placeholder="yourname@gmail.com"
                     value={googleManualData.email}
                     onChange={(e) => setGoogleManualData({ ...googleManualData, email: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm font-semibold text-slate-900 placeholder-slate-400 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm font-semibold text-slate-900 placeholder-slate-400 outline-none focus:border-[#07599a] focus:bg-white focus:ring-2 focus:ring-[#07599a]/20"
                   />
                 </div>
               </div>
@@ -728,7 +623,7 @@ const LoginPage = () => {
                     placeholder="e.g. John Doe"
                     value={googleManualData.name}
                     onChange={(e) => setGoogleManualData({ ...googleManualData, name: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm font-semibold text-slate-900 placeholder-slate-400 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm font-semibold text-slate-900 placeholder-slate-400 outline-none focus:border-[#07599a] focus:bg-white focus:ring-2 focus:ring-[#07599a]/20"
                   />
                 </div>
               </div>
@@ -736,7 +631,7 @@ const LoginPage = () => {
               <button
                 type="submit"
                 disabled={loading || !googleManualData.email}
-                className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-blue-600/20 transition disabled:opacity-50"
+                className="w-full mt-2 bg-[#0a3866] hover:bg-[#07599a] text-white font-bold py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-[#0a3866]/20 transition disabled:opacity-50"
               >
                 <span>{loading ? "Authenticating..." : "Continue with this Google Account"}</span>
               </button>

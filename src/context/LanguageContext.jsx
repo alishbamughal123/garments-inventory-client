@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
+﻿import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
+import extraPhrasesNo from "./extraPhrasesNo";
+import { startAutoTranslate } from "../utils/autoTranslate";
 
 const translations = {
   en: {
@@ -1171,9 +1173,29 @@ const phraseDictNo = {
 
 const LanguageContext = createContext();
 
+// Case-insensitive English -> Norwegian lookup (phrases first, then key dictionaries)
+const phraseLookupNo = (() => {
+  const map = new Map();
+  const norm = (s) => String(s).replace(/\s+/g, " ").trim().toLowerCase();
+  for (const key of Object.keys(translations.en)) {
+    const en = translations.en[key];
+    const no = translations.no?.[key];
+    if (en && no) map.set(norm(en), no);
+  }
+  for (const [en, no] of Object.entries(extraPhrasesNo)) map.set(norm(en), no);
+  for (const [en, no] of Object.entries(phraseDictNo)) map.set(norm(en), no);
+  return (text) => map.get(norm(text));
+})();
+
+const DEFAULT_LANGUAGE = "no";
+
 export const LanguageProvider = ({ children }) => {
   const [lang, setLang] = useState(() => {
-    return localStorage.getItem("app_language") || "en";
+    try {
+      return localStorage.getItem("app_language") || DEFAULT_LANGUAGE;
+    } catch {
+      return DEFAULT_LANGUAGE;
+    }
   });
 
   const changeLanguage = (newLang) => {
@@ -1181,25 +1203,24 @@ export const LanguageProvider = ({ children }) => {
     localStorage.setItem("app_language", newLang);
   };
 
+  // Keep <html lang> in sync and translate any text that is not wired to t()
+  useEffect(() => {
+    document.documentElement.lang = lang === "no" ? "nb" : "en";
+    if (lang !== "no") return undefined;
+    return startAutoTranslate(phraseLookupNo);
+  }, [lang]);
+
   const t = (key) => {
     if (!key) return "";
-    
+
     // 1. Direct dictionary match by key
     const directTranslation = translations[lang]?.[key];
     if (directTranslation) return directTranslation;
 
-    // 2. If Norwegian mode, check phrase dictionary
+    // 2. If Norwegian mode, check phrase dictionary (case-insensitive)
     if (lang === "no") {
-      const phraseMatch = phraseDictNo[key];
+      const phraseMatch = phraseLookupNo(key);
       if (phraseMatch) return phraseMatch;
-      
-      // Case-insensitive check in phrase dict
-      const lowerKey = key.toString().trim().toLowerCase();
-      for (const [englishPhrase, norwegianPhrase] of Object.entries(phraseDictNo)) {
-        if (englishPhrase.toLowerCase() === lowerKey) {
-          return norwegianPhrase;
-        }
-      }
     }
 
     // 3. Fallback to English dictionary or key itself
@@ -1220,7 +1241,6 @@ export const LanguageProvider = ({ children }) => {
     </LanguageContext.Provider>
   );
 };
-
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (!context) {

@@ -12,7 +12,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/logo-icon.png";
 import { sidebarNavigation } from "../../config/navigation";
 import { cn } from "../../utils/cn";
 import { useAuth } from "../../context/useAuth";
@@ -95,19 +95,17 @@ const Sidebar = () => {
           open ? "translate-x-0" : "-translate-x-full shadow-none"
         )}
       >
-        <div className="flex h-16 flex-shrink-0 items-center px-4 border-b border-slate-100 bg-white">
-          <div className="flex h-24 w-100 items-center justify-start transition-transform hover:scale-105 duration-300">
-            <img
-              src={logo}
-              alt="Logo"
-              className="h-full w-full object-contain object-left"
-            />
-          </div>
-          <div className="flex flex-col min-w-0 -ml-8">
-            <span className="text-[13px] font-black tracking-tighter text-slate-900 leading-none truncate uppercase">
+        <div className="flex h-16 flex-shrink-0 items-center gap-3 px-5 border-b border-slate-100 bg-white">
+          <img
+            src={logo}
+            alt="Nordic Prowear"
+            className="h-11 w-11 flex-shrink-0 rounded-md object-contain"
+          />
+          <div className="flex min-w-0 flex-col leading-none">
+            <span className="truncate text-[17px] font-black uppercase tracking-wide text-[#0a3866]">
               Nordic
             </span>
-            <span className="text-[13px] font-black tracking-tighter text-slate-900 leading-none truncate uppercase mt-0.5">
+            <span className="mt-1 truncate text-[12px] font-bold uppercase tracking-[0.26em] text-[#07599a]">
               Prowear
             </span>
           </div>
