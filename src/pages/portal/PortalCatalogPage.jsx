@@ -240,7 +240,7 @@ const PortalCatalogPage = () => {
             const isStyle200121 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && String(baseStyle).startsWith("200121");
             const isStyle200122 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && String(baseStyle).startsWith("200122");
             const isStyle200123 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && String(baseStyle).startsWith("200123");
-            const isStyle200124 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && (String(baseStyle).startsWith("200124") || (product.washingInstructions && (product.washingInstructions.includes("75°C") || product.washingInstructions.includes("75"))));
+            const isStyle200124 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && (String(baseStyle).startsWith("200124") || (product.washingInstructions && (product.washingInstructions.includes("85°C") || product.washingInstructions.includes("75"))));
             const isStyle200125 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && !isStyle200124 && String(baseStyle).startsWith("200125");
             const isStyle200126 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && !isStyle200124 && !isStyle200125 && String(baseStyle).startsWith("200126");
             const isStyle200127 = !isStyle10099 && !isStyle10102 && !isStyle10103 && !isStyle10105 && !isStyle10106 && !isStyle10107 && !isStyle10108 && !isStyle10109 && !isStyle10114 && !isStyle10115 && !isStyle10121 && !isStyle10122 && !isStyle10123 && !isStyle20110 && !isStyle20111 && !isStyle200121 && !isStyle200122 && !isStyle200123 && !isStyle200124 && !isStyle200125 && !isStyle200126 && String(baseStyle).startsWith("200127");
@@ -306,19 +306,19 @@ const PortalCatalogPage = () => {
                   : isStyle10103
                   ? "Vask 40°C • Må ikke blekes • Må ikke tørketromles • Strykes på lav varme • Profesjonell rens tillatt"
                   : isStyle10105
-                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  ? "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle10106
-                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  ? "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle10107
-                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  ? "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle10108
-                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  ? "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle10109
-                  ? "Vask 75°C • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  ? "Vask 85°C • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle10114
                   ? "Vask 60°C • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt"
                   : isStyle10115
-                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  ? "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle10121
                   ? "Vask 40°C • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt"
                   : isStyle10122
@@ -326,25 +326,25 @@ const PortalCatalogPage = () => {
                   : isStyle10123
                   ? "Vask 40°C • Må ikke blekes • Må ikke tørketromles • Strykes på lav varme • Tåler ikke rens"
                   : isStyle20110
-                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  ? "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle20111
-                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  ? "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle200121
-                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  ? "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle200122
-                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  ? "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle200123
-                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  ? "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle200124
-                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt"
+                  ? "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt"
                   : isStyle200125
-                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  ? "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle200126
-                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  ? "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle200127
-                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  ? "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle200128
-                  ? "Vask 75°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
+                  ? "Vask 85°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt (Egnet for industriell vask)"
                   : isStyle10101
                   ? "Vask 40°C • Vaskes separat • Må ikke blekes • Tørketrommel tillatt • Strykes på middels varme • Profesjonell rens tillatt"
                   : norwegianCareFull)
@@ -355,19 +355,19 @@ const PortalCatalogPage = () => {
               : isStyle10103
               ? "Wash 40°C • Do Not Bleach • Do Not Tumble Dry • Iron Low Heat • Professional Dry Clean (P) Allowed"
               : isStyle10105
-              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              ? "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle10106
-              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              ? "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle10107
-              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              ? "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle10108
-              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              ? "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle10109
-              ? "Wash 75°C • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              ? "Wash 85°C • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle10114
               ? "Wash 60°C • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed"
               : isStyle10115
-              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              ? "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle10121
               ? "Wash 40°C • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed"
               : isStyle10122
@@ -375,25 +375,25 @@ const PortalCatalogPage = () => {
               : isStyle10123
               ? "Wash 40°C • Do Not Bleach • Do Not Tumble Dry • Iron Low Heat • Do Not Dry Clean"
               : isStyle20110
-              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              ? "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle20111
-              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              ? "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle200121
-              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              ? "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle200122
-              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              ? "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle200123
-              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              ? "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle200124
-              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed"
+              ? "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed"
               : isStyle200125
-              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              ? "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle200126
-              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              ? "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle200127
-              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              ? "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle200128
-              ? "Wash 75°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
+              ? "Wash 85°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed (Industrial Wash Suitable)"
               : isStyle10101
               ? "Wash 40°C • Wash Separately • Do Not Bleach • Tumble Dry Allowed • Iron Medium Heat • Professional Dry Clean (P) Allowed"
               : englishCareFull;
