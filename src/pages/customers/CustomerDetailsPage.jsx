@@ -18,6 +18,7 @@ import { useLanguage } from "../../context/LanguageContext";
 const CustomerDetailsPage = () => {
   const { id } = useParams();
   const { t, lang } = useLanguage();
+  const isNo = lang === "no";
 
   const [customer, setCustomer] = useState(null);
   const [loading, setLoading] = useState(true);

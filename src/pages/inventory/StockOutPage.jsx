@@ -14,6 +14,7 @@ import logo from "../../assets/logo.png";
 
 const StockOutPage = () => {
   const { t, lang } = useLanguage();
+  const isNo = lang === "no";
 
   const [loading, setLoading] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
