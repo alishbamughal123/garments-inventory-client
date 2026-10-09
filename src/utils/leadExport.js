@@ -1,7 +1,7 @@
 import ExcelJS from "exceljs";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import logoImg from "../assets/logo.png";
+import logoImg from "../assets/newlogo.png";
 
 /**
  * Format status for human display
@@ -191,14 +191,14 @@ export const exportLeadsToExcel = async ({
         cell.alignment = { vertical: "middle", horizontal: "right" };
         if (typeof cell.value === "number") {
           cell.numFmt = '#,##0.0 "MNOK"';
-          cell.font = { name: "Calibri", size: 10, bold: true, color: { argb: "FF047857" } };
+          cell.font = { name: "Calibri", size: 10, bold: true, color: { argb: "FF0A3866" } };
         }
       }
 
       // Priority color highlighting
       if (colNumber === 9 && lead.priority) {
         if (["A+", "A"].includes(lead.priority)) {
-          cell.font = { name: "Calibri", size: 10, bold: true, color: { argb: "FF047857" } };
+          cell.font = { name: "Calibri", size: 10, bold: true, color: { argb: "FF0A3866" } };
         } else if (lead.priority === "A-") {
           cell.font = { name: "Calibri", size: 10, bold: true, color: { argb: "FF0E7490" } };
         } else if (["B+", "B"].includes(lead.priority)) {
@@ -275,7 +275,7 @@ export const exportLeadsToPDF = async ({
       img.onload = resolve;
       img.onerror = resolve;
     });
-    doc.addImage(img, "PNG", 12, 3.5, 36, 19);
+    doc.addImage(img, "PNG", 12, 2, 22, 22);
   } catch {
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
@@ -426,7 +426,7 @@ export const exportLeadsToPDF = async ({
       3: { cellWidth: 42 },
       4: { cellWidth: 36 },
       5: { cellWidth: 14, halign: "center", fontStyle: "bold" },
-      6: { cellWidth: 24, halign: "right", fontStyle: "bold", textColor: [4, 120, 87] },
+      6: { cellWidth: 24, halign: "right", fontStyle: "bold", textColor: [10, 56, 102] },
       7: { cellWidth: 32 },
       8: { cellWidth: 26, halign: "center" },
     },

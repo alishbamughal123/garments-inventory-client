@@ -146,7 +146,7 @@ const CustomersPage = () => {
             <button
               onClick={exportToExcel}
               disabled={exporting || paginationMeta.total === 0}
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition disabled:opacity-50"
             >
               <FileSpreadsheet size={16} />
               <span>{t("exportExcel")}</span>

@@ -2,11 +2,11 @@ import { cn } from "../../utils/cn";
 
 const tones = {
   blue: "border-blue-100 bg-gradient-to-br from-blue-50 via-white to-white text-blue-700",
-  teal: "border-teal-100 bg-gradient-to-br from-teal-50 via-white to-white text-teal-700",
+  teal: "border-brand-100 bg-gradient-to-br from-brand-50 via-white to-white text-brand-700",
   amber: "border-amber-100 bg-gradient-to-br from-amber-50 via-white to-white text-amber-700",
   emerald:
-    "border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-white text-emerald-700",
-  rose: "border-rose-100 bg-gradient-to-br from-rose-50 via-white to-white text-rose-700",
+    "border-brand-100 bg-gradient-to-br from-brand-50 via-white to-white text-brand-700",
+  rose: "border-red-100 bg-gradient-to-br from-red-50 via-white to-white text-red-700",
   violet:
     "border-violet-100 bg-gradient-to-br from-violet-50 via-white to-white text-violet-700",
 };

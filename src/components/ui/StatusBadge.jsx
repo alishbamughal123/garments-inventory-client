@@ -16,7 +16,7 @@ const badgeVariants = {
   CONTACTED:
     "bg-indigo-50 text-indigo-700",
   QUALIFIED:
-    "bg-cyan-50 text-cyan-700",
+    "bg-brand-50 text-brand-700",
   PROPOSAL_SENT:
     "bg-amber-50 text-amber-700",
   NEGOTIATION:
@@ -24,8 +24,8 @@ const badgeVariants = {
   WON:
     "bg-emerald-50 text-emerald-700",
   LOST:
-    "bg-rose-50 text-rose-700",
-  CALL: "bg-cyan-50 text-cyan-700",
+    "bg-red-50 text-red-700",
+  CALL: "bg-brand-50 text-brand-700",
   EMAIL:
     "bg-indigo-50 text-indigo-700",
   MEETING:
@@ -47,9 +47,9 @@ const badgeVariants = {
   REPLIED:
     "bg-indigo-50 text-indigo-700",
   RECEIVED:
-    "bg-cyan-50 text-cyan-700",
+    "bg-brand-50 text-brand-700",
   FAILED:
-    "bg-rose-50 text-rose-700",
+    "bg-red-50 text-red-700",
   PENDING:
     "bg-amber-50 text-amber-700",
   IN_PROGRESS:
@@ -57,7 +57,7 @@ const badgeVariants = {
   COMPLETED:
     "bg-emerald-50 text-emerald-700",
   CANCELLED:
-    "bg-rose-50 text-rose-700",
+    "bg-red-50 text-red-700",
   OVERDUE:
     "bg-red-50 text-red-700",
   LOW: "bg-slate-100 text-slate-700",
@@ -65,11 +65,11 @@ const badgeVariants = {
     "bg-blue-50 text-blue-700",
   HIGH: "bg-orange-50 text-orange-700",
   URGENT:
-    "bg-rose-100 text-rose-700",
+    "bg-red-100 text-red-700",
   USABLE:
     "bg-emerald-50 text-emerald-700",
   DAMAGED:
-    "bg-rose-50 text-rose-700",
+    "bg-red-50 text-red-700",
   REFURBISHED:
     "bg-amber-50 text-amber-700",
 };

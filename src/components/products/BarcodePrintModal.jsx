@@ -542,10 +542,10 @@ const BarcodePrintModal = ({
                 <button
                   type="button"
                   onClick={handleDownloadCombinedCartonDXF}
-                  className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-teal-300 bg-teal-50/80 hover:bg-teal-100 text-teal-800 px-3 py-2 text-xs font-bold shadow-sm transition"
+                  className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-brand-300 bg-brand-50/80 hover:bg-brand-100 text-brand-800 px-3 py-2 text-xs font-bold shadow-sm transition"
                   title="Download All Mixed Cartons combined on 1 continuous CAD sheet (.dxf)"
                 >
-                  <Grid className="w-4 h-4 text-teal-600" />
+                  <Grid className="w-4 h-4 text-brand-600" />
                   <span>Combined Sheet (.dxf)</span>
                 </button>
               </>
@@ -577,7 +577,7 @@ const BarcodePrintModal = ({
               disabled={exportingExcel}
               className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-3.5 py-2 text-xs font-semibold shadow-sm transition disabled:opacity-50"
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+              <FileSpreadsheet className="w-4 h-4 text-brand-600" />
               <span>{exportingExcel ? "Exporting..." : "Excel (.xlsx)"}</span>
             </button>
 
@@ -811,7 +811,7 @@ const BarcodePrintModal = ({
                 <button
                   type="button"
                   onClick={handleDownloadCombinedCartonDXF}
-                  className="px-2.5 py-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-bold text-[11px] transition shadow-2xs flex items-center gap-1"
+                  className="px-2.5 py-1 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-bold text-[11px] transition shadow-2xs flex items-center gap-1"
                   title="Combined multi-carton CAD sheet (.dxf)"
                 >
                   <Grid className="w-3.5 h-3.5" /> Combined DXF Sheet
@@ -1161,10 +1161,10 @@ const BarcodePrintModal = ({
                 <button
                   type="button"
                   onClick={handleDownloadCombinedCartonDXF}
-                  className="inline-flex items-center gap-2 rounded-xl border border-teal-300 bg-teal-50 hover:bg-teal-100 text-teal-800 px-4 py-2 text-xs font-bold shadow-sm transition"
+                  className="inline-flex items-center gap-2 rounded-xl border border-brand-300 bg-brand-50 hover:bg-brand-100 text-brand-800 px-4 py-2 text-xs font-bold shadow-sm transition"
                   title="Download all mixed cartons in 1 combined CAD sheet"
                 >
-                  <Grid className="w-4 h-4 text-teal-600" />
+                  <Grid className="w-4 h-4 text-brand-600" />
                   <span>Combined Sheet (.dxf)</span>
                 </button>
               </>
@@ -1196,7 +1196,7 @@ const BarcodePrintModal = ({
               disabled={exportingExcel}
               className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-4 py-2 text-xs font-semibold shadow-sm transition disabled:opacity-50"
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+              <FileSpreadsheet className="w-4 h-4 text-brand-600" />
               <span>Download Excel Sheet</span>
             </button>
           </div>

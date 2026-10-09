@@ -216,7 +216,7 @@ const LeadPipelinePage = () => {
 
                               <div className="mt-3 space-y-1 text-xs text-slate-600 border-t border-slate-200/60 pt-2">
                                 {lead.revenueMnok ? (
-                                  <p className="font-semibold text-emerald-700">
+                                  <p className="font-semibold text-brand-700">
                                     {Number(lead.revenueMnok).toLocaleString("en-US", {
                                       minimumFractionDigits: 1,
                                       maximumFractionDigits: 1,

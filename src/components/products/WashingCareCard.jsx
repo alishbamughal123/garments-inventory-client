@@ -758,19 +758,19 @@ export const CareIcon = ({ type }) => {
       );
     case "noBleach":
       return (
-        <svg viewBox="0 0 48 48" className="w-8 h-8 stroke-rose-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 48 48" className="w-8 h-8 stroke-red-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polygon points="24,8 6,40 42,40" />
-          <line x1="12" y1="18" x2="36" y2="38" className="stroke-rose-600" strokeWidth="2.5" />
-          <line x1="36" y1="18" x2="12" y2="38" className="stroke-rose-600" strokeWidth="2.5" />
+          <line x1="12" y1="18" x2="36" y2="38" className="stroke-red-600" strokeWidth="2.5" />
+          <line x1="36" y1="18" x2="12" y2="38" className="stroke-red-600" strokeWidth="2.5" />
         </svg>
       );
     case "noTumble":
       return (
-        <svg viewBox="0 0 48 48" className="w-8 h-8 stroke-rose-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 48 48" className="w-8 h-8 stroke-red-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <rect x="8" y="8" width="32" height="32" rx="4" />
           <circle cx="24" cy="24" r="12" />
-          <line x1="12" y1="12" x2="36" y2="36" className="stroke-rose-600" strokeWidth="2.5" />
-          <line x1="36" y1="12" x2="12" y2="36" className="stroke-rose-600" strokeWidth="2.5" />
+          <line x1="12" y1="12" x2="36" y2="36" className="stroke-red-600" strokeWidth="2.5" />
+          <line x1="36" y1="12" x2="12" y2="36" className="stroke-red-600" strokeWidth="2.5" />
         </svg>
       );
     case "tumbleDot":
@@ -783,11 +783,11 @@ export const CareIcon = ({ type }) => {
       );
     case "noIron":
       return (
-        <svg viewBox="0 0 48 48" className="w-8 h-8 stroke-rose-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 48 48" className="w-8 h-8 stroke-red-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M8 36 L40 36 C42 36 43 34 41 30 C37 22 28 20 22 20 L10 20 C8 20 8 26 8 36 Z" />
           <path d="M12 20 L12 14 C12 12 14 10 16 10 L34 10" />
-          <line x1="14" y1="14" x2="34" y2="34" className="stroke-rose-600" strokeWidth="2.5" />
-          <line x1="34" y1="14" x2="14" y2="34" className="stroke-rose-600" strokeWidth="2.5" />
+          <line x1="14" y1="14" x2="34" y2="34" className="stroke-red-600" strokeWidth="2.5" />
+          <line x1="34" y1="14" x2="14" y2="34" className="stroke-red-600" strokeWidth="2.5" />
         </svg>
       );
     case "ironLow":
@@ -817,10 +817,10 @@ export const CareIcon = ({ type }) => {
       );
     case "noDryClean":
       return (
-        <svg viewBox="0 0 48 48" className="w-8 h-8 stroke-rose-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 48 48" className="w-8 h-8 stroke-red-600 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="24" cy="24" r="16" />
-          <line x1="12" y1="12" x2="36" y2="36" className="stroke-rose-600" strokeWidth="2.5" />
-          <line x1="36" y1="12" x2="12" y2="36" className="stroke-rose-600" strokeWidth="2.5" />
+          <line x1="12" y1="12" x2="36" y2="36" className="stroke-red-600" strokeWidth="2.5" />
+          <line x1="36" y1="12" x2="12" y2="36" className="stroke-red-600" strokeWidth="2.5" />
         </svg>
       );
     default:
@@ -1584,7 +1584,7 @@ const WashingCareCard = ({
               key={s.id}
               className={`p-3 rounded-xl border transition-all flex flex-col items-center text-center justify-between gap-2 relative group ${
                 isProhibited
-                  ? "bg-rose-50/40 border-rose-100 hover:border-rose-200"
+                  ? "bg-red-50/40 border-red-100 hover:border-red-200"
                   : isWarning
                   ? "bg-amber-50/40 border-amber-100 hover:border-amber-200"
                   : "bg-white border-slate-200/80 hover:border-blue-200 shadow-xs"
@@ -1594,7 +1594,7 @@ const WashingCareCard = ({
               <span
                 className={`absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] ${
                   isProhibited
-                    ? "bg-rose-600 text-white"
+                    ? "bg-red-600 text-white"
                     : isWarning
                     ? "bg-amber-500 text-white"
                     : "bg-emerald-600 text-white"

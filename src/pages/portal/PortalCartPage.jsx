@@ -7,8 +7,6 @@ import { useAuth } from "../../context/useAuth";
 import {
   ShoppingCart,
   Trash2,
-  Weight,
-  AlertTriangle,
   CheckCircle,
   Printer,
   FileText,
@@ -29,7 +27,6 @@ const PortalCartPage = () => {
   const [cart, setCart] = useState([]);
   const [shippingAddress, setShippingAddress] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
-  const [packagingWeightKg, setPackagingWeightKg] = useState(0.2);
   const [submitting, setSubmitting] = useState(false);
 
   // Customer & Profile state
@@ -137,18 +134,7 @@ const PortalCartPage = () => {
     toast.success(lang === "no" ? "Vare fjernet fra handlekurv" : "Item removed from cart");
   };
 
-  // Weight Calculations
-  const totalGarmentWeight = cart.reduce((sum, item) => {
-    const wt = Number(item.product?.weightInKg || 0);
-    return sum + wt * item.quantity;
-  }, 0);
-
-  const totalParcelWeight = totalGarmentWeight + Number(packagingWeightKg || 0);
-  const hasMissingWeights = cart.some(
-    (item) => !item.product?.weightInKg || Number(item.product?.weightInKg) === 0
-  );
-
-  // Financial Calculations
+    // Financial Calculations
   const subtotal = cart.reduce(
     (sum, item) => sum + Number(item.unitPrice) * item.quantity,
     0
@@ -175,8 +161,7 @@ const PortalCartPage = () => {
         })),
         targetCustomerId: selectedCustomerId || undefined,
         shippingAddress: shippingAddress.trim(),
-        notes: orderNotes.trim(),
-        packagingWeightKg: Number(packagingWeightKg)
+        notes: orderNotes.trim()
       };
 
       const res = await api.post("/portal/orders/place", payload);
@@ -206,7 +191,7 @@ const PortalCartPage = () => {
       {/* Top Header */}
       <div className="flex flex-wrap justify-between items-center gap-2 border-b border-slate-200 pb-3 sm:pb-4">
         <h1 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2.5">
-          <ShoppingCart className="text-teal-600 shrink-0" size={24} />
+          <ShoppingCart className="text-brand-600 shrink-0" size={24} />
           <span>{t("cartSummary") || "Shopping Cart"}</span>
         </h1>
         <span className="text-[11px] sm:text-xs font-bold text-slate-600 bg-white px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl border border-slate-200 shadow-xs">
@@ -222,7 +207,7 @@ const PortalCartPage = () => {
           </p>
           <button
             onClick={() => navigate("/portal/catalog")}
-            className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-md transition cursor-pointer"
+            className="bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-md transition cursor-pointer"
           >
             {lang === "no" ? "Bla i katalogen" : "Browse Catalogue"}
           </button>
@@ -236,7 +221,7 @@ const PortalCartPage = () => {
             <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-md relative overflow-hidden space-y-3 sm:space-y-4">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3 border-b border-slate-700/80 pb-3">
                 <div className="flex items-center gap-2 sm:gap-2.5">
-                  <div className="p-1.5 sm:p-2 rounded-xl bg-teal-500/20 border border-teal-400/30 text-teal-300">
+                  <div className="p-1.5 sm:p-2 rounded-xl bg-brand-500/20 border border-brand-400/30 text-brand-300">
                     <Building size={16} />
                   </div>
                   <div>
@@ -251,7 +236,7 @@ const PortalCartPage = () => {
                   </div>
                 </div>
 
-                <span className="text-[9px] sm:text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-teal-900/60 border border-teal-700 text-teal-300 font-mono inline-flex items-center gap-1 self-start sm:self-auto">
+                <span className="text-[9px] sm:text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-brand-900/60 border border-brand-700 text-brand-300 font-mono inline-flex items-center gap-1 self-start sm:self-auto">
                   <Sparkles size={10} />
                   {isStaff ? "Staff Mode" : "Auto Profile"}
                 </span>
@@ -260,13 +245,13 @@ const PortalCartPage = () => {
               {/* Staff Dropdown Selector OR B2B Customer Info Card */}
               {isStaff ? (
                 <div className="space-y-1.5">
-                  <label className="block text-[11px] sm:text-xs font-bold text-teal-300 uppercase tracking-wider">
+                  <label className="block text-[11px] sm:text-xs font-bold text-brand-300 uppercase tracking-wider">
                     {lang === "no" ? "Velg B2B-Konto / Bedrift:" : "Select Customer Account:"}
                   </label>
                   <select
                     value={selectedCustomerId}
                     onChange={(e) => handleCustomerDropdownChange(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-600 rounded-xl py-2.5 px-3 sm:py-3 sm:px-4 text-xs font-bold text-white outline-none focus:border-teal-400 cursor-pointer transition shadow-inner"
+                    className="w-full bg-slate-800 border border-slate-600 rounded-xl py-2.5 px-3 sm:py-3 sm:px-4 text-xs font-bold text-white outline-none focus:border-brand-400 cursor-pointer transition shadow-inner"
                   >
                     {customersList.map((c) => (
                       <option key={c.id} value={c.id} className="bg-slate-900 text-white">
@@ -288,7 +273,7 @@ const PortalCartPage = () => {
                     </div>
                     <div>
                       <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase block">Account Code:</span>
-                      <strong className="text-teal-300 font-mono font-bold text-xs">{currentCustomer.customerCode || "B2B-CLIENT"}</strong>
+                      <strong className="text-brand-300 font-mono font-bold text-xs">{currentCustomer.customerCode || "B2B-CLIENT"}</strong>
                     </div>
                   </div>
                 )
@@ -352,7 +337,7 @@ const PortalCartPage = () => {
                       <span className="text-[10px] text-slate-400 block font-mono">
                         NOK {Number(item.unitPrice).toLocaleString()} / stk
                       </span>
-                      <strong className="text-sm font-black text-emerald-600 font-mono">
+                      <strong className="text-sm font-black text-brand-600 font-mono">
                         NOK {(Number(item.unitPrice) * item.quantity).toLocaleString()}
                       </strong>
                     </div>
@@ -389,13 +374,13 @@ const PortalCartPage = () => {
                             min="1"
                             value={item.quantity}
                             onChange={(e) => handleUpdateQty(item.productId, e.target.value)}
-                            className="w-16 bg-slate-50 border border-slate-200 rounded-lg p-1 text-center font-bold text-slate-900 outline-none focus:border-teal-500 focus:bg-white"
+                            className="w-16 bg-slate-50 border border-slate-200 rounded-lg p-1 text-center font-bold text-slate-900 outline-none focus:border-brand-500 focus:bg-white"
                           />
                         </td>
                         <td className="p-3 text-right text-slate-600 font-semibold font-mono">
                           NOK {Number(item.unitPrice).toLocaleString()}
                         </td>
-                        <td className="p-3 text-right font-black text-emerald-600 font-mono">
+                        <td className="p-3 text-right font-black text-brand-600 font-mono">
                           NOK {(Number(item.unitPrice) * item.quantity).toLocaleString()}
                         </td>
                         <td className="p-3 text-center">
@@ -417,7 +402,7 @@ const PortalCartPage = () => {
             <div className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-5 space-y-3 sm:space-y-4 shadow-xs">
               <div className="flex flex-wrap justify-between items-center gap-2 border-b border-slate-100 pb-2.5 sm:pb-3">
                 <div className="flex items-center gap-2">
-                  <MapPin size={16} className="text-teal-600 shrink-0" />
+                  <MapPin size={16} className="text-brand-600 shrink-0" />
                   <h3 className="text-xs sm:text-sm font-bold text-slate-900">
                     {lang === "no" ? "Leveringsadresse & Notater" : "Delivery Details & Shipping Address"}
                   </h3>
@@ -427,7 +412,7 @@ const PortalCartPage = () => {
                   <button
                     type="button"
                     onClick={handleResetAddress}
-                    className="flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-teal-600 hover:text-teal-800 hover:underline transition cursor-pointer"
+                    className="flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-brand-600 hover:text-brand-800 hover:underline transition cursor-pointer"
                   >
                     <RotateCcw size={11} />
                     <span>{lang === "no" ? "Bruk profiladresse" : "Use profile default"}</span>
@@ -447,7 +432,7 @@ const PortalCartPage = () => {
                     value={shippingAddress}
                     onChange={(e) => setShippingAddress(e.target.value)}
                     rows={3}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 sm:p-3 text-xs font-semibold text-slate-900 outline-none focus:border-teal-500 focus:bg-white transition"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 sm:p-3 text-xs font-semibold text-slate-900 outline-none focus:border-brand-500 focus:bg-white transition"
                   />
                   <p className="text-[9px] sm:text-[10px] text-slate-400 mt-1">
                     {lang === "no"
@@ -464,55 +449,15 @@ const PortalCartPage = () => {
                     value={orderNotes}
                     onChange={(e) => setOrderNotes(e.target.value)}
                     rows={3}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 sm:p-3 text-xs font-semibold text-slate-900 outline-none focus:border-teal-500 focus:bg-white transition"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 sm:p-3 text-xs font-semibold text-slate-900 outline-none focus:border-brand-500 focus:bg-white transition"
                   />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT COLUMN: PARCEL WEIGHT CALCULATOR & SUMMARY */}
+          {/* RIGHT COLUMN: SUMMARY */}
           <div className="space-y-4 sm:space-y-6">
-            {/* Parcel Weight Calculator */}
-            <div className="bg-white border border-indigo-100 rounded-2xl sm:rounded-3xl p-4 sm:p-5 space-y-3 sm:space-y-4 shadow-xs">
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2.5 sm:pb-3">
-                <Weight className="text-indigo-600 shrink-0" size={16} />
-                <span>{t("parcelWeightCalculator") || "Parcel Weight Calculator"}</span>
-              </h3>
-
-              {hasMissingWeights && (
-                <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-[11px] sm:text-xs text-amber-800 font-semibold flex items-start gap-1.5">
-                  <AlertTriangle className="text-amber-600 shrink-0 mt-0.5" size={15} />
-                  <span>{t("weightMissingAlert") || "Some items lack weight specifications."}</span>
-                </div>
-              )}
-
-              <div className="space-y-2 sm:space-y-3 text-xs">
-                <div className="flex justify-between items-center p-2 sm:p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="text-slate-500 font-medium text-[11px] sm:text-xs">{t("garmentWeightKg") || "Garment Weight"}</span>
-                  <span className="font-bold text-slate-900 font-mono text-xs">{totalGarmentWeight.toFixed(2)} kg</span>
-                </div>
-
-                <div className="flex justify-between items-center p-2 sm:p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="text-slate-500 font-medium text-[11px] sm:text-xs">{t("packagingWeightKg") || "Packaging Box"}</span>
-                  <input
-                    type="number"
-                    step="0.05"
-                    value={packagingWeightKg}
-                    onChange={(e) => setPackagingWeightKg(e.target.value)}
-                    className="w-18 bg-white border border-slate-200 rounded-lg p-1 text-right font-bold text-teal-600 outline-none text-xs"
-                  />
-                </div>
-
-                <div className="flex justify-between items-center p-2.5 sm:p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-900">
-                  <span className="font-bold text-[11px] sm:text-xs">{t("estimatedParcelWeight") || "Est. Total Parcel"}</span>
-                  <span className="font-mono text-sm sm:text-base font-black text-indigo-700">
-                    {totalParcelWeight.toFixed(2)} kg
-                  </span>
-                </div>
-              </div>
-            </div>
-
             {/* Financial Totals Card */}
             <div className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-5 space-y-3 sm:space-y-4 shadow-xs">
               <h3 className="text-xs sm:text-sm font-bold text-slate-900 border-b border-slate-100 pb-2.5 sm:pb-3">
@@ -534,7 +479,7 @@ const PortalCartPage = () => {
                   </span>
                 </div>
 
-                <div className="flex justify-between text-xs sm:text-sm font-black text-emerald-600 pt-2.5 border-t border-slate-100">
+                <div className="flex justify-between text-xs sm:text-sm font-black text-brand-600 pt-2.5 border-t border-slate-100">
                   <span>{t("totalAmount") || "Grand Total"}</span>
                   <span className="font-mono text-sm sm:text-base">NOK {grandTotal.toLocaleString()}</span>
                 </div>
@@ -543,7 +488,7 @@ const PortalCartPage = () => {
               <button
                 onClick={handlePlaceOrder}
                 disabled={submitting}
-                className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 sm:py-3.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-teal-600/20 transition disabled:opacity-60 cursor-pointer active:scale-98"
+                className="w-full bg-brand-600 hover:bg-brand-700 text-white py-3 sm:py-3.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-brand-600/20 transition disabled:opacity-60 cursor-pointer active:scale-98"
               >
                 {submitting ? "Placing Order..." : (t("placeOrder") || "Place B2B Order")}
               </button>
@@ -557,14 +502,14 @@ const PortalCartPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-2 sm:p-4 animate-in fade-in duration-150">
           <div className="bg-white text-slate-900 rounded-2xl sm:rounded-3xl max-w-2xl w-full p-4 sm:p-6 space-y-4 sm:space-y-6 shadow-2xl border border-slate-200 max-h-[92vh] overflow-y-auto font-sans">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-1.5 text-emerald-600 font-bold text-xs sm:text-sm">
+              <div className="flex items-center gap-1.5 text-brand-600 font-bold text-xs sm:text-sm">
                 <CheckCircle size={18} />
                 <span>{t("orderConfirmation") || "Order Confirmation"} Created</span>
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => window.print()}
-                  className="flex items-center gap-1 bg-teal-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-teal-700 transition cursor-pointer"
+                  className="flex items-center gap-1 bg-brand-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-brand-700 transition cursor-pointer"
                 >
                   <Printer size={13} />
                   <span>Print</span>
@@ -594,7 +539,7 @@ const PortalCartPage = () => {
                   <p className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5">Oslo, Norway • B2B Division</p>
                 </div>
                 <div className="text-right">
-                  <h2 className="text-sm sm:text-xl font-black text-teal-700 uppercase tracking-tight">
+                  <h2 className="text-sm sm:text-xl font-black text-brand-700 uppercase tracking-tight">
                     {t("orderConfirmation") || "CONFIRMATION"}
                   </h2>
                   <p className="text-xs font-mono font-bold text-slate-800">
@@ -646,18 +591,6 @@ const PortalCartPage = () => {
                 </table>
               </div>
 
-              <div className="p-3 sm:p-4 bg-teal-50/60 rounded-xl border border-teal-100 text-xs flex justify-between items-center gap-2">
-                <div>
-                  <p className="font-bold text-teal-900 text-[11px] sm:text-xs">Est. Parcel Weight:</p>
-                  <p className="text-slate-600 text-[10px]">
-                    Garment: {activeConfirmation.garmentWeightKg} kg + Box: {activeConfirmation.packagingWeightKg} kg
-                  </p>
-                </div>
-                <span className="font-mono text-xs sm:text-base font-extrabold text-teal-800 shrink-0">
-                  {activeConfirmation.totalParcelWeight} kg
-                </span>
-              </div>
-
               <div className="pt-1 text-right text-xs space-y-0.5">
                 <p className="text-slate-500">
                   Subtotal: <span className="font-mono font-bold text-slate-900">NOK {Number(activeConfirmation.subtotal).toLocaleString()}</span>
@@ -666,7 +599,7 @@ const PortalCartPage = () => {
                   VAT (25%): <span className="font-mono font-bold text-slate-900">NOK {Number(activeConfirmation.tax).toLocaleString()}</span>
                 </p>
                 <p className="text-xs sm:text-sm font-extrabold text-slate-900">
-                  Total: <span className="font-mono text-teal-700">NOK {Number(activeConfirmation.totalAmount).toLocaleString()}</span>
+                  Total: <span className="font-mono text-brand-700">NOK {Number(activeConfirmation.totalAmount).toLocaleString()}</span>
                 </p>
               </div>
             </div>

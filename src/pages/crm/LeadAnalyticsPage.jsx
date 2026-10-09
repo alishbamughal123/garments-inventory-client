@@ -279,12 +279,12 @@ const LeadAnalyticsPage = () => {
                       >
                         <stop
                           offset="5%"
-                          stopColor="#0f766e"
+                          stopColor="#07599a"
                           stopOpacity={0.3}
                         />
                         <stop
                           offset="95%"
-                          stopColor="#0f766e"
+                          stopColor="#07599a"
                           stopOpacity={0}
                         />
                       </linearGradient>
@@ -304,7 +304,7 @@ const LeadAnalyticsPage = () => {
                     <Area
                       type="monotone"
                       dataKey="count"
-                      stroke="#0f766e"
+                      stroke="#07599a"
                       fill="url(#leadTrendFill)"
                       strokeWidth={3}
                     />

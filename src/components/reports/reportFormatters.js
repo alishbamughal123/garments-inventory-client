@@ -1,6 +1,6 @@
 export const reportChartColors = [
   "#2563eb",
-  "#0f766e",
+  "#07599a",
   "#ea580c",
   "#7c3aed",
   "#dc2626",

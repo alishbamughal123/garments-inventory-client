@@ -308,7 +308,7 @@ const BarcodePage = () => {
                   disabled={exportingExcel}
                   className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50"
                 >
-                  <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <FileSpreadsheet className="w-4 h-4 text-brand-600 shrink-0" />
                   <span>{exportingExcel ? "Exporting..." : "Excel"}</span>
                 </button>
 
@@ -420,7 +420,7 @@ const BarcodePage = () => {
                     <p className="text-[10px] text-slate-400 font-medium">Garment Article Label</p>
                   </div>
                 </div>
-                <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-brand-50 text-brand-700 border border-brand-200/60">
                   CODE128
                 </span>
               </div>
@@ -541,9 +541,9 @@ const BarcodePage = () => {
                   size="sm"
                   variant="outline"
                   onClick={handleExportArticleExcel}
-                  className="inline-flex items-center gap-1 text-emerald-700 border-emerald-300 hover:bg-emerald-50 text-xs"
+                  className="inline-flex items-center gap-1 text-brand-700 border-brand-300 hover:bg-brand-50 text-xs"
                 >
-                  <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-brand-600" />
                   Excel Export
                 </Button>
               </div>

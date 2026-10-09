@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ScanLine, Printer, User, AlertTriangle, Weight } from "lucide-react";
+import { ScanLine, Printer, User, AlertTriangle } from "lucide-react";
 import toast from "react-hot-toast";
 import MainLayout from "../../layouts/MainLayout";
 import BarcodeScannerModal from "../../components/common/BarcodeScannerModal";
@@ -26,7 +26,6 @@ const StockOutPage = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState("");
   const [barcode, setBarcode] = useState("");
   const [quantity, setQuantity] = useState("1");
-  const [packagingWeightKg, setPackagingWeightKg] = useState("0.2");
   const [notes, setNotes] = useState("");
 
   // Delivery Note Modal State
@@ -81,7 +80,6 @@ const StockOutPage = () => {
 
       const payload = {
         customerId: selectedCustomerId,
-        packagingWeightKg: Number(packagingWeightKg || 0.2),
         notes,
         items: [
           {
@@ -108,8 +106,6 @@ const StockOutPage = () => {
               quantity: Number(quantity)
             }
           ],
-          totalWeightKg: res.data?.totalWeightKg || 0,
-          packagingWeightKg: Number(packagingWeightKg),
           notes
         };
         setActiveDeliveryNote(dnData);
@@ -138,8 +134,6 @@ const StockOutPage = () => {
           quantity: tx.quantity
         }
       ],
-      totalWeightKg: tx.totalWeightKg || 0,
-      packagingWeightKg: tx.packagingWeightKg || 0.2,
       notes: tx.notes || ""
     };
     setActiveDeliveryNote(dnData);
@@ -202,8 +196,8 @@ const StockOutPage = () => {
                 />
               </div>
 
-              {/* Quantity, Packaging Weight, Notes */}
-              <div className="grid gap-5 md:grid-cols-3">
+              {/* Quantity, Notes */}
+              <div className="grid gap-5 md:grid-cols-2">
                 <div>
                   <label className={formLabelClass}>{t("quantity")} *</label>
                   <input
@@ -213,19 +207,6 @@ const StockOutPage = () => {
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value)}
                     required
-                    className={formControlClass}
-                  />
-                </div>
-
-                <div>
-                  <label className={formLabelClass}>{t("packagingWeightKg")}</label>
-                  <input
-                    type="number"
-                    step="0.05"
-                    min="0"
-                    name="packagingWeightKg"
-                    value={packagingWeightKg}
-                    onChange={(e) => setPackagingWeightKg(e.target.value)}
                     className={formControlClass}
                   />
                 </div>
@@ -258,7 +239,7 @@ const StockOutPage = () => {
               type="text"
               value={historySearch}
               onChange={(e) => setHistorySearch(e.target.value)}
-              placeholder={isNo ? "Søk i dato, følgeseddel, kunde, produkt, antall, vekt..." : "Search date, delivery note, customer, product, quantity, weight..."}
+              placeholder={isNo ? "Søk i dato, følgeseddel, kunde, produkt, antall..." : "Search date, delivery note, customer, product, quantity..."}
               className={formControlClass}
             />
             <div className="overflow-x-auto">
@@ -270,7 +251,6 @@ const StockOutPage = () => {
                     <th className="p-3 text-left">{t("customers")}</th>
                     <th className="p-3 text-left">{t("product")}</th>
                     <th className="p-3 text-center">{t("quantity")}</th>
-                    <th className="p-3 text-right">{isNo ? "Pakkevekt" : "Parcel Wt"}</th>
                     <th className="p-3 text-center">{isNo ? "Utskrift" : "Reprint"}</th>
                   </tr>
                 </thead>
@@ -286,7 +266,6 @@ const StockOutPage = () => {
                       </td>
                       <td className="p-3 text-slate-700">{tx.product?.productName} ({tx.product?.sku})</td>
                       <td className="p-3 text-center font-bold">{tx.quantity}</td>
-                      <td className="p-3 text-right font-bold text-slate-800">{tx.totalWeightKg ? `${tx.totalWeightKg.toFixed(2)} kg` : "N/A"}</td>
                       <td className="p-3 text-center">
                         <button
                           type="button"
@@ -371,7 +350,6 @@ const StockOutPage = () => {
                   <tr className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
                     <th className="p-2 text-left">SKU / Article</th>
                     <th className="p-2 text-center">Qty</th>
-                    <th className="p-2 text-right">Total Parcel Weight</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -379,7 +357,6 @@ const StockOutPage = () => {
                     <tr key={idx}>
                       <td className="p-2 font-semibold text-slate-900">{it.product?.productName || "Product"} ({it.product?.sku})</td>
                       <td className="p-2 text-center font-bold">{it.quantity}</td>
-                      <td className="p-2 text-right font-bold">{activeDeliveryNote.totalWeightKg ? `${activeDeliveryNote.totalWeightKg.toFixed(2)} kg` : "N/A"}</td>
                     </tr>
                   ))}
                 </tbody>

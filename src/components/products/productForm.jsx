@@ -540,10 +540,10 @@ const ProductForm = ({
         <div>
           <label className={`${formLabelClass} flex items-center justify-between`}>
             <span>Article Photo (Product Image)</span>
-            <span className="text-[10px] text-teal-600 font-bold uppercase">PNG, JPG, WEBP, SVG</span>
+            <span className="text-[10px] text-brand-600 font-bold uppercase">PNG, JPG, WEBP, SVG</span>
           </label>
 
-          <div className="mt-2 flex flex-col sm:flex-row items-center gap-4 bg-white border-2 border-dashed border-slate-300 hover:border-teal-500 rounded-2xl p-4 transition cursor-pointer group">
+          <div className="mt-2 flex flex-col sm:flex-row items-center gap-4 bg-white border-2 border-dashed border-slate-300 hover:border-brand-500 rounded-2xl p-4 transition cursor-pointer group">
             <div className="w-24 h-24 bg-slate-100 border border-slate-200 rounded-xl overflow-hidden flex items-center justify-center shrink-0">
               <img
                 src={articlePreview || (formData.imageUrl ? (formData.imageUrl.startsWith("http") ? formData.imageUrl : `http://localhost:8000${formData.imageUrl}`) : "http://localhost:8000/uploads/placeholders/default-article.svg")}
@@ -570,7 +570,7 @@ const ProductForm = ({
                     setArticlePreview(URL.createObjectURL(file));
                   }
                 }}
-                className="mt-2 block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer"
+                className="mt-2 block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 cursor-pointer"
               />
             </div>
           </div>

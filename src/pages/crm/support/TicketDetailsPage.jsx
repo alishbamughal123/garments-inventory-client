@@ -13,7 +13,7 @@ import SupportTicketForm from "../../../components/crm/support/SupportTicketForm
 const statusIcons = {
   OPEN: <AlertCircle size={20} className="text-blue-500" />,
   IN_PROGRESS: <Clock size={20} className="text-amber-500" />,
-  RESOLVED: <CheckCircle size={20} className="text-emerald-500" />,
+  RESOLVED: <CheckCircle size={20} className="text-brand-500" />,
   CLOSED: <XCircle size={20} className="text-slate-500" />,
 };
 
@@ -164,7 +164,7 @@ const TicketDetailsPage = () => {
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="rounded-lg bg-emerald-50 p-2 text-emerald-600">
+                <div className="rounded-lg bg-brand-50 p-2 text-brand-600">
                   <User size={18} />
                 </div>
                 <div>
@@ -201,7 +201,7 @@ const TicketDetailsPage = () => {
 
               {ticket.resolvedAt && (
                 <div className="flex items-start gap-4">
-                  <div className="rounded-lg bg-emerald-50 p-2 text-emerald-600">
+                  <div className="rounded-lg bg-brand-50 p-2 text-brand-600">
                     <CheckCircle size={18} />
                   </div>
                   <div>

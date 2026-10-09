@@ -16,7 +16,7 @@ const LowStockTable = ({ products }) => {
       </div>
 
       {products?.length === 0 ? (
-        <div className="bg-green-50 text-green-700 rounded-xl p-4 text-sm font-medium">
+        <div className="bg-brand-50 text-brand-700 rounded-xl p-4 text-sm font-medium">
           {isNo ? "Alle artikler har tilstrekkelig lagerbeholdning." : "All products are sufficiently stocked."}
         </div>
       ) : (

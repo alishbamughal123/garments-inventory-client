@@ -48,7 +48,7 @@ const B2BPortalLayout = () => {
               <span className="font-black text-xs sm:text-sm tracking-tight text-slate-900 uppercase block leading-tight">
                 Nordic Prowear
               </span>
-              <span className="text-[9px] sm:text-[10px] font-bold text-teal-600 tracking-wider uppercase leading-none">
+              <span className="text-[9px] sm:text-[10px] font-bold text-brand-600 tracking-wider uppercase leading-none">
                 B2B Portal
               </span>
             </div>
@@ -60,7 +60,7 @@ const B2BPortalLayout = () => {
               to="/portal/catalog"
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl transition ${
                 location.pathname === "/portal/catalog"
-                  ? "bg-teal-600 text-white shadow-sm shadow-teal-600/20"
+                  ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
             >
@@ -72,7 +72,7 @@ const B2BPortalLayout = () => {
               to="/portal/orders"
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl transition ${
                 location.pathname === "/portal/orders"
-                  ? "bg-teal-600 text-white shadow-sm shadow-teal-600/20"
+                  ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
             >
@@ -84,14 +84,20 @@ const B2BPortalLayout = () => {
               to="/portal/cart"
               className={`relative flex items-center gap-1.5 px-3 py-2 rounded-xl transition ${
                 location.pathname === "/portal/cart"
-                  ? "bg-teal-600 text-white shadow-sm shadow-teal-600/20"
+                  ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
             >
               <ShoppingCart size={16} />
               <span>{t("cart") || "Cart"}</span>
               {cartItemsCount > 0 && (
-                <span className="bg-emerald-500 text-white font-extrabold text-[10px] px-1.5 py-0.2 min-w-[18px] h-4.5 rounded-full flex items-center justify-center shadow-xs">
+                <span
+                  className={`font-extrabold text-[10px] px-1.5 min-w-[18px] h-[18px] rounded-full flex items-center justify-center shadow-sm ${
+                    location.pathname === "/portal/cart"
+                      ? "bg-white text-brand-700"
+                      : "bg-brand-600 text-white"
+                  }`}
+                >
                   {cartItemsCount}
                 </span>
               )}
@@ -116,7 +122,7 @@ const B2BPortalLayout = () => {
 
             {/* Desktop User Info */}
             <div className="hidden lg:flex items-center gap-2 pl-2 border-l border-slate-200 text-xs">
-              <div className="h-7.5 w-7.5 rounded-full bg-teal-100 text-teal-700 font-bold flex items-center justify-center border border-teal-200 text-xs">
+              <div className="h-7.5 w-7.5 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center border border-brand-200 text-xs">
                 {user?.name ? user.name.charAt(0).toUpperCase() : "C"}
               </div>
               <div className="max-w-[120px] truncate">
@@ -130,14 +136,20 @@ const B2BPortalLayout = () => {
               to="/portal/cart"
               className={`md:hidden relative p-2 rounded-xl transition ${
                 location.pathname === "/portal/cart"
-                  ? "bg-teal-600 text-white"
+                  ? "bg-brand-600 text-white"
                   : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
               title="Cart"
             >
               <ShoppingCart size={18} />
               {cartItemsCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-emerald-500 text-white font-extrabold text-[9px] h-4.5 min-w-[18px] px-1 rounded-full flex items-center justify-center shadow-xs">
+                <span
+                  className={`absolute -top-1.5 -right-1.5 font-extrabold text-[9px] h-[18px] min-w-[18px] px-1 rounded-full flex items-center justify-center shadow-sm ring-2 ring-white ${
+                    location.pathname === "/portal/cart"
+                      ? "bg-white text-brand-700"
+                      : "bg-brand-600 text-white"
+                  }`}
+                >
                   {cartItemsCount}
                 </span>
               )}
@@ -169,7 +181,7 @@ const B2BPortalLayout = () => {
           to="/portal/catalog"
           className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition ${
             location.pathname === "/portal/catalog"
-              ? "text-teal-600 font-bold"
+              ? "text-brand-600 font-bold"
               : "text-slate-500 hover:text-slate-800 font-medium"
           }`}
         >
@@ -181,7 +193,7 @@ const B2BPortalLayout = () => {
           to="/portal/orders"
           className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition ${
             location.pathname === "/portal/orders"
-              ? "text-teal-600 font-bold"
+              ? "text-brand-600 font-bold"
               : "text-slate-500 hover:text-slate-800 font-medium"
           }`}
         >
@@ -193,14 +205,14 @@ const B2BPortalLayout = () => {
           to="/portal/cart"
           className={`relative flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition ${
             location.pathname === "/portal/cart"
-              ? "text-teal-600 font-bold"
+              ? "text-brand-600 font-bold"
               : "text-slate-500 hover:text-slate-800 font-medium"
           }`}
         >
           <div className="relative">
             <ShoppingCart size={20} />
             {cartItemsCount > 0 && (
-              <span className="absolute -top-1.5 -right-2.5 bg-emerald-500 text-white font-extrabold text-[9px] h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center shadow-xs">
+              <span className="absolute -top-1.5 -right-2.5 bg-brand-600 text-white font-extrabold text-[9px] h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center shadow-sm ring-2 ring-white">
                 {cartItemsCount}
               </span>
             )}
@@ -213,7 +225,7 @@ const B2BPortalLayout = () => {
       <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-500 hidden md:block">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
           <span>&copy; {new Date().getFullYear()} Nordic Prowear B2B Customer Portal. All rights reserved.</span>
-          <span className="flex items-center gap-1.5 text-emerald-600 font-bold">
+          <span className="flex items-center gap-1.5 text-brand-600 font-bold">
             <Shield size={14} /> Encrypted SSL Portal
           </span>
         </div>

@@ -151,8 +151,8 @@ const SettingsPage = () => {
                 <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-indigo-500/20 border border-indigo-400/30 text-indigo-300">
                   {user?.role || "ADMIN"}
                 </span>
-                <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> {isNo ? "Aktiv" : "Active"}
+                <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-brand-500/20 text-brand-300 border border-brand-400/30 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse" /> {isNo ? "Aktiv" : "Active"}
                 </span>
               </div>
               <p className="text-sm text-slate-300 flex items-center justify-center sm:justify-start gap-1.5">
@@ -544,7 +544,7 @@ const TabButton = ({ id, label, icon, activeTab, setActiveTab }) => {
 
 const PermissionItem = ({ text }) => (
   <div className="flex items-center gap-2 text-slate-700">
-    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+    <CheckCircle2 className="w-4 h-4 text-brand-500 shrink-0" />
     <span>{text}</span>
   </div>
 );

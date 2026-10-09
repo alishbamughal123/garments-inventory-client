@@ -338,7 +338,7 @@ const CustomerDetailsPage = () => {
                   <div>
                     <span className="font-mono font-bold text-blue-600 text-sm">{order.orderNumber}</span>
                     <span className="text-slate-400 ml-2">({new Date(order.createdAt).toLocaleDateString()})</span>
-                    <p className="text-slate-600 mt-1">{order.orderItems?.length || 0} {isNo ? "artikler • Pakkevekt:" : "items • Parcel Weight:"} <span className="font-semibold text-slate-900">{order.totalParcelWeight?.toFixed(2)} kg</span></p>
+                    <p className="text-slate-600 mt-1">{order.orderItems?.length || 0} {isNo ? "artikler" : "items"}</p>
                   </div>
 
                   <div className="flex items-center gap-4">
@@ -365,10 +365,10 @@ const CustomerDetailsPage = () => {
                   <div>
                     <span className="font-bold text-slate-900">{tx.product?.productName}</span>
                     <span className="text-slate-500 ml-2">({tx.product?.sku})</span>
-                    <p className="text-slate-600 mt-0.5">{t("quantity")}: <span className="font-bold text-slate-900">{tx.quantity}</span> • {isNo ? "Vekt:" : "Weight:"} <span className="font-semibold text-blue-600">{tx.totalWeightKg?.toFixed(2)} kg</span></p>
+                    <p className="text-slate-600 mt-0.5">{t("quantity")}: <span className="font-bold text-slate-900">{tx.quantity}</span></p>
                     <p className="text-[10px] text-slate-400 mt-0.5">{new Date(tx.createdAt).toLocaleString()} {isNo ? "av" : "by"} {tx.performedBy?.name}</p>
                   </div>
-                  <span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full font-semibold text-[11px]">{isNo ? "Vareutgang fullført" : "Stock Out Complete"}</span>
+                  <span className="px-3 py-1 bg-brand-100 text-brand-800 rounded-full font-semibold text-[11px]">{isNo ? "Vareutgang fullført" : "Stock Out Complete"}</span>
                 </div>
               ))}
             </div>
@@ -381,7 +381,7 @@ const CustomerDetailsPage = () => {
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
           <div>
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Shield className="text-emerald-600" size={18} />
+              <Shield className="text-brand-600" size={18} />
               <span>{t("gdprActions")}</span>
             </h3>
             <p className="text-xs text-slate-500 mt-1">

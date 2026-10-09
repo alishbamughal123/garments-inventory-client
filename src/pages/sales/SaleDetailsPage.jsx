@@ -121,7 +121,7 @@ const SaleDetailsPage = () => {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500 font-medium">Discount</span>
-                <span className="font-bold text-emerald-600">- NOK {sale.discount}</span>
+                <span className="font-bold text-brand-600">- NOK {sale.discount}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500 font-medium">Tax / MVA</span>

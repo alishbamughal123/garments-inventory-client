@@ -74,7 +74,7 @@
 //                     icon={
 //                         <FiLayers
 //                             size={24}
-//                             className="text-emerald-600"
+//                             className="text-brand-600"
 //                         />
 //                     }
 
@@ -160,7 +160,7 @@
 //                                         )}
 
 //                                         {item.transactionType === "RETURN" && (
-//                                             <span className="px-3 py-1 rounded-full  text-green-600 text-sm">
+//                                             <span className="px-3 py-1 rounded-full  text-brand-600 text-sm">
 //                                                 RETURN
 //                                             </span>
 //                                         )}
@@ -377,11 +377,11 @@ const DashboardPage = () => {
         <StatCard
           title={t("totalStock")}
           value={dashboard.totalStock}
-          bg="bg-emerald-50"
+          bg="bg-brand-50"
           icon={
             <FiLayers
               size={22}
-              className="text-emerald-600"
+              className="text-brand-600"
             />
           }
         />

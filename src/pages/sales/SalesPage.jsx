@@ -308,7 +308,7 @@ const SalesPage = () => {
                 disabled={!!exporting}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-60 sm:text-sm"
               >
-                <FiDownload className="text-emerald-600" />
+                <FiDownload className="text-brand-600" />
                 {exporting === "excel" ? "Exporting..." : "Export to Excel (.xlsx)"}
               </button>
               <button
@@ -510,7 +510,7 @@ const SalesPage = () => {
                               </div>
                             ))}
                             {sale.saleItems.length > 3 && (
-                              <span className="inline-block text-[11px] font-semibold text-teal-600">
+                              <span className="inline-block text-[11px] font-semibold text-brand-600">
                                 +{sale.saleItems.length - 3} more
                               </span>
                             )}

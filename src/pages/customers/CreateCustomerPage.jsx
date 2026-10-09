@@ -296,9 +296,9 @@ const CreateCustomerPage = () => {
         </section>
 
         {/* Task 3 Requirement: B2B Customer Portal Login Setup */}
-        <section className="rounded-2xl border border-teal-200/80 bg-teal-50/30 p-5 shadow-sm sm:p-6 space-y-4">
-          <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-teal-100 pb-3">
-            <Shield className="text-teal-600" size={18} />
+        <section className="rounded-2xl border border-brand-200/80 bg-brand-50/30 p-5 shadow-sm sm:p-6 space-y-4">
+          <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-brand-100 pb-3">
+            <Shield className="text-brand-600" size={18} />
             <span>{t("portalAccess")}</span>
           </h3>
 

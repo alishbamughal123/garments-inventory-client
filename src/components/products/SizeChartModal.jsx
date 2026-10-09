@@ -402,7 +402,7 @@ const SizeChartModal = ({
                         <button
                           type="button"
                           onClick={() => handleRemoveRow(idx)}
-                          className="p-1 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition"
+                          className="p-1 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition"
                           title="Remove row"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

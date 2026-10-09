@@ -248,11 +248,11 @@ const LeadsPage = () => {
   const getPriorityBadgeClass = (priority) => {
     switch (priority) {
       case "A+":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+        return "bg-brand-50 text-brand-700 border-brand-200";
       case "A":
         return "bg-blue-50 text-blue-700 border-blue-200";
       case "A-":
-        return "bg-cyan-50 text-cyan-700 border-cyan-200";
+        return "bg-brand-50 text-brand-700 border-brand-200";
       case "B+":
         return "bg-amber-50 text-amber-700 border-amber-200";
       case "B":
@@ -274,10 +274,10 @@ const LeadsPage = () => {
               variant="secondary"
               onClick={handleExportExcel}
               disabled={exportingExcel || loading}
-              className="bg-white border-slate-200 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition shadow-sm"
+              className="bg-white border-slate-200 text-slate-700 hover:bg-brand-50 hover:text-brand-700 hover:border-brand-200 transition shadow-sm"
               title={isNo ? "Last ned alle filtrerte leads til Excel" : "Download all filtered leads to Excel"}
             >
-              <FileSpreadsheet size={16} className="text-emerald-600" />
+              <FileSpreadsheet size={16} className="text-brand-600" />
               <span>
                 {exportingExcel
                   ? isNo
@@ -441,7 +441,7 @@ const LeadsPage = () => {
                   {lead.revenueMnok && (
                     <p>
                       <span className="text-slate-400">{isNo ? "Omsetning:" : "Turnover:"} </span>
-                      <strong className="text-emerald-700 font-semibold">{lead.revenueMnok} MNOK</strong>
+                      <strong className="text-brand-700 font-semibold">{lead.revenueMnok} MNOK</strong>
                       {lead.financialYear && (
                         <span className="text-slate-400"> ({lead.financialYear})</span>
                       )}
@@ -576,7 +576,7 @@ const LeadsPage = () => {
 
                       <td className="p-4 text-right font-medium">
                         {lead.revenueMnok ? (
-                          <span className="font-semibold text-emerald-700">
+                          <span className="font-semibold text-brand-700">
                             {Number(lead.revenueMnok).toLocaleString("en-US", {
                               minimumFractionDigits: 1,
                               maximumFractionDigits: 1,

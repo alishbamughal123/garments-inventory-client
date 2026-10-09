@@ -396,7 +396,7 @@ const ProductsPage = () => {
                   className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-700 px-3.5 py-2.5 text-xs sm:text-sm font-semibold shadow-2xs transition disabled:opacity-50"
                   title={isNo ? "Eksporter artikler til Excel eller CAD" : "Export articles to Excel or CAD"}
                 >
-                  <Download className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <Download className="w-4 h-4 text-brand-600 shrink-0" />
                   <span>
                     {exportingExcel
                       ? (isNo ? `Eksporterer (${exportProgress?.current || 0}/${exportProgress?.total || paginationMeta.total})...` : `Exporting...`)
@@ -413,9 +413,9 @@ const ProductsPage = () => {
                         setExportDropdownOpen(false);
                         handleExportAllExcel();
                       }}
-                      className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors"
+                      className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-800 transition-colors"
                     >
-                      <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <FileSpreadsheet className="w-4 h-4 text-brand-600 shrink-0" />
                       <div>
                         <div className="text-slate-900 font-semibold">{t("excelWithBarcodes")}</div>
                         <div className="text-[11px] text-slate-500 font-normal">{isNo ? "Excel-ark med strekkoder" : "Spreadsheet with barcodes"}</div>
@@ -475,12 +475,12 @@ const ProductsPage = () => {
                         setExportDropdownOpen(false);
                         handleExportAllMixedCartonsCombinedDXF();
                       }}
-                      className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-teal-900 hover:bg-teal-50 transition-colors"
+                      className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-brand-900 hover:bg-brand-50 transition-colors"
                     >
-                      <Grid className="w-4 h-4 text-teal-600 shrink-0" />
+                      <Grid className="w-4 h-4 text-brand-600 shrink-0" />
                       <div>
-                        <div className="text-teal-950 font-bold">Combined Cartons Sheet (.dxf)</div>
-                        <div className="text-[11px] text-teal-700/80 font-normal">{isNo ? "Alle kartonger på ett CAD-ark" : "All cartons on single CAD plotter sheet"}</div>
+                        <div className="text-brand-950 font-bold">Combined Cartons Sheet (.dxf)</div>
+                        <div className="text-[11px] text-brand-700/80 font-normal">{isNo ? "Alle kartonger på ett CAD-ark" : "All cartons on single CAD plotter sheet"}</div>
                       </div>
                     </button>
                   </div>

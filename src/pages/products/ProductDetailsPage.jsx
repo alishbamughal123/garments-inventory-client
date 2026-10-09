@@ -286,7 +286,7 @@ const ProductDetailsPage = () => {
                   disabled={exportingExcel}
                   className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50"
                 >
-                  <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <FileSpreadsheet className="w-4 h-4 text-brand-600 shrink-0" />
                   <span>{exportingExcel ? (isNo ? "Eksporterer..." : "Exporting...") : t("excelWithBarcodes")}</span>
                 </button>
 

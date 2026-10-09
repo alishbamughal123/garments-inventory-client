@@ -105,11 +105,11 @@ const LeadDetailsPage = () => {
   const getPriorityBadgeClass = (priority) => {
     switch (priority) {
       case "A+":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+        return "bg-brand-50 text-brand-700 border-brand-200";
       case "A":
         return "bg-blue-50 text-blue-700 border-blue-200";
       case "A-":
-        return "bg-cyan-50 text-cyan-700 border-cyan-200";
+        return "bg-brand-50 text-brand-700 border-brand-200";
       case "B+":
         return "bg-amber-50 text-amber-700 border-amber-200";
       case "B":
@@ -173,7 +173,7 @@ const LeadDetailsPage = () => {
                   toast.error(isNo ? "Konvertering feilet" : "Conversion failed");
                 }
               }}
-              className="bg-emerald-600 hover:bg-emerald-700"
+              className="bg-brand-600 hover:bg-brand-700"
             >
               {isNo ? "Konverter til kunde" : "Convert To Customer"}
             </Button>
@@ -214,7 +214,7 @@ const LeadDetailsPage = () => {
             <p className="text-xs font-medium text-slate-500">
               {isNo ? "Omsetning (MNOK)" : "Turnover (MNOK)"}
             </p>
-            <div className="mt-1.5 flex items-center gap-1.5 text-lg font-bold text-emerald-700">
+            <div className="mt-1.5 flex items-center gap-1.5 text-lg font-bold text-brand-700">
               <TrendingUp size={18} />
               {lead.revenueMnok ? (
                 <span>

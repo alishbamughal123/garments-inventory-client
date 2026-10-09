@@ -25,7 +25,7 @@ const summaryCards = [
     key: "completedTasks",
     label: "Completed",
     icon: CheckCircle2,
-    iconClassName: "text-emerald-600",
+    iconClassName: "text-brand-600",
   },
   {
     key: "overdueTasks",
@@ -43,7 +43,7 @@ const summaryCards = [
     key: "highPriorityTasks",
     label: "High Priority",
     icon: Siren,
-    iconClassName: "text-rose-600",
+    iconClassName: "text-red-600",
   },
 ];
 

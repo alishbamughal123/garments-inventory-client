@@ -323,7 +323,7 @@ const CreateSalePage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <SurfaceCard className="p-4 sm:p-5 flex flex-col justify-between space-y-2">
                 <label className={formLabelClass}>
-                  <User size={15} className="inline mr-1 text-teal-600" />
+                  <User size={15} className="inline mr-1 text-brand-600" />
                   Select Customer
                 </label>
                 <select
@@ -344,7 +344,7 @@ const CreateSalePage = () => {
 
               <SurfaceCard className="p-4 sm:p-5 flex flex-col justify-between space-y-2">
                 <label className={formLabelClass}>
-                  <ScanLine size={15} className="inline mr-1 text-teal-600" />
+                  <ScanLine size={15} className="inline mr-1 text-brand-600" />
                   Barcode Camera Scanner
                 </label>
                 <Button
@@ -367,7 +367,7 @@ const CreateSalePage = () => {
                     placeholder="Search product by name, SKU barcode or style..."
                     value={productSearch}
                     onChange={(e) => setProductSearch(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-900 outline-none focus:border-teal-500 focus:bg-white transition"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-900 outline-none focus:border-brand-500 focus:bg-white transition"
                   />
                 </div>
               </div>
@@ -382,15 +382,15 @@ const CreateSalePage = () => {
                       <div
                         key={prod.id}
                         onClick={() => handleAddProductToCart(prod)}
-                        className="p-3 flex items-center justify-between hover:bg-teal-50 cursor-pointer transition text-xs"
+                        className="p-3 flex items-center justify-between hover:bg-brand-50 cursor-pointer transition text-xs"
                       >
                         <div>
                           <span className="font-bold text-slate-900 block">{prod.productName}</span>
                           <span className="text-[10px] text-slate-500 font-mono">SKU: {prod.sku} • Stock: {prod.stockQuantity}</span>
                         </div>
                         <div className="text-right">
-                          <span className="font-mono font-bold text-emerald-600 text-sm">NOK {Number(prod.salePrice).toLocaleString()}</span>
-                          <span className="block text-[10px] font-bold text-teal-600">+ Add to Cart</span>
+                          <span className="font-mono font-bold text-brand-600 text-sm">NOK {Number(prod.salePrice).toLocaleString()}</span>
+                          <span className="block text-[10px] font-bold text-brand-600">+ Add to Cart</span>
                         </div>
                       </div>
                     ))
@@ -403,7 +403,7 @@ const CreateSalePage = () => {
             <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm overflow-hidden space-y-4">
               <div className="flex justify-between items-center border-b border-slate-100 pb-3">
                 <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  <ShoppingCart size={18} className="text-teal-600" />
+                  <ShoppingCart size={18} className="text-brand-600" />
                   <span>Cart Items</span>
                 </h3>
                 <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
@@ -462,7 +462,7 @@ const CreateSalePage = () => {
                           <td className="p-3 text-right text-slate-600 font-semibold">
                             NOK {item.unitPrice.toLocaleString()}
                           </td>
-                          <td className="p-3 text-right font-black text-emerald-600">
+                          <td className="p-3 text-right font-black text-brand-600">
                             NOK {item.totalPrice.toLocaleString()}
                           </td>
                           <td className="p-3 text-center">
@@ -514,7 +514,7 @@ const CreateSalePage = () => {
                   <button
                     type="button"
                     onClick={() => setCustomTax(null)}
-                    className="text-[10px] text-teal-600 hover:underline font-bold"
+                    className="text-[10px] text-brand-600 hover:underline font-bold"
                   >
                     Reset 25% VAT
                   </button>
@@ -545,7 +545,7 @@ const CreateSalePage = () => {
 
             <div className="pt-3 border-t border-slate-100 flex justify-between items-baseline">
               <span className="text-sm font-bold text-slate-700">Grand Total</span>
-              <span className="text-2xl font-black text-emerald-600 font-mono">
+              <span className="text-2xl font-black text-brand-600 font-mono">
                 NOK {grandTotal.toLocaleString()}
               </span>
             </div>
@@ -553,7 +553,7 @@ const CreateSalePage = () => {
             <Button
               onClick={handleSubmit}
               disabled={loading || cart.length === 0}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition disabled:opacity-50"
+              className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 rounded-xl shadow-md transition disabled:opacity-50"
               size="lg"
             >
               {loading ? "Processing..." : "Complete Sale & Print Receipt"}
@@ -575,14 +575,14 @@ const CreateSalePage = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4">
             <div className="bg-white text-slate-900 rounded-3xl max-w-xl w-full p-6 space-y-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto font-sans">
               <div className="flex justify-between items-center border-b border-slate-100 pb-4">
-                <div className="flex items-center gap-2 text-emerald-600 font-bold text-sm">
+                <div className="flex items-center gap-2 text-brand-600 font-bold text-sm">
                   <CheckCircle size={20} />
                   <span>Sales Receipt Invoice Ready</span>
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={() => window.print()}
-                    className="flex items-center gap-1.5 bg-teal-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-teal-700 transition"
+                    className="flex items-center gap-1.5 bg-brand-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-brand-700 transition"
                   >
                     <Printer size={15} />
                     <span>Print Receipt</span>
@@ -607,7 +607,7 @@ const CreateSalePage = () => {
                     <p className="text-[10px] text-slate-500 mt-1">Oslo, Norway • POS Counter</p>
                   </div>
                   <div className="text-right">
-                    <h2 className="text-lg font-black text-teal-700 uppercase tracking-tight">Sales Receipt</h2>
+                    <h2 className="text-lg font-black text-brand-700 uppercase tracking-tight">Sales Receipt</h2>
                     <p className="text-xs font-mono font-bold text-slate-800">{completedInvoice.invoiceNumber || "INV-2026-0001"}</p>
                     <p className="text-[11px] text-slate-500">Date: {new Date().toLocaleDateString()}</p>
                   </div>
@@ -645,7 +645,7 @@ const CreateSalePage = () => {
                   <p className="text-slate-500">Subtotal: <span className="font-mono font-bold text-slate-900">NOK {Number(completedInvoice.subtotal || subtotal).toLocaleString()}</span></p>
                   {Number(completedInvoice.discount) > 0 && <p className="text-slate-500">Discount: <span className="font-mono font-bold text-red-600">- NOK {Number(completedInvoice.discount).toLocaleString()}</span></p>}
                   {Number(completedInvoice.tax) > 0 && <p className="text-slate-500">Tax: <span className="font-mono font-bold text-slate-900">+ NOK {Number(completedInvoice.tax).toLocaleString()}</span></p>}
-                  <p className="text-base font-black text-slate-900 pt-2 border-t border-slate-100">Total: <span className="font-mono text-teal-700">NOK {Number(completedInvoice.grandTotal || grandTotal).toLocaleString()}</span></p>
+                  <p className="text-base font-black text-slate-900 pt-2 border-t border-slate-100">Total: <span className="font-mono text-brand-700">NOK {Number(completedInvoice.grandTotal || grandTotal).toLocaleString()}</span></p>
                 </div>
               </div>
             </div>

@@ -6,7 +6,7 @@ import Pagination from "../../components/common/Pagination";
 import { useLanguage } from "../../context/LanguageContext";
 import api from "../../services/api";
 import { getCustomers } from "../../services/customer.service";
-import logoImg from "../../assets/logo.png";
+import logoImg from "../../assets/newlogo.png";
 import {
   FileSpreadsheet, Filter, Box, ArrowDownCircle, ArrowUpCircle,
   FileText, Repeat, AlertTriangle, ShoppingCart, Clock, Download, FileDown, ShoppingBag
@@ -218,7 +218,7 @@ const CRMReportsPage = () => {
           img.onload = resolve;
           img.onerror = resolve;
         });
-        doc.addImage(img, "PNG", 12, 4, 38, 20);
+        doc.addImage(img, "PNG", 12, 2, 24, 24);
       } catch {
         doc.setTextColor(255, 255, 255);
         doc.setFont("helvetica", "bold");
@@ -362,7 +362,7 @@ const CRMReportsPage = () => {
             <button
               onClick={exportToExcel}
               disabled={exporting}
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition disabled:opacity-50"
             >
               <FileSpreadsheet size={16} />
               <span>{t("exportExcel")}</span>

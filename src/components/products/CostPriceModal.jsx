@@ -300,7 +300,7 @@ const CostPriceModal = ({ isOpen, onClose, baseStyles = [], onSuccess }) => {
                     = NOK {calculatedNok.toFixed(2)}
                   </div>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-bold text-xs border border-emerald-200">
+                <span className="px-2.5 py-1 rounded-full bg-brand-50 text-brand-700 font-bold text-xs border border-brand-200">
                   {isNo ? "Kostpris per stk" : "Cost per unit"}
                 </span>
               </div>

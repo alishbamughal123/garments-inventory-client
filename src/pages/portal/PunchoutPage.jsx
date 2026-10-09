@@ -188,7 +188,7 @@ const PunchoutPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4 text-white">
-        <div className="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mb-4" />
+        <div className="w-12 h-12 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mb-4" />
         <h2 className="text-lg font-bold">Authenticating Visma eHandel PunchOut Session...</h2>
         <p className="text-xs text-slate-400 mt-1">Verifying contracted prices & municipality access permissions</p>
       </div>
@@ -221,13 +221,13 @@ const PunchoutPage = () => {
       <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md bg-slate-900/90">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-teal-500/20 p-2 rounded-xl border border-teal-500/30">
-              <ShieldCheck className="text-teal-400" size={24} />
+            <div className="bg-brand-500/20 p-2 rounded-xl border border-brand-500/30">
+              <ShieldCheck className="text-brand-400" size={24} />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-black tracking-wide text-white uppercase">Nordic Prowear</span>
-                <span className="text-[10px] bg-teal-900/80 text-teal-300 border border-teal-700 px-2 py-0.5 rounded-full font-bold">
+                <span className="text-[10px] bg-brand-900/80 text-brand-300 border border-brand-700 px-2 py-0.5 rounded-full font-bold">
                   Visma PunchOut Active
                 </span>
               </div>
@@ -240,7 +240,7 @@ const PunchoutPage = () => {
           <button
             onClick={handleReturnToVisma}
             disabled={returningCart}
-            className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white px-5 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-teal-500/20 transition active:scale-95 disabled:opacity-50"
+            className="bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-400 hover:to-brand-500 text-white px-5 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-brand-500/20 transition active:scale-95 disabled:opacity-50"
           >
             <ShoppingBag size={16} />
             <span>Transfer Cart to Visma ({cart.length} items)</span>
@@ -255,7 +255,7 @@ const PunchoutPage = () => {
         <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-900 border border-indigo-800/50 rounded-3xl p-6 relative overflow-hidden">
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-teal-400 bg-teal-950/80 border border-teal-800 px-3 py-1 rounded-full inline-flex items-center gap-1">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-brand-400 bg-brand-950/80 border border-brand-800 px-3 py-1 rounded-full inline-flex items-center gap-1">
                 <Sparkles size={12} /> Contracted Assortment & Agreed Pricing Only
               </span>
               <h1 className="text-xl sm:text-2xl font-black text-white mt-2">
@@ -268,7 +268,7 @@ const PunchoutPage = () => {
 
             <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl text-right min-w-[200px]">
               <span className="text-[10px] text-slate-400 uppercase font-bold block">Current PunchOut Cart</span>
-              <span className="text-xl font-black text-teal-400 font-mono">
+              <span className="text-xl font-black text-brand-400 font-mono">
                 NOK {cart.reduce((sum, i) => sum + i.price * i.quantity, 0).toLocaleString()}
               </span>
               <span className="text-[10px] text-slate-400 block mt-0.5">{cart.length} articles ready</span>
@@ -281,7 +281,7 @@ const PunchoutPage = () => {
           {products.map((product) => (
             <div
               key={product.id}
-              className="bg-slate-900 border border-slate-800 hover:border-teal-500/50 rounded-3xl p-5 flex flex-col justify-between transition duration-300 shadow-xl group"
+              className="bg-slate-900 border border-slate-800 hover:border-brand-500/50 rounded-3xl p-5 flex flex-col justify-between transition duration-300 shadow-xl group"
             >
               <div>
                 {/* Contract Badge */}
@@ -289,7 +289,7 @@ const PunchoutPage = () => {
                   <span className="text-[10px] font-bold text-slate-300 bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-full">
                     {product.category?.name || "Workwear"}
                   </span>
-                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-800 px-2.5 py-1 rounded-full flex items-center gap-1">
+                  <span className="text-[10px] font-bold text-brand-400 bg-brand-950/80 border border-brand-800 px-2.5 py-1 rounded-full flex items-center gap-1">
                     <Tag size={12} /> Agreed Contract Price
                   </span>
                 </div>
@@ -329,7 +329,7 @@ const PunchoutPage = () => {
                   </div>
                 </div>
 
-                <h3 className="text-base font-bold text-white group-hover:text-teal-400 transition">{product.productName}</h3>
+                <h3 className="text-base font-bold text-white group-hover:text-brand-400 transition">{product.productName}</h3>
                 <p className="text-xs text-slate-400 font-mono mt-0.5">SKU: {product.sku}</p>
 
                 {/* Washing Instructions Info */}
@@ -343,7 +343,7 @@ const PunchoutPage = () => {
                   <select
                     value={selectedLogo[product.id] || "Front Left Chest Logo"}
                     onChange={(e) => setSelectedLogo({ ...selectedLogo, [product.id]: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl py-1.5 px-2 text-xs font-semibold text-white outline-none focus:border-teal-500"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl py-1.5 px-2 text-xs font-semibold text-white outline-none focus:border-brand-500"
                   >
                     <option value="Front Left Chest Logo">Front Left Chest Embroidery</option>
                     <option value="Back Reflective Text">Back Reflective Print</option>
@@ -357,14 +357,14 @@ const PunchoutPage = () => {
               <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
                 <div>
                   <span className="text-[10px] text-slate-500 uppercase font-bold block">Contract Price</span>
-                  <span className="text-lg font-black text-emerald-400 font-mono">
+                  <span className="text-lg font-black text-brand-400 font-mono">
                     NOK {Number(product.contractPrice).toLocaleString()}
                   </span>
                 </div>
 
                 <button
                   onClick={() => handleAddToCart(product)}
-                  className="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition active:scale-95"
+                  className="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition active:scale-95"
                 >
                   <ShoppingBag size={14} />
                   <span>Add to Cart</span>
@@ -378,15 +378,15 @@ const PunchoutPage = () => {
       {/* Transfer Success Modal Overlay */}
       {transferModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-teal-500/40 rounded-3xl p-6 max-w-2xl w-full text-slate-100 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-slate-900 border border-brand-500/40 rounded-3xl p-6 max-w-2xl w-full text-slate-100 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-3">
-                <div className="bg-emerald-500/20 p-2 rounded-2xl border border-emerald-500/30 text-emerald-400">
+                <div className="bg-brand-500/20 p-2 rounded-2xl border border-brand-500/30 text-brand-400">
                   <CheckCircle2 size={24} />
                 </div>
                 <div>
                   <h3 className="text-base font-black text-white">PunchOut Cart Transferred to Visma</h3>
-                  <p className="text-xs text-slate-400">Target Hook URL: <span className="font-mono text-teal-300">{transferModal.buyerHookUrl}</span></p>
+                  <p className="text-xs text-slate-400">Target Hook URL: <span className="font-mono text-brand-300">{transferModal.buyerHookUrl}</span></p>
                 </div>
               </div>
               <button
@@ -400,10 +400,10 @@ const PunchoutPage = () => {
             <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 text-xs">
               <div className="flex justify-between items-center text-slate-300 font-semibold">
                 <span>Items Transferred: <strong className="text-white">{transferModal.cartItems.length} articles</strong></span>
-                <span>Total Cart Value: <strong className="text-emerald-400 font-mono">NOK {transferModal.totalAmount.toLocaleString()}</strong></span>
+                <span>Total Cart Value: <strong className="text-brand-400 font-mono">NOK {transferModal.totalAmount.toLocaleString()}</strong></span>
               </div>
               <div className="text-[11px] text-slate-400">
-                Protocol: <span className="text-teal-400 font-bold font-mono">{transferModal.protocol} PunchOutOrderMessage v1.2.014</span> (UNSPSC Workwear Code 46181500)
+                Protocol: <span className="text-brand-400 font-bold font-mono">{transferModal.protocol} PunchOutOrderMessage v1.2.014</span> (UNSPSC Workwear Code 46181500)
               </div>
             </div>
 
@@ -416,7 +416,7 @@ const PunchoutPage = () => {
                     navigator.clipboard.writeText(transferModal.cxmlMessage);
                     toast.success("cXML Payload copied to clipboard!");
                   }}
-                  className="text-teal-400 hover:underline font-bold"
+                  className="text-brand-400 hover:underline font-bold"
                 >
                   Copy XML
                 </button>
@@ -443,7 +443,7 @@ const PunchoutPage = () => {
                   } catch (e) {}
                   navigate("/sales/b2b-orders");
                 }}
-                className="bg-teal-600 hover:bg-teal-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-teal-500/20"
+                className="bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-brand-500/20"
               >
                 <span>Simulate Visma Approval & View Orders</span>
                 <ArrowRight size={14} />

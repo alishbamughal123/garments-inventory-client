@@ -6,11 +6,12 @@ import MainLayout from "../../layouts/MainLayout";
 import PageHeader from "../../components/ui/PageHeader";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import StatusBadge from "../../components/ui/StatusBadge";
-import { CheckCircle, Truck, Package, Weight, Clock, Building2, Phone, Calendar, FileText, Download, Trash2 } from "lucide-react";
+import { CheckCircle, Truck, Package, Clock, Building2, Phone, Calendar, FileText, Download, Trash2 } from "lucide-react";
 import Pagination from "../../components/common/Pagination";
 import DeleteModal from "../../components/common/DeleteModal";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { loadPdfLogo } from "../../utils/pdfLogo";
 
 const B2BOrdersPage = () => {
   const { t, lang, isNo } = useLanguage();
@@ -105,7 +106,7 @@ const B2BOrdersPage = () => {
   const L = (en, no) => (lang === "no" ? no : en);
 
   // Generate Delivery Note PDF (Pakkeseddel)
-  const generateDeliveryNotePdf = (order) => {
+  const generateDeliveryNotePdf = async (order) => {
     try {
       const doc = new jsPDF();
       const dnNumber = order.deliveryNote?.deliveryNoteNumber || `DN-${order.orderNumber}`;
@@ -114,15 +115,19 @@ const B2BOrdersPage = () => {
       doc.setFillColor(15, 23, 42); // slate-900
       doc.rect(0, 0, 210, 40, "F");
 
+      const logo = await loadPdfLogo();
+      if (logo) doc.addImage(logo, "PNG", 12, 5, 30, 30);
+      const headX = logo ? 48 : 14;
+
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(18);
       doc.setFont("helvetica", "bold");
-      doc.text("NORDIC PROWEAR AS", 14, 18);
+      doc.text("NORDIC PROWEAR AS", headX, 18);
 
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
-      doc.text(L("ELECTRONIC DELIVERY NOTE / PAKKESEDDEL 3.0", "ELEKTRONISK PAKKESEDDEL 3.0"), 14, 26);
-      doc.text(`${L("Document Ref", "Dokumentref.")}: ${dnNumber}`, 14, 33);
+      doc.text(L("ELECTRONIC DELIVERY NOTE / PAKKESEDDEL 3.0", "ELEKTRONISK PAKKESEDDEL 3.0"), headX, 26);
+      doc.text(`${L("Document Ref", "Dokumentref.")}: ${dnNumber}`, headX, 33);
 
       doc.text(`${L("Issue Date", "Utstedt")}: ${new Date().toLocaleDateString(lang === "no" ? "nb-NO" : undefined)}`, 140, 18);
       doc.text(`${L("Order Number", "Ordrenummer")}: ${order.orderNumber}`, 140, 26);
@@ -164,24 +169,15 @@ const B2BOrdersPage = () => {
         startY: 88,
         head: [["#", L("SKU / Part ID", "SKU / delenr."), L("Article Description & Logo Customization", "Artikkelbeskrivelse og logotilpasning"), L("Qty", "Ant."), L("Unit Price", "Enhetspris"), L("Total Price", "Totalpris")]],
         body: tableData,
-        headStyles: { fillColor: [13, 148, 136] }, // teal-600
+        headStyles: { fillColor: [10, 56, 102] }, // brand navy
         styles: { fontSize: 9 },
       });
 
       const finalY = (doc).lastAutoTable?.finalY ? (doc).lastAutoTable.finalY + 10 : 150;
 
-      // Parcel Weight & EHF Summary
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      doc.text(L("PARCEL & SHIPMENT WEIGHT SUMMARY:", "OPPSUMMERING AV PAKKE- OG FORSENDELSESVEKT:"), 14, finalY);
-      doc.setFont("helvetica", "normal");
-      doc.text(`• ${L("Total Parcel Weight", "Total pakkevekt")}: ${order.totalParcelWeight?.toFixed(2) || '0.20'} kg`, 14, finalY + 7);
-      doc.text(`• ${L("Garment Net Weight", "Netto plaggvekt")}: ${order.garmentWeightKg?.toFixed(2) || '0.00'} kg`, 14, finalY + 13);
-      doc.text(`• ${L("Packaging Weight", "Emballasjevekt")}: ${order.packagingWeightKg?.toFixed(2) || '0.20'} kg`, 14, finalY + 19);
-
       doc.setFont("helvetica", "italic");
       doc.setFontSize(9);
-      doc.text(L("This electronic delivery note complies with EHF Pakkeseddel 3.0 (Peppol BIS Despatch Advice 3.0).", "Denne elektroniske pakkeseddelen er i samsvar med EHF Pakkeseddel 3.0 (Peppol BIS Despatch Advice 3.0)."), 14, finalY + 30);
+      doc.text(L("This electronic delivery note complies with EHF Pakkeseddel 3.0 (Peppol BIS Despatch Advice 3.0).", "Denne elektroniske pakkeseddelen er i samsvar med EHF Pakkeseddel 3.0 (Peppol BIS Despatch Advice 3.0)."), 14, finalY + 4);
 
       doc.save(`DeliveryNote_${dnNumber}.pdf`);
       toast.success(L("Delivery Note PDF downloaded!", "Pakkeseddel (PDF) lastet ned!"));
@@ -232,14 +228,14 @@ const B2BOrdersPage = () => {
                 setPage(1);
               }}
               placeholder={lang === "no" ? "Søk ordre, kunde, artikkel, status, beløp, dato..." : "Search order, customer, article, status, amount, date..."}
-              className="w-full sm:w-80 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-teal-500 focus:bg-white transition"
+              className="w-full sm:w-80 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-brand-500 focus:bg-white transition"
             />
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Filter Status:</span>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full sm:w-auto rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-teal-500 focus:bg-white transition"
+                className="w-full sm:w-auto rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-brand-500 focus:bg-white transition"
               >
                 <option value="">All Statuses</option>
                 <option value="PENDING">Pending</option>
@@ -277,7 +273,7 @@ const B2BOrdersPage = () => {
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-4">
                     <div>
                       <div className="flex items-center gap-2.5">
-                        <span className="font-mono font-black text-base text-teal-600 tracking-tight">{order.orderNumber}</span>
+                        <span className="font-mono font-black text-base text-brand-600 tracking-tight">{order.orderNumber}</span>
                         <StatusBadge value={order.status} />
                       </div>
                       <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-1 font-medium">
@@ -306,7 +302,7 @@ const B2BOrdersPage = () => {
                   {/* Customer Info Box */}
                   <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-1 text-xs">
                     <div className="flex items-center gap-2 font-bold text-slate-900">
-                      <Building2 size={15} className="text-teal-600 flex-shrink-0" />
+                      <Building2 size={15} className="text-brand-600 flex-shrink-0" />
                       <span>{order.customer?.companyName || order.customer?.fullName}</span>
                     </div>
                     <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium pl-6">
@@ -336,7 +332,7 @@ const B2BOrdersPage = () => {
                                 <span className="font-bold text-slate-900 block">{it.product?.productName}</span>
                                 <span className="text-[10px] text-slate-400 font-mono">{it.product?.sku}</span>
                               </td>
-                              <td className="p-2.5 text-center font-bold text-teal-700">x{it.quantity}</td>
+                              <td className="p-2.5 text-center font-bold text-brand-700">x{it.quantity}</td>
                               <td className="p-2.5 text-right font-mono font-semibold">NOK {Number(it.totalPrice).toLocaleString()}</td>
                             </tr>
                           ))}
@@ -345,34 +341,18 @@ const B2BOrdersPage = () => {
                     </div>
                   </div>
 
-                  {/* Parcel Weight Info Box (Task 5) */}
-                  <div className="bg-indigo-50/60 p-3.5 rounded-2xl border border-indigo-100 space-y-2 text-xs text-indigo-950">
-                    <div className="flex items-center justify-between font-bold border-b border-indigo-100 pb-2">
-                      <span className="flex items-center gap-1.5 text-indigo-900">
-                        <Weight size={15} className="text-indigo-600" />
-                        <span>Shipment Parcel Weight Info:</span>
-                      </span>
-                      <span className="font-mono text-sm font-black text-indigo-700">{order.totalParcelWeight?.toFixed(2)} kg</span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600 font-medium">
-                      <div>Garment Weight: <span className="font-bold text-slate-800">{order.garmentWeightKg?.toFixed(2)} kg</span></div>
-                      <div>Packaging Weight: <span className="font-bold text-slate-800">{order.packagingWeightKg?.toFixed(2)} kg</span></div>
-                    </div>
-                  </div>
-
                   {/* Fulfillment Status & Action Footer */}
                   <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                     {order.deliveryNote ? (
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200 flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-brand-700 bg-brand-50 px-3 py-2 rounded-xl border border-brand-200 flex items-center gap-1.5">
                           <CheckCircle size={15} />
                           <span>Fulfilled • {order.deliveryNote.deliveryNoteNumber}</span>
                         </span>
 
                         <button
                           onClick={() => generateDeliveryNotePdf(order)}
-                          className="bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-red-500/20 transition active:scale-95"
+                          className="bg-gradient-to-r from-red-600 to-red-600 hover:from-red-700 hover:to-red-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-red-500/20 transition active:scale-95"
                         >
                           <FileText size={14} className="text-white" />
                           <span>Download Delivery Note PDF</span>
@@ -380,7 +360,7 @@ const B2BOrdersPage = () => {
 
                         <button
                           onClick={() => downloadEhfXml(order)}
-                          className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-teal-500/20 transition active:scale-95"
+                          className="bg-gradient-to-r from-brand-600 to-brand-600 hover:from-brand-700 hover:to-brand-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-brand-500/20 transition active:scale-95"
                         >
                           <Download size={14} className="text-white" />
                           <span>EHF XML</span>
@@ -396,7 +376,7 @@ const B2BOrdersPage = () => {
                       <button
                         onClick={() => handleFulfillOrder(order.id)}
                         disabled={fulfillingId === order.id}
-                        className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition disabled:opacity-60"
+                        className="flex items-center justify-center gap-2 bg-gradient-to-r from-brand-600 to-brand-600 hover:from-brand-700 hover:to-brand-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition disabled:opacity-60"
                       >
                         <Truck size={15} />
                         <span>{fulfillingId === order.id ? "Fulfilling Stock Out..." : "Fulfill & Process Stock Out"}</span>

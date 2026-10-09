@@ -541,11 +541,11 @@ const PortalCatalogPage = () => {
                         <span
                           className={`inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold px-2 py-0.2 sm:px-2.5 sm:py-0.5 rounded-full ${
                             inStock
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
-                              : "bg-rose-50 text-rose-700 border border-rose-200/60"
+                              ? "bg-brand-50 text-brand-700 border border-brand-200/60"
+                              : "bg-red-50 text-red-700 border border-red-200/60"
                           }`}
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full ${inStock ? "bg-emerald-500" : "bg-rose-500"}`} />
+                          <span className={`w-1.5 h-1.5 rounded-full ${inStock ? "bg-brand-500" : "bg-red-500"}`} />
                           {inStock
                             ? `${product.stockQuantity} ${isNo ? "på lager" : "in stock"}`
                             : isNo
@@ -636,7 +636,7 @@ const PortalCatalogPage = () => {
                           key={s.id}
                           className={`p-2 sm:p-2.5 rounded-xl border flex items-center gap-2 ${
                             isProhibited
-                              ? "bg-rose-50/30 border-rose-100"
+                              ? "bg-red-50/30 border-red-100"
                               : isWarning
                               ? "bg-amber-50/30 border-amber-100"
                               : "bg-slate-50/60 border-slate-200/70"

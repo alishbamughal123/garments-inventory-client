@@ -111,7 +111,7 @@ const TransactionsPage = () => {
                     <span
                       className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
                         item.transactionType === "STOCK_IN"
-                          ? "bg-green-100 text-green-700"
+                          ? "bg-brand-100 text-brand-700"
                           : "bg-red-100 text-red-700"
                       }`}
                     >
@@ -173,7 +173,7 @@ const TransactionsPage = () => {
                         <span
                           className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
                             item.transactionType === "STOCK_IN"
-                              ? "bg-emerald-100 text-emerald-800"
+                              ? "bg-brand-100 text-brand-800"
                               : "bg-red-100 text-red-800"
                           }`}
                         >

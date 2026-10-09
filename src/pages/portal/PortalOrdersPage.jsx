@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import api from "../../services/api";
 import { useLanguage } from "../../context/LanguageContext";
 import StatusBadge from "../../components/ui/StatusBadge";
-import { Clock, Printer, Package, CheckCircle, Weight, FileText } from "lucide-react";
+import { Clock, Printer, Package, CheckCircle, FileText } from "lucide-react";
 import Pagination from "../../components/common/Pagination";
 import logo from "../../assets/logo.png";
 
@@ -65,7 +65,7 @@ const PortalOrdersPage = () => {
       {/* Header */}
       <div className="flex flex-wrap justify-between items-center gap-2 border-b border-slate-200 pb-3 sm:pb-4">
         <h1 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2.5">
-          <Clock className="text-teal-600 shrink-0" size={24} />
+          <Clock className="text-brand-600 shrink-0" size={24} />
           <span>{t("orderHistory") || "Order History"}</span>
         </h1>
         <span className="text-[11px] sm:text-xs font-bold text-slate-600 bg-white px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl border border-slate-200 shadow-xs">
@@ -100,18 +100,15 @@ const PortalOrdersPage = () => {
             >
               <div className="space-y-1 sm:space-y-1.5 w-full sm:w-auto">
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                  <span className="font-mono font-black text-sm sm:text-base text-teal-600">{order.orderNumber}</span>
+                  <span className="font-mono font-black text-sm sm:text-base text-brand-600">{order.orderNumber}</span>
                   <StatusBadge value={order.status} />
                 </div>
                 <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
                   {lang === "no" ? "Bestilt" : "Placed on"} {new Date(order.createdAt).toLocaleDateString()} • {order.orderItems?.length || 0} {lang === "no" ? "artikler" : "items"}
                 </p>
                 <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[11px] sm:text-xs pt-0.5">
-                  <span className="text-slate-700 flex items-center gap-1 font-semibold">
-                    <Weight size={12} className="text-indigo-600 shrink-0" /> {order.totalParcelWeight?.toFixed(2)} kg
-                  </span>
                   {order.deliveryNote && (
-                    <span className="text-emerald-600 font-mono font-bold text-[10px] sm:text-xs bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    <span className="text-brand-600 font-mono font-bold text-[10px] sm:text-xs bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200">
                       DN: {order.deliveryNote.deliveryNoteNumber}
                     </span>
                   )}
@@ -165,7 +162,7 @@ const PortalOrdersPage = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => window.print()}
-                  className="flex items-center gap-1.5 bg-teal-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-teal-700 transition cursor-pointer"
+                  className="flex items-center gap-1.5 bg-brand-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-brand-700 transition cursor-pointer"
                 >
                   <Printer size={13} />
                   <span>Print</span>
@@ -191,7 +188,7 @@ const PortalOrdersPage = () => {
                   <p className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5">Oslo, Norway • B2B Sales Division</p>
                 </div>
                 <div className="text-right">
-                  <h2 className="text-sm sm:text-xl font-black text-teal-700 uppercase tracking-tight">
+                  <h2 className="text-sm sm:text-xl font-black text-brand-700 uppercase tracking-tight">
                     {t("orderConfirmation") || "CONFIRMATION"}
                   </h2>
                   <p className="text-xs font-mono font-bold text-slate-800">{activePdfOrder.orderNumber}</p>
@@ -226,18 +223,6 @@ const PortalOrdersPage = () => {
                 </table>
               </div>
 
-              <div className="p-3 sm:p-4 bg-teal-50/60 rounded-xl border border-teal-100 text-xs flex justify-between items-center gap-2">
-                <div>
-                  <p className="font-bold text-teal-900 text-[11px] sm:text-xs">Shipment Parcel Weight:</p>
-                  <p className="text-slate-600 text-[10px]">
-                    Garment: {activePdfOrder.garmentWeightKg} kg + Box: {activePdfOrder.packagingWeightKg} kg
-                  </p>
-                </div>
-                <span className="font-mono text-xs sm:text-base font-extrabold text-teal-800 shrink-0">
-                  {activePdfOrder.totalParcelWeight} kg
-                </span>
-              </div>
-
               <div className="pt-1 text-right text-xs space-y-0.5">
                 <p className="text-slate-500">
                   Subtotal: <span className="font-mono font-bold text-slate-900">NOK {Number(activePdfOrder.subtotal).toLocaleString()}</span>
@@ -246,7 +231,7 @@ const PortalOrdersPage = () => {
                   VAT (25% MVA): <span className="font-mono font-bold text-slate-900">NOK {Number(activePdfOrder.tax).toLocaleString()}</span>
                 </p>
                 <p className="text-xs sm:text-sm font-extrabold text-slate-900">
-                  Total: <span className="font-mono text-teal-700">NOK {Number(activePdfOrder.totalAmount).toLocaleString()}</span>
+                  Total: <span className="font-mono text-brand-700">NOK {Number(activePdfOrder.totalAmount).toLocaleString()}</span>
                 </p>
               </div>
             </div>
