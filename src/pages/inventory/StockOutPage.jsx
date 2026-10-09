@@ -10,7 +10,7 @@ import SurfaceCard from "../../components/ui/SurfaceCard";
 import { getCustomers } from "../../services/customer.service";
 import { stockOut, getTransactions } from "../../services/inventory.service";
 import { useLanguage } from "../../context/LanguageContext";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/newlogo.png";
 
 const StockOutPage = () => {
   const { t, lang } = useLanguage();

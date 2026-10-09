@@ -10,7 +10,7 @@ import { createSale } from "../../services/sales.service";
 import { getProducts, getProductByBarcode } from "../../services/products.service";
 import { getCustomers } from "../../services/customer.service";
 import { useLanguage } from "../../context/LanguageContext";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/newlogo.png";
 import {
   ShoppingCart,
   Search,

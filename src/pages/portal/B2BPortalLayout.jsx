@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
 import { useLanguage } from "../../context/LanguageContext";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/newlogo.png";
 import {
   ShoppingBag,
   ShoppingCart,
@@ -41,9 +41,7 @@ const B2BPortalLayout = () => {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
           {/* Logo & Portal Badge */}
           <Link to="/portal/catalog" className="flex items-center gap-2.5 shrink-0">
-            <div className="h-9 w-9 sm:h-10 sm:w-10 p-1 bg-blue-50 rounded-xl border border-blue-100 flex items-center justify-center shadow-xs">
-              <img src={logo} alt="Nordic Prowear Logo" className="h-full w-full object-contain" />
-            </div>
+            <img src={logo} alt="Nordic Prowear Logo" className="h-10 w-10 sm:h-11 sm:w-11 shrink-0 object-contain" />
             <div className="flex flex-col">
               <span className="font-black text-xs sm:text-sm tracking-tight text-slate-900 uppercase block leading-tight">
                 Nordic Prowear

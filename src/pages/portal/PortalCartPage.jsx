@@ -17,7 +17,7 @@ import {
   Plus,
   Minus,
 } from "lucide-react";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/newlogo.png";
 
 const PortalCartPage = () => {
   const { t, lang } = useLanguage();

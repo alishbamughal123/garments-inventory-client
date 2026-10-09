@@ -5,7 +5,7 @@ import { useLanguage } from "../../context/LanguageContext";
 import StatusBadge from "../../components/ui/StatusBadge";
 import { Clock, Printer, Package, CheckCircle, FileText } from "lucide-react";
 import Pagination from "../../components/common/Pagination";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/newlogo.png";
 
 const PortalOrdersPage = () => {
   const { t, lang } = useLanguage();
