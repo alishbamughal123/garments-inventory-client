@@ -20,6 +20,7 @@ const StockOutPage = () => {
   const [showScanner, setShowScanner] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [transactions, setTransactions] = useState([]);
+  const [historySearch, setHistorySearch] = useState("");
 
   // Form State
   const [selectedCustomerId, setSelectedCustomerId] = useState("");
@@ -31,22 +32,32 @@ const StockOutPage = () => {
   // Delivery Note Modal State
   const [activeDeliveryNote, setActiveDeliveryNote] = useState(null);
 
-  const loadInitialData = async () => {
+  const loadInitialData = async (isStale = () => false) => {
     try {
       const [custRes, txRes] = await Promise.all([
         getCustomers(),
-        getTransactions("STOCK_OUT")
+        getTransactions({ transactionType: "STOCK_OUT", search: historySearch.trim() })
       ]);
+      if (isStale()) return;
       setCustomers(custRes.data || []);
       setTransactions(txRes.data || []);
     } catch (err) {
+      if (isStale()) return;
       console.error("Data load error:", err);
     }
   };
 
   useEffect(() => {
-    loadInitialData();
-  }, []);
+    let cancelled = false;
+    const timeout = setTimeout(() => {
+      loadInitialData(() => cancelled);
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [historySearch]);
 
   const handleScan = (scannedBarcode) => {
     setBarcode(scannedBarcode);
@@ -243,6 +254,13 @@ const StockOutPage = () => {
         <SurfaceCard>
           <div className="p-6 space-y-4">
             <h3 className="text-base font-bold text-slate-900">{t("deliveryNoteHistory")}</h3>
+            <input
+              type="text"
+              value={historySearch}
+              onChange={(e) => setHistorySearch(e.target.value)}
+              placeholder={isNo ? "Søk i dato, følgeseddel, kunde, produkt, antall, vekt..." : "Search date, delivery note, customer, product, quantity, weight..."}
+              className={formControlClass}
+            />
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead className="bg-slate-100 text-slate-600 font-bold uppercase border-b border-slate-200">

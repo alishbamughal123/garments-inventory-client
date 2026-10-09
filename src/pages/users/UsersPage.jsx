@@ -80,10 +80,21 @@ const UsersPage = () => {
     }
   };
 
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(search.toLowerCase()) ||
-    user.email.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredUsers = users.filter((user) => {
+    const term = search.trim().toLowerCase();
+    if (!term) return true;
+    const haystack = [
+      user.name,
+      user.email,
+      user.role,
+      String(user.role || "").replace(/_/g, " "),
+      user.isActive ? "active" : "inactive",
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(term);
+  });
 
   return (
     <MainLayout>

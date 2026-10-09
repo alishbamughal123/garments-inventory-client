@@ -25,7 +25,7 @@ const SupportTicketsPage = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
 
-  const fetchTickets = async (pageToFetch = page, pageSizeToFetch = pageSize, currentSearch = search) => {
+  const fetchTickets = async (pageToFetch = page, pageSizeToFetch = pageSize, currentSearch = search, isStale = () => false) => {
     try {
       setLoading(true);
       const response = await getTickets({
@@ -35,6 +35,7 @@ const SupportTicketsPage = () => {
         status: status || undefined,
         priority: priority || undefined,
       });
+      if (isStale()) return;
 
       const items = Array.isArray(response.data) ? response.data : response.data?.tickets || [];
       setTickets(items);
@@ -50,18 +51,23 @@ const SupportTicketsPage = () => {
         });
       }
     } catch (error) {
+      if (isStale()) return;
       console.error(error);
       toast.error(isNo ? "Kunne ikke laste støttehenvendelser" : "Failed to load support tickets");
     } finally {
-      setLoading(false);
+      if (!isStale()) setLoading(false);
     }
   };
 
   useEffect(() => {
+    let cancelled = false;
     const timeout = setTimeout(() => {
-      fetchTickets(page, pageSize, search);
+      fetchTickets(page, pageSize, search, () => cancelled);
     }, 350);
-    return () => clearTimeout(timeout);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
   }, [page, pageSize, search, status, priority]);
 
   const openDeleteModal = (ticket) => {
@@ -105,7 +111,7 @@ const SupportTicketsPage = () => {
             />
             <input
               type="text"
-              placeholder={isNo ? "Søk etter henvendelse #, emne eller beskrivelse..." : "Search by ticket #, subject, or description..."}
+              placeholder={isNo ? "Søk etter henvendelse #, emne, kunde, prioritet, status, dato..." : "Search by ticket #, subject, customer, priority, status, date..."}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);

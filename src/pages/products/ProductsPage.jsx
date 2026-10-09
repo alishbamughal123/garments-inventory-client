@@ -51,7 +51,14 @@ const ProductsPage = () => {
   const [baseStyles, setBaseStyles] = useState([]);
   const [loading, setLoading] = useState(true);
   // List state lives in the URL so Back from a product page returns to the same page/filters
-  const [search, setSearch] = useQueryParamState("q", "");
+  // Search text is typed into a controlled input, so keep it in local state (instant)
+  // and mirror it to the URL.
+  const [searchParam, setSearchParam] = useQueryParamState("q", "");
+  const [search, setSearchLocal] = useState(searchParam);
+  const setSearch = (value) => {
+    setSearchLocal(value);
+    setSearchParam(value);
+  };
   const [selectedStyleFilter, setSelectedStyleFilter] = useQueryParamState("style", "ALL");
   const [page, setPage] = useQueryParamState("page", 1);
   const [pageSize, setPageSize] = useQueryParamState("size", 25);
@@ -103,6 +110,10 @@ const ProductsPage = () => {
 
   // Fetch paginated products with debounce on search
   useEffect(() => {
+    // Ignore responses of superseded requests (otherwise a slow response for "20012"
+    // can overwrite the newer result for "200127").
+    let cancelled = false;
+
     const timeout = setTimeout(async () => {
       try {
         setLoading(true);
@@ -112,6 +123,8 @@ const ProductsPage = () => {
           search: search.trim(),
           styleFilter: selectedStyleFilter,
         });
+
+        if (cancelled) return;
 
         const items = Array.isArray(response.data)
           ? response.data
@@ -134,14 +147,18 @@ const ProductsPage = () => {
           totalPages,
         });
       } catch (error) {
+        if (cancelled) return;
         console.error("Error fetching products:", error);
         toast.error(isNo ? "Kunne ikke laste artikler" : "Failed to load articles");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }, 350);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
   }, [page, pageSize, search, selectedStyleFilter, refreshTrigger, isNo]);
 
   // Helper to fetch complete matching products for bulk actions (Export / Print)

@@ -1,6 +1,21 @@
 import { useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 
+// Updates made in the same tick (e.g. setSearch(v) followed by setPage(1)) must
+// build on each other. React Router's setSearchParams does not queue updates, so
+// we track the latest params ourselves until the tick ends.
+let pendingParams = null;
+
+const getBaseParams = () => {
+  if (!pendingParams) {
+    pendingParams = new URLSearchParams(window.location.search);
+    queueMicrotask(() => {
+      pendingParams = null;
+    });
+  }
+  return pendingParams;
+};
+
 // useState-like hook that keeps its value in the URL query string, so list
 // state (page, filters, search) survives opening a detail page and pressing Back.
 // Default values are omitted from the URL to keep it clean.
@@ -20,18 +35,13 @@ const useQueryParamState = (key, defaultValue) => {
 
   const setValue = useCallback(
     (next) => {
-      setSearchParams(
-        (prev) => {
-          const params = new URLSearchParams(prev);
-          if (next === defaultValue || next === "" || next == null) {
-            params.delete(key);
-          } else {
-            params.set(key, String(next));
-          }
-          return params;
-        },
-        { replace: true }
-      );
+      const params = getBaseParams();
+      if (next === defaultValue || next === "" || next == null) {
+        params.delete(key);
+      } else {
+        params.set(key, String(next));
+      }
+      setSearchParams(new URLSearchParams(params), { replace: true });
     },
     [key, defaultValue, setSearchParams]
   );

@@ -85,9 +85,11 @@ const CreateSalePage = () => {
   // Live backend search fallback as user types (covers massive catalogues or newly added items)
   useEffect(() => {
     if (!productSearch.trim() || productSearch.trim().length < 2) return;
+    let cancelled = false;
     const timer = setTimeout(async () => {
       try {
         const res = await getProducts({ search: productSearch.trim(), all: "true" });
+        if (cancelled) return;
         const list = Array.isArray(res.data)
           ? res.data
           : res.data?.products || res.products || [];
@@ -103,7 +105,10 @@ const CreateSalePage = () => {
       }
     }, 300);
 
-    return () => clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [productSearch]);
 
   // Comprehensive in-memory matching across all product fields
@@ -123,8 +128,14 @@ const CreateSalePage = () => {
       const matchBarcode = p.barcodes?.some((b) =>
         b.barcodeValue?.toLowerCase().includes(query)
       );
+      const matchSize = String(p.size ?? "").toLowerCase().includes(query);
+      const matchPrice = [p.salePrice, p.stockQuantity].some(
+        (v) => v !== null && v !== undefined && String(v).toLowerCase().includes(query)
+      );
 
       return (
+        matchSize ||
+        matchPrice ||
         matchName ||
         matchItem ||
         matchStyle ||

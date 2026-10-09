@@ -14,6 +14,7 @@ import {
 import SurfaceCard from "../ui/SurfaceCard";
 import { getSizeChartByStyle } from "../../services/sizechart.service";
 import { useLanguage } from "../../context/LanguageContext";
+import { shouldShowMeasurementCode } from "../../utils/sizeChartLabel";
 
 const normalizeSizeKey = (s) => {
   if (!s) return "";
@@ -266,9 +267,11 @@ const SizeChartCard = ({
                       {/* Measurement Title */}
                       <td className={`py-2.5 sm:py-3 px-3 sm:px-4 font-semibold sticky left-0 z-10 border-r border-slate-200/80 ${isEven ? "bg-white" : "bg-slate-50"}`}>
                         <div className="flex items-center gap-2 sm:gap-2.5">
-                          <span className="min-w-[22px] sm:min-w-[26px] h-5 sm:h-6 px-1 rounded-md sm:rounded-lg bg-blue-100 text-blue-800 font-bold font-mono text-[10px] sm:text-[11px] inline-flex items-center justify-center shrink-0 border border-blue-200/60 leading-none">
-                            {row.code}
-                          </span>
+                          {shouldShowMeasurementCode(row.code, row.name, displayName) && (
+                            <span className="min-w-[22px] sm:min-w-[26px] h-5 sm:h-6 px-1 rounded-md sm:rounded-lg bg-blue-100 text-blue-800 font-bold font-mono text-[10px] sm:text-[11px] inline-flex items-center justify-center shrink-0 border border-blue-200/60 leading-none">
+                              {row.code}
+                            </span>
+                          )}
                           <div>
                             <span className="text-slate-900 font-bold block text-[11px] sm:text-xs">{displayName}</span>
                             {row.name !== displayName && (
@@ -407,9 +410,11 @@ const SizeChartCard = ({
                         className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-between hover:border-blue-400 transition"
                       >
                         <div className="flex items-center gap-2 sm:gap-2.5">
-                          <span className="min-w-[24px] sm:min-w-[28px] h-6 sm:h-7 px-1.5 rounded-lg bg-blue-50 text-blue-700 font-bold font-mono text-[11px] sm:text-xs inline-flex items-center justify-center shrink-0 border border-blue-200/70 leading-none">
-                            {m.code}
-                          </span>
+                          {shouldShowMeasurementCode(m.code, m.name, displayName) && (
+                            <span className="min-w-[24px] sm:min-w-[28px] h-6 sm:h-7 px-1.5 rounded-lg bg-blue-50 text-blue-700 font-bold font-mono text-[11px] sm:text-xs inline-flex items-center justify-center shrink-0 border border-blue-200/70 leading-none">
+                              {m.code}
+                            </span>
+                          )}
                           <div>
                             <p className="text-xs font-bold text-slate-800 leading-snug">{displayName}</p>
                             {m.tolerance && m.tolerance !== "—" && (

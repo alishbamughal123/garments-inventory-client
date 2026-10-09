@@ -19,7 +19,7 @@ const LowStockPage = () => {
   const [pageSize, setPageSize] = useState(25);
   const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
 
-  const fetchLowStock = async (pageToFetch = page, pageSizeToFetch = pageSize, currentSearch = search) => {
+  const fetchLowStock = async (pageToFetch = page, pageSizeToFetch = pageSize, currentSearch = search, isStale = () => false) => {
     try {
       setLoading(true);
       const response = await getLowStockProducts({
@@ -27,6 +27,7 @@ const LowStockPage = () => {
         limit: pageSizeToFetch,
         search: currentSearch.trim(),
       });
+      if (isStale()) return;
 
       const items = Array.isArray(response.data) ? response.data : response.data?.products || [];
       setProducts(items);
@@ -42,18 +43,23 @@ const LowStockPage = () => {
         });
       }
     } catch (error) {
+      if (isStale()) return;
       toast.error(isNo ? "Kunne ikke laste lavt lagernivå" : "Failed to load low stock articles");
     } finally {
-      setLoading(false);
+      if (!isStale()) setLoading(false);
     }
   };
 
   useEffect(() => {
+    let cancelled = false;
     const timeout = setTimeout(() => {
-      fetchLowStock(page, pageSize, search);
+      fetchLowStock(page, pageSize, search, () => cancelled);
     }, 350);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
   }, [page, pageSize, search]);
 
   const filteredProducts = products;
@@ -74,7 +80,7 @@ const LowStockPage = () => {
             />
             <input
               type="text"
-              placeholder={isNo ? "Søk etter artikkelnavn, SKU eller stil..." : "Search by article name, SKU, or style..."}
+              placeholder={isNo ? "Søk etter artikkel, SKU, kategori, lager, grense eller status..." : "Search by article, SKU, category, stock, threshold, or status..."}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);

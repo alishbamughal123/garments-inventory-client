@@ -26,7 +26,7 @@ const CategoriesPage = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
 
-  const fetchCategories = async (pageToFetch = page, pageSizeToFetch = pageSize, currentSearch = search) => {
+  const fetchCategories = async (pageToFetch = page, pageSizeToFetch = pageSize, currentSearch = search, isStale = () => false) => {
     try {
       setLoading(true);
       const response = await getCategories({
@@ -34,6 +34,7 @@ const CategoriesPage = () => {
         limit: pageSizeToFetch,
         search: currentSearch.trim(),
       });
+      if (isStale()) return;
 
       const items = Array.isArray(response.data) ? response.data : response.data?.categories || [];
       setCategories(items);
@@ -49,18 +50,23 @@ const CategoriesPage = () => {
         });
       }
     } catch {
+      if (isStale()) return;
       toast.error(isNo ? "Kunne ikke laste kategorier" : "Failed to load categories");
     } finally {
-      setLoading(false);
+      if (!isStale()) setLoading(false);
     }
   };
 
   useEffect(() => {
+    let cancelled = false;
     const timeout = setTimeout(() => {
-      fetchCategories(page, pageSize, search);
+      fetchCategories(page, pageSize, search, () => cancelled);
     }, 350);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
   }, [page, pageSize, search]);
 
   const openDeleteModal = (id) => {

@@ -113,15 +113,35 @@ const SizeChartsPage = () => {
   const filteredStyles = useMemo(() => {
     let list = uniqueStyles;
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      list = list.filter(
-        (s) =>
-          s.styleNumber.toLowerCase().includes(q) ||
-          (s.styleName && s.styleName.toLowerCase().includes(q))
-      );
+      const q = searchQuery.trim().toLowerCase();
+      list = list.filter((s) => {
+        // Everything shown for the style: number, name, brand, variants,
+        // plus the chart itself (sizes, badges, measurement names/values, tolerance).
+        const parts = [s.styleNumber, s.styleName, s.brand, s.variantsCount];
+        sizeCharts
+          .filter(
+            (c) =>
+              c &&
+              (c.styleNumber === s.styleNumber ||
+                (Array.isArray(c.applicableStyles) && c.applicableStyles.includes(s.styleNumber)))
+          )
+          .forEach((c) => {
+            parts.push(c.title, c.unit, c.notes);
+            (c.sizes || []).forEach((sz) => parts.push(sz.key, sz.label, sz.colorBadge));
+            (c.measurements || []).forEach((m) => {
+              parts.push(m.code, m.name, m.norwegianName, m.tolerance);
+              Object.values(m.values || {}).forEach((v) => parts.push(v));
+            });
+          });
+        const haystack = parts
+          .filter((p) => p !== null && p !== undefined && p !== "")
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(q);
+      });
     }
     return list;
-  }, [uniqueStyles, searchQuery]);
+  }, [uniqueStyles, sizeCharts, searchQuery]);
 
   const activeStyleObj = useMemo(() => {
     return uniqueStyles.find((s) => s.styleNumber === selectedStyleNumber) || uniqueStyles[0];

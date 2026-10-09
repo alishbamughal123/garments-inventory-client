@@ -78,7 +78,7 @@ const TasksPage = () => {
   const [selectedTask, setSelectedTask] = useState(null);
 
   const loadTasks =
-    async (pageToFetch = page, pageSizeToFetch = pageSize) => {
+    async (pageToFetch = page, pageSizeToFetch = pageSize, isStale = () => false) => {
       try {
         setLoading(true);
 
@@ -88,6 +88,7 @@ const TasksPage = () => {
             page: pageToFetch,
             limit: pageSizeToFetch,
           });
+        if (isStale()) return;
 
         const items = response.data?.items || response.data || [];
         setTasks(items);
@@ -107,20 +108,25 @@ const TasksPage = () => {
           });
         }
       } catch {
+        if (isStale()) return;
         toast.error(
           isNo ? "Kunne ikke laste oppgaver" : "Failed to load tasks"
         );
       } finally {
-        setLoading(false);
+        if (!isStale()) setLoading(false);
       }
     };
 
   useEffect(() => {
+    let cancelled = false;
     const timeout = setTimeout(() => {
-      loadTasks(page, pageSize);
+      loadTasks(page, pageSize, () => cancelled);
     }, 300);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
   }, [filters, page, pageSize]);
 
   useEffect(() => {
@@ -250,7 +256,7 @@ const TasksPage = () => {
               onChange={
                 handleFilterChange
               }
-              placeholder={isNo ? "Søk etter oppgavetittel..." : "Search by task title..."}
+              placeholder={isNo ? "Søk i alle kolonner (tittel, tildelt, kunde, status...)" : "Search all columns (title, assignee, customer, status...)"}
               className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus:bg-white"
             />
           </label>

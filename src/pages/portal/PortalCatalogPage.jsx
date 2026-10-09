@@ -60,25 +60,31 @@ const PortalCatalogPage = () => {
   const [quantities, setQuantities] = useState({});
   const [sizeChartModalProduct, setSizeChartModalProduct] = useState(null);
 
-  const fetchCatalog = async () => {
+  const fetchCatalog = async (isStale = () => false) => {
     try {
       setLoading(true);
       const res = await api.get("/portal/catalog", {
         params: { search, customerId: user?.id },
       });
+      if (isStale()) return;
       setProducts(res.data.data || []);
     } catch {
+      if (isStale()) return;
       toast.error(
         isNo ? "Kunne ikke laste katalog" : "Failed to load product catalog"
       );
     } finally {
-      setLoading(false);
+      if (!isStale()) setLoading(false);
     }
   };
 
   useEffect(() => {
-    const timer = setTimeout(fetchCatalog, 300);
-    return () => clearTimeout(timer);
+    let cancelled = false;
+    const timer = setTimeout(() => fetchCatalog(() => cancelled), 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [search]);
 
   const filteredProducts = useMemo(() => {
@@ -94,7 +100,25 @@ const PortalCatalogPage = () => {
       const matchColor = p.color && p.color.toLowerCase().includes(q);
       const matchSize = p.size && p.size.toLowerCase().includes(q);
       const matchBarcode = p.barcodes && p.barcodes.some((b) => b.barcodeValue && b.barcodeValue.toLowerCase().includes(q));
-      return matchName || matchSku || matchStyleNum || matchBaseStyle || matchStyleName || matchItemName || matchColor || matchSize || matchBarcode;
+      const baseStyleDisplay = p.baseStyleNumber || (p.styleNumber ? p.styleNumber.split("-")[0] : "");
+      const displayed = [
+        baseStyleDisplay,
+        p.brand || "Nordic Prowear",
+        p.category?.name || "Apparel",
+        p.fabric,
+        p.washingInstructions,
+        p.weightInKg,
+        p.salePrice,
+        p.effectivePrice,
+        p.stockQuantity,
+        p.size || "OS",
+        p.stockQuantity > 0 ? "in stock på lager" : "out of stock utsolgt",
+        p.hasCustomPrice ? "B2B" : "",
+      ];
+      const matchDisplayed = displayed.some(
+        (v) => v !== null && v !== undefined && String(v).toLowerCase().includes(q)
+      );
+      return matchName || matchSku || matchStyleNum || matchBaseStyle || matchStyleName || matchItemName || matchColor || matchSize || matchBarcode || matchDisplayed;
     });
   }, [products, search]);
 

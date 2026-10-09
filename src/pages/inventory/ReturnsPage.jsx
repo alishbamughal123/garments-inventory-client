@@ -24,7 +24,7 @@ const ReturnsPage = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedReturn, setSelectedReturn] = useState(null);
 
-  const fetchReturns = async (pageToFetch = page, pageSizeToFetch = pageSize, currentSearch = search) => {
+  const fetchReturns = async (pageToFetch = page, pageSizeToFetch = pageSize, currentSearch = search, isStale = () => false) => {
     try {
       setLoading(true);
       const response = await getReturns({
@@ -32,6 +32,7 @@ const ReturnsPage = () => {
         limit: pageSizeToFetch,
         search: currentSearch.trim(),
       });
+      if (isStale()) return;
 
       const items = Array.isArray(response.data) ? response.data : response.data?.returns || [];
       setReturns(items);
@@ -47,18 +48,23 @@ const ReturnsPage = () => {
         });
       }
     } catch (error) {
+      if (isStale()) return;
       toast.error("Failed to load returns");
     } finally {
-      setLoading(false);
+      if (!isStale()) setLoading(false);
     }
   };
 
   useEffect(() => {
+    let cancelled = false;
     const timeout = setTimeout(() => {
-      fetchReturns(page, pageSize, search);
+      fetchReturns(page, pageSize, search, () => cancelled);
     }, 350);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
   }, [page, pageSize, search]);
 
   const openDeleteModal = (returnRecord) => {
@@ -103,7 +109,7 @@ const ReturnsPage = () => {
             />
             <input
               type="text"
-              placeholder="Search by product, SKU, or reason..."
+              placeholder="Search by product, SKU, quantity, condition, reason, user, or date..."
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);

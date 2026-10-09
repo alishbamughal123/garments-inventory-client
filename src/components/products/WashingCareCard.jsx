@@ -693,6 +693,37 @@ export const DEFAULT_WORKWEAR_SYMBOLS = [
 ];
 
 /**
+ * Care text stored in the database is English. When Norwegian is selected, translate it
+ * phrase by phrase (phrases are separated by "•" or by sentence periods).
+ */
+const CARE_PHRASES_NO = {
+  "standard machine wash 60°c": "Standard maskinvask 60°C",
+  "industrial wash 85°c": "Industriell vask 85°C",
+  "wash 40°c": "Vask 40°C",
+  "wash 60°c": "Vask 60°C",
+  "wash separately": "Vaskes separat",
+  "do not bleach": "Må ikke blekes",
+  "tumble dry allowed": "Tørketrommel tillatt",
+  "tumble dry low": "Tørketrommel på lav varme",
+  "do not tumble dry": "Må ikke tørketromles",
+  "iron medium heat": "Strykes på middels varme",
+  "iron low heat": "Strykes på lav varme",
+  "do not iron": "Må ikke strykes",
+  "professional dry clean (p) allowed": "Profesjonell rens tillatt",
+  "do not dry clean": "Tåler ikke rens",
+};
+
+const translateCareText = (text, isNo) => {
+  if (!isNo || !text) return text;
+  const parts = String(text)
+    .split(/\s*•\s*|\.\s+|\.$/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (parts.length === 0) return text;
+  return parts.map((s) => CARE_PHRASES_NO[s.toLowerCase()] || s).join(" • ");
+};
+
+/**
  * Crisp SVG Textile Care Icons (ISO 3758 & Norwegian Standard)
  */
 export const CareIcon = ({ type }) => {
@@ -1487,7 +1518,7 @@ const WashingCareCard = ({
     : "ISO 3758";
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/60 p-5 sm:p-6 shadow-sm space-y-4">
+    <div id="washing-care-card" className="rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/60 p-5 sm:p-6 shadow-sm space-y-4">
       {/* CARD HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
         <div className="flex items-center gap-3">
@@ -1512,7 +1543,7 @@ const WashingCareCard = ({
         </div>
 
         {/* Quick Language Toggle */}
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 self-start sm:self-auto">
+        <div data-html2canvas-ignore="true" className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 self-start sm:self-auto">
           <button
             type="button"
             onClick={() => setLang("no")}
@@ -1605,7 +1636,7 @@ const WashingCareCard = ({
             {isNo ? "Full Vaskeanvisning:" : "Full Care Text:"}
           </span>
           <span className="text-slate-600 leading-relaxed">
-            {customInstructions || defaultFullText}
+            {translateCareText(customInstructions, isNo) || defaultFullText}
           </span>
         </div>
 

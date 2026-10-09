@@ -8,17 +8,20 @@ const TransactionsPage = () => {
   const { t, isNo } = useLanguage();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
 
-  const fetchTransactions = async (pageToFetch = page, pageSizeToFetch = pageSize) => {
+  const fetchTransactions = async (pageToFetch = page, pageSizeToFetch = pageSize, currentSearch = search, isStale = () => false) => {
     try {
       setLoading(true);
       const response = await getTransactions({
         page: pageToFetch,
         limit: pageSizeToFetch,
+        search: currentSearch.trim(),
       });
+      if (isStale()) return;
 
       const items = Array.isArray(response.data) ? response.data : response.data?.transactions || [];
       setTransactions(items);
@@ -34,15 +37,24 @@ const TransactionsPage = () => {
         });
       }
     } catch (error) {
+      if (isStale()) return;
       console.log(error);
     } finally {
-      setLoading(false);
+      if (!isStale()) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTransactions(page, pageSize);
-  }, [page, pageSize]);
+    let cancelled = false;
+    const timeout = setTimeout(() => {
+      fetchTransactions(page, pageSize, search, () => cancelled);
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [page, pageSize, search]);
 
   return (
     <MainLayout>
@@ -57,6 +69,21 @@ const TransactionsPage = () => {
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm p-4 sm:p-5 space-y-4">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          placeholder={
+            isNo
+              ? "Søk i dato, produkt, type, antall, bruker, notater..."
+              : "Search date, product, type, quantity, user, notes..."
+          }
+          className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-blue-400"
+        />
+
         {loading ? (
           <div className="p-6 text-xs text-slate-500 text-center">{t("loading")}</div>
         ) : transactions.length === 0 ? (

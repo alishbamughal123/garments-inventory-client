@@ -29,7 +29,7 @@ const CustomersPage = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
-  async function fetchCustomers(pageToFetch = page, pageSizeToFetch = pageSize, currentSearch = search) {
+  async function fetchCustomers(pageToFetch = page, pageSizeToFetch = pageSize, currentSearch = search, isStale = () => false) {
     try {
       setLoading(true);
       const response = await getCustomers({
@@ -39,6 +39,7 @@ const CustomersPage = () => {
         customerType: customerType || undefined,
         status: status || undefined,
       });
+      if (isStale()) return;
 
       const items = Array.isArray(response.data) ? response.data : response.data?.customers || [];
       setCustomers(items);
@@ -54,18 +55,23 @@ const CustomersPage = () => {
         });
       }
     } catch {
+      if (isStale()) return;
       toast.error(lang === "no" ? "Kunne ikke laste kunder" : "Failed to load customers");
     } finally {
-      setLoading(false);
+      if (!isStale()) setLoading(false);
     }
   }
 
   useEffect(() => {
+    let cancelled = false;
     const timeout = setTimeout(() => {
-      fetchCustomers(page, pageSize, search);
+      fetchCustomers(page, pageSize, search, () => cancelled);
     }, 350);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
   }, [page, pageSize, search, customerType, status]);
 
   const openDeleteModal = (customer) => {

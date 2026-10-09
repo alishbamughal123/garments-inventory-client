@@ -17,6 +17,7 @@ const B2BOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
+  const [search, setSearch] = useState("");
   const [fulfillingId, setFulfillingId] = useState(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
@@ -24,16 +25,18 @@ const B2BOrdersPage = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedOrderToDelete, setSelectedOrderToDelete] = useState(null);
 
-  const fetchOrders = async (pageToFetch = page, pageSizeToFetch = pageSize) => {
+  const fetchOrders = async (pageToFetch = page, pageSizeToFetch = pageSize, isStale = () => false) => {
     try {
       setLoading(true);
       const res = await api.get("/portal/admin/orders", {
         params: {
           status: statusFilter || undefined,
+          search: search.trim() || undefined,
           page: pageToFetch,
           limit: pageSizeToFetch,
         }
       });
+      if (isStale()) return;
       const items = res.data.data || [];
       setOrders(items);
 
@@ -48,15 +51,23 @@ const B2BOrdersPage = () => {
         });
       }
     } catch {
+      if (isStale()) return;
       toast.error(lang === "no" ? "Kunne ikke laste B2B-ordrer" : "Failed to load B2B orders");
     } finally {
-      setLoading(false);
+      if (!isStale()) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchOrders(page, pageSize);
-  }, [statusFilter, page, pageSize]);
+    let cancelled = false;
+    const timeout = setTimeout(() => {
+      fetchOrders(page, pageSize, () => cancelled);
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [statusFilter, search, page, pageSize]);
 
   // Connect B2B Order Directly to Stock Out
   const handleFulfillOrder = async (orderId) => {
@@ -66,7 +77,7 @@ const B2BOrdersPage = () => {
       toast.success(lang === "no" ? "Ordre fullført! Vareutgang og følgeseddel er opprettet." : "Order fulfilled! Stock deducted & Delivery Note created.");
       fetchOrders();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Order fulfillment failed");
+      toast.error(error?.response?.data?.message || L("Order fulfillment failed", "Ordregjennomføring mislyktes"));
     } finally {
       setFulfillingId(null);
     }
@@ -82,7 +93,7 @@ const B2BOrdersPage = () => {
       setSelectedOrderToDelete(null);
       fetchOrders();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to delete order");
+      toast.error(error?.response?.data?.message || L("Failed to delete order", "Kunne ikke slette ordre"));
     }
   };
 
@@ -90,6 +101,8 @@ const B2BOrdersPage = () => {
     setSelectedOrderToDelete(order);
     setDeleteModalOpen(true);
   };
+
+  const L = (en, no) => (lang === "no" ? no : en);
 
   // Generate Delivery Note PDF (Pakkeseddel)
   const generateDeliveryNotePdf = (order) => {
@@ -108,40 +121,40 @@ const B2BOrdersPage = () => {
 
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
-      doc.text("ELECTRONIC DELIVERY NOTE / PAKKESEDDEL 3.0", 14, 26);
-      doc.text(`Document Ref: ${dnNumber}`, 14, 33);
+      doc.text(L("ELECTRONIC DELIVERY NOTE / PAKKESEDDEL 3.0", "ELEKTRONISK PAKKESEDDEL 3.0"), 14, 26);
+      doc.text(`${L("Document Ref", "Dokumentref.")}: ${dnNumber}`, 14, 33);
 
-      doc.text(`Issue Date: ${new Date().toLocaleDateString()}`, 140, 18);
-      doc.text(`Order Number: ${order.orderNumber}`, 140, 26);
-      doc.text(`Customer Code: ${order.customer?.customerCode || 'WHOLESALE'}`, 140, 33);
+      doc.text(`${L("Issue Date", "Utstedt")}: ${new Date().toLocaleDateString(lang === "no" ? "nb-NO" : undefined)}`, 140, 18);
+      doc.text(`${L("Order Number", "Ordrenummer")}: ${order.orderNumber}`, 140, 26);
+      doc.text(`${L("Customer Code", "Kundekode")}: ${order.customer?.customerCode || L("WHOLESALE", "ENGROS")}`, 140, 33);
 
       // Customer Details Box
       doc.setTextColor(15, 23, 42);
       doc.setFontSize(11);
       doc.setFont("helvetica", "bold");
-      doc.text("DELIVERY CUSTOMER / MOTTAKER:", 14, 52);
+      doc.text(L("DELIVERY CUSTOMER / MOTTAKER:", "MOTTAKER:"), 14, 52);
 
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
-      doc.text(`Company: ${order.customer?.companyName || order.customer?.fullName}`, 14, 60);
-      doc.text(`Contact Person: ${order.customer?.fullName}`, 14, 66);
-      doc.text(`Phone: ${order.customer?.phoneNumber || 'N/A'}`, 14, 72);
-      doc.text(`VAT / Org Nr: ${order.customer?.vatNumber || 'NO 940 029 191'}`, 14, 78);
+      doc.text(`${L("Company", "Firma")}: ${order.customer?.companyName || order.customer?.fullName}`, 14, 60);
+      doc.text(`${L("Contact Person", "Kontaktperson")}: ${order.customer?.fullName}`, 14, 66);
+      doc.text(`${L("Phone", "Telefon")}: ${order.customer?.phoneNumber || L("N/A", "I/T")}`, 14, 72);
+      doc.text(`${L("VAT / Org Nr", "MVA / Org.nr")}: ${order.customer?.vatNumber || 'NO 940 029 191'}`, 14, 78);
 
       // Supplier Info
       doc.setFont("helvetica", "bold");
-      doc.text("SUPPLIER / AVSENDER:", 120, 52);
+      doc.text(L("SUPPLIER / AVSENDER:", "AVSENDER:"), 120, 52);
       doc.setFont("helvetica", "normal");
       doc.text("Nordic Prowear AS", 120, 60);
       doc.text("Storgt. 15, 1607 Fredrikstad", 120, 66);
-      doc.text("Org Nr: NO 999 888 777 MVA", 120, 72);
-      doc.text("Email: post@nordicprowear.no", 120, 78);
+      doc.text(`${L("Org Nr", "Org.nr")}: NO 999 888 777 MVA`, 120, 72);
+      doc.text(`${L("Email", "E-post")}: post@nordicprowear.no`, 120, 78);
 
       // Line items table
       const tableData = (order.orderItems || []).map((it, idx) => [
         idx + 1,
         it.product?.sku || 'NP-ART',
-        `${it.product?.productName || 'Garment Article'} ${it.customNote || it.selectedLogo ? `[${it.customNote || it.selectedLogo}]` : ''}`,
+        `${it.product?.productName || L("Garment Article", "Plaggartikkel")} ${it.customNote || it.selectedLogo ? `[${it.customNote || it.selectedLogo}]` : ''}`,
         it.quantity,
         `NOK ${Number(it.unitPrice).toFixed(2)}`,
         `NOK ${Number(it.totalPrice).toFixed(2)}`
@@ -149,7 +162,7 @@ const B2BOrdersPage = () => {
 
       autoTable(doc, {
         startY: 88,
-        head: [["#", "SKU / Part ID", "Article Description & Logo Customization", "Qty", "Unit Price", "Total Price"]],
+        head: [["#", L("SKU / Part ID", "SKU / delenr."), L("Article Description & Logo Customization", "Artikkelbeskrivelse og logotilpasning"), L("Qty", "Ant."), L("Unit Price", "Enhetspris"), L("Total Price", "Totalpris")]],
         body: tableData,
         headStyles: { fillColor: [13, 148, 136] }, // teal-600
         styles: { fontSize: 9 },
@@ -160,20 +173,20 @@ const B2BOrdersPage = () => {
       // Parcel Weight & EHF Summary
       doc.setFontSize(10);
       doc.setFont("helvetica", "bold");
-      doc.text("PARCEL & SHIPMENT WEIGHT SUMMARY:", 14, finalY);
+      doc.text(L("PARCEL & SHIPMENT WEIGHT SUMMARY:", "OPPSUMMERING AV PAKKE- OG FORSENDELSESVEKT:"), 14, finalY);
       doc.setFont("helvetica", "normal");
-      doc.text(`• Total Parcel Weight: ${order.totalParcelWeight?.toFixed(2) || '0.20'} kg`, 14, finalY + 7);
-      doc.text(`• Garment Net Weight: ${order.garmentWeightKg?.toFixed(2) || '0.00'} kg`, 14, finalY + 13);
-      doc.text(`• Packaging Weight: ${order.packagingWeightKg?.toFixed(2) || '0.20'} kg`, 14, finalY + 19);
+      doc.text(`• ${L("Total Parcel Weight", "Total pakkevekt")}: ${order.totalParcelWeight?.toFixed(2) || '0.20'} kg`, 14, finalY + 7);
+      doc.text(`• ${L("Garment Net Weight", "Netto plaggvekt")}: ${order.garmentWeightKg?.toFixed(2) || '0.00'} kg`, 14, finalY + 13);
+      doc.text(`• ${L("Packaging Weight", "Emballasjevekt")}: ${order.packagingWeightKg?.toFixed(2) || '0.20'} kg`, 14, finalY + 19);
 
       doc.setFont("helvetica", "italic");
       doc.setFontSize(9);
-      doc.text("This electronic delivery note complies with EHF Pakkeseddel 3.0 (Peppol BIS Despatch Advice 3.0).", 14, finalY + 30);
+      doc.text(L("This electronic delivery note complies with EHF Pakkeseddel 3.0 (Peppol BIS Despatch Advice 3.0).", "Denne elektroniske pakkeseddelen er i samsvar med EHF Pakkeseddel 3.0 (Peppol BIS Despatch Advice 3.0)."), 14, finalY + 30);
 
       doc.save(`DeliveryNote_${dnNumber}.pdf`);
-      toast.success("Delivery Note PDF downloaded!");
+      toast.success(L("Delivery Note PDF downloaded!", "Pakkeseddel (PDF) lastet ned!"));
     } catch (err) {
-      toast.error("Failed to generate Delivery Note PDF");
+      toast.error(L("Failed to generate Delivery Note PDF", "Kunne ikke lage pakkeseddel (PDF)"));
     }
   };
 
@@ -193,9 +206,9 @@ const B2BOrdersPage = () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      toast.success("EHF Pakkeseddel 3.0 XML downloaded!");
+      toast.success(L("EHF Pakkeseddel 3.0 XML downloaded!", "EHF Pakkeseddel 3.0 XML lastet ned!"));
     } catch (e) {
-      toast.error("Failed to download EHF XML");
+      toast.error(L("Failed to download EHF XML", "Kunne ikke laste ned EHF XML"));
     }
   };
 
@@ -211,6 +224,16 @@ const B2BOrdersPage = () => {
         {/* Filter Bar */}
         <SurfaceCard className="p-4 sm:p-5">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              placeholder={lang === "no" ? "Søk ordre, kunde, artikkel, status, beløp, dato..." : "Search order, customer, article, status, amount, date..."}
+              className="w-full sm:w-80 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-teal-500 focus:bg-white transition"
+            />
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Filter Status:</span>
               <select

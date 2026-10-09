@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { loginUser, loginCustomerPortal, registerCustomerPortal, googleAuthCustomerPortal } from "../../services/auth.service";
@@ -50,7 +50,7 @@ const LoginPage = () => {
   const [loginError, setLoginError] = useState("");
 
   const withSupport = (message) =>
-    `${String(message).replace(/[.\s]+$/, "")}. ${lang === "no" ? "Kontakt IT-support: Alishba Ramzan (alishbaramzan795@gmail.com)" : "Please contact IT Support: Alishba Ramzan (alishbaramzan795@gmail.com)"}`;
+    `${String(t(String(message))).replace(/[.\s]+$/, "")}. ${lang === "no" ? "Kontakt IT-support: Alishba Ramzan (alishbaramzan795@gmail.com)" : "Please contact IT Support: Alishba Ramzan (alishbaramzan795@gmail.com)"}`;
 
   // Real Google Sign-In Fallback modal state
   const [showGoogleModal, setShowGoogleModal] = useState(false);

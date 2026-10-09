@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import {
   FileSpreadsheet,
+  FileDown,
   Printer,
   Tag,
   Edit,
@@ -32,6 +33,9 @@ import {
   getProducts,
 } from "../../services/products.service";
 import { exportArticlesToExcelWithBarcodes } from "../../utils/barcodeExport";
+import { downloadArticlePdf } from "../../utils/articlePdf";
+import { sortBySize } from "../../utils/sizeOrder";
+import { getSizeChartByStyle } from "../../services/sizechart.service";
 import { resolveProductImageUrl, resolveWashingImageUrl, getColorHex } from "../../utils/imageHelper";
 import WashingCareCard from "../../components/products/WashingCareCard";
 import SizeChartCard from "../../components/products/SizeChartCard";
@@ -52,6 +56,7 @@ const ProductDetailsPage = () => {
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [printModalMode, setPrintModalMode] = useState("individual");
   const [exportingExcel, setExportingExcel] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -137,6 +142,29 @@ const ProductDetailsPage = () => {
     }
   });
 
+  // One entry per size within a colour (duplicate records of the same style/colour/size are
+  // merged: stock is summed, the record with the most stock represents the size),
+  // listed small -> large.
+  Object.values(colorGroups).forEach((grp) => {
+    const bySize = new Map();
+    grp.variants.forEach((v) => {
+      const sizeLabel = String(v.size || "-").trim();
+      const key = sizeLabel.toUpperCase();
+      const existing = bySize.get(key);
+      if (!existing) {
+        bySize.set(key, { ...v, size: sizeLabel, mergedIds: [v.id] });
+        return;
+      }
+      const keepExisting = Number(existing.stockQuantity || 0) >= Number(v.stockQuantity || 0);
+      const rep = keepExisting ? existing : { ...v, size: sizeLabel, mergedIds: existing.mergedIds };
+      rep.mergedIds = [...existing.mergedIds, v.id];
+      rep.stockQuantity = Number(existing.stockQuantity || 0) + Number(v.stockQuantity || 0);
+      bySize.set(key, rep);
+    });
+    grp.variants = sortBySize([...bySize.values()], (x) => x.size);
+  });
+
+  const uniqueVariantCount = Object.values(colorGroups).reduce((n, g) => n + g.variants.length, 0);
   const availableColors = Object.keys(colorGroups);
   const activeColorKey = selectedColor && colorGroups[selectedColor] ? selectedColor : (availableColors[0] || "");
   const activeColorGroup = colorGroups[activeColorKey] || {
@@ -149,6 +177,7 @@ const ProductDetailsPage = () => {
 
   // Find currently active variant for details
   const activeVariant =
+    activeColorGroup.variants.find((v) => v.mergedIds?.includes(selectedVariantId)) ||
     allVariants.find((v) => v.id === selectedVariantId) ||
     activeColorGroup.variants[0] ||
     product;
@@ -185,6 +214,61 @@ const ProductDetailsPage = () => {
     }
   };
 
+  const handleDownloadPdf = async () => {
+    try {
+      setExportingPdf(true);
+      toast.loading(isNo ? "Lager PDF..." : "Generating PDF...", { id: "pdf-toast" });
+
+      let sizeChart = activeVariant?.sizeChart || product?.sizeChart || null;
+      if (!sizeChart) {
+        sizeChart = await getSizeChartByStyle(baseStyleNo).catch(() => null);
+      }
+
+      // NOTE: purchase price and stock quantities are intentionally left out of the PDF.
+      const specs = [
+        { label: t("Active Variant Style No"), value: activeVariant.styleNumber || activeVariant.sku },
+        { label: t("Base Style No"), value: activeVariant.baseStyleNumber || baseStyleNo },
+        { label: t("Style Name"), value: activeVariant.styleName || product.styleName },
+        { label: t("Article / Item"), value: activeVariant.itemName || product.itemName },
+        { label: t("Product Name"), value: activeVariant.productName },
+        { label: t("SKU"), value: activeVariant.sku },
+        { label: t("Primary Barcode"), value: activeBarcode?.barcodeValue },
+        { label: t("Category"), value: product.category?.name || (isNo ? "Klær" : "Apparel") },
+        { label: t("Brand"), value: product.brand || "Nordic Prowear" },
+        { label: t("Color"), value: activeVariant.color },
+        { label: t("Colour Code"), value: activeVariant.colorCode || "-" },
+        { label: t("Size"), value: activeVariant.size },
+        { label: t("Fabric"), value: activeVariant.fabric || product.fabric || "-" },
+        { label: t("Fabric Composition"), value: activeVariant.fabricComposition || product.fabricComposition || "-" },
+        { label: t("Fabric Weight"), value: activeVariant.fabricWeight || product.fabricWeight || "-" },
+        { label: t("Sale Price"), value: activeVariant.salePrice ? `NOK ${activeVariant.salePrice}` : "NOK 0" },
+        { label: t("Min Stock Alert"), value: `${activeVariant.minStockAlert || 5} ${isNo ? "stk" : "units"}` },
+      ];
+
+      await downloadArticlePdf({
+        baseStyleNo,
+        title: `${product.styleName || product.itemName || product.productName}`,
+        brand: product.brand || "Nordic Prowear",
+        colorName: activeColorGroup.colorName,
+        colorCode: activeColorGroup.colorCode,
+        activeVariant,
+        barcodeValue: activeBarcode?.barcodeValue,
+        availableSizes: activeColorGroup.variants.map((v) => v.size).filter(Boolean),
+        imageUrl: displayedImageUrl,
+        sizeChart,
+        specs,
+        isNo,
+      });
+
+      toast.success(isNo ? "PDF lastet ned" : "PDF downloaded", { id: "pdf-toast" });
+    } catch (err) {
+      console.error(err);
+      toast.error(isNo ? "Kunne ikke lage PDF" : "Failed to generate PDF", { id: "pdf-toast" });
+    } finally {
+      setExportingPdf(false);
+    }
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -192,7 +276,7 @@ const ProductDetailsPage = () => {
         <PageHeader
           stacked={true}
           title={`${isNo ? "Artikkel" : "Article"} - ${product.styleName || product.itemName || product.productName}`}
-          description={`${isNo ? "Stil #" : "Style #"}${baseStyleNo} • ${availableColors.length} ${isNo ? "Fargevalg" : "Color Option(s)"} • ${allVariants.length} ${isNo ? "Varianter totalt" : "Total Variant(s)"}`}
+          description={`${isNo ? "Stil #" : "Style #"}${baseStyleNo} • ${availableColors.length} ${isNo ? "Fargevalg" : "Color Option(s)"} • ${uniqueVariantCount} ${isNo ? "Varianter totalt" : "Total Variant(s)"}`}
           action={
             <>
               <div className="flex flex-wrap items-center gap-2">
@@ -206,6 +290,15 @@ const ProductDetailsPage = () => {
                   <span>{exportingExcel ? (isNo ? "Eksporterer..." : "Exporting...") : t("excelWithBarcodes")}</span>
                 </button>
 
+                <button
+                  type="button"
+                  onClick={handleDownloadPdf}
+                  disabled={exportingPdf}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-60"
+                >
+                  <FileDown className="w-4 h-4 text-red-600 shrink-0" />
+                  <span>{exportingPdf ? (isNo ? "Lager PDF..." : "Generating PDF...") : (isNo ? "Last ned PDF" : "Download PDF")}</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => {

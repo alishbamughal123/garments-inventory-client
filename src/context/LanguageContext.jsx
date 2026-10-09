@@ -1,9 +1,23 @@
-﻿import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import extraPhrasesNo from "./extraPhrasesNo";
+import extraPhrasesNo2, { patterns as sentencePatternsNo } from "./extraPhrasesNo2";
 import { startAutoTranslate } from "../utils/autoTranslate";
 
 const translations = {
   en: {
+    // Keys that were used in the UI but never defined
+    cart: "Cart",
+    customer: "Customer",
+    dateFrom: "From Date",
+    dateTo: "To Date",
+    deleteArticle: "Delete Article",
+    description: "Description",
+    filterBtn: "Apply Filter",
+    myOrders: "My Orders",
+    product: "Product",
+    systemReportsHeader: "System Reports",
+    systemReportsDesc: "Generate, filter and export detailed inventory, sales and CRM reports.",
+    title: "Title",
     // Brand & App Header
     brandTitle: "Nordic Prowear",
     brandSubtitle: "Garment Inventory & B2B CRM",
@@ -471,6 +485,19 @@ const translations = {
   },
 
   no: {
+    // Keys that were used in the UI but never defined
+    cart: "Handlekurv",
+    customer: "Kunde",
+    dateFrom: "Fra dato",
+    dateTo: "Til dato",
+    deleteArticle: "Slett artikkel",
+    description: "Beskrivelse",
+    filterBtn: "Bruk filter",
+    myOrders: "Mine ordrer",
+    product: "Produkt",
+    systemReportsHeader: "Systemrapporter",
+    systemReportsDesc: "Generer, filtrer og eksporter detaljerte lager-, salgs- og CRM-rapporter.",
+    title: "Tittel",
     // Brand & App Header
     brandTitle: "Nordic Prowear",
     brandSubtitle: "Kleslager & B2B CRM",
@@ -1184,8 +1211,33 @@ const phraseLookupNo = (() => {
   }
   for (const [en, no] of Object.entries(extraPhrasesNo)) map.set(norm(en), no);
   for (const [en, no] of Object.entries(phraseDictNo)) map.set(norm(en), no);
-  return (text) => map.get(norm(text));
+  // Newer phrases never override an existing translation
+  for (const [en, no] of Object.entries(extraPhrasesNo2)) {
+    if (!map.has(norm(en))) map.set(norm(en), no);
+  }
+
+  // Sentences with variable parts, e.g. "Are you sure you want to delete {0}?"
+  const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const compiledPatterns = sentencePatternsNo.map(([en, no]) => ({
+    re: new RegExp(
+      "^" + escapeRe(en).replace(/\\\{(\d+)\\\}/g, "(.+?)").replace(/\s+/g, "\\s+") + "$",
+      "i"
+    ),
+    no,
+  }));
+
+  return (text) => {
+    const direct = map.get(norm(text));
+    if (direct) return direct;
+    const source = String(text).replace(/\s+/g, " ").trim();
+    for (const { re, no } of compiledPatterns) {
+      const m = source.match(re);
+      if (m) return no.replace(/\{(\d+)\}/g, (_, i) => m[Number(i) + 1] ?? "");
+    }
+    return undefined;
+  };
 })();
+
 
 const DEFAULT_LANGUAGE = "no";
 // v2: older browsers may have a stored "en" from before Norwegian became the default

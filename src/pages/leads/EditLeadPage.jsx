@@ -168,12 +168,12 @@ const EditLeadPage = () => {
                 onChange={handleChange}
                 className={inputClass}
               >
-                <option value="A+">A+ (Høyest potensial / Highest Potential)</option>
-                <option value="A">A (Høyt potensial / High Potential)</option>
-                <option value="A-">A- (Middels-høyt / Medium-High)</option>
-                <option value="B+">B+ (Middels potensial / Medium Potential)</option>
-                <option value="B">B (Mindre / Standard)</option>
-                <option value="Tender">Tender (Offentlig / Anbud)</option>
+                <option value="A+">{isNo ? "A+ (Høyest potensial)" : "A+ (Highest Potential)"}</option>
+                <option value="A">{isNo ? "A (Høyt potensial)" : "A (High Potential)"}</option>
+                <option value="A-">{isNo ? "A- (Middels-høyt)" : "A- (Medium-High)"}</option>
+                <option value="B+">{isNo ? "B+ (Middels potensial)" : "B+ (Medium Potential)"}</option>
+                <option value="B">{isNo ? "B (Mindre)" : "B (Standard)"}</option>
+                <option value="Tender">{isNo ? "Tender (Offentlig anbud)" : "Tender (Public)"}</option>
               </select>
             </div>
 

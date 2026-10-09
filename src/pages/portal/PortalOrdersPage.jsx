@@ -12,19 +12,22 @@ const PortalOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePdfOrder, setActivePdfOrder] = useState(null);
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
 
-  const fetchOrders = async (pageToFetch = page, pageSizeToFetch = pageSize) => {
+  const fetchOrders = async (pageToFetch = page, pageSizeToFetch = pageSize, isStale = () => false) => {
     try {
       setLoading(true);
       const res = await api.get("/portal/orders/my", {
         params: {
           page: pageToFetch,
           limit: pageSizeToFetch,
+          search: search.trim() || undefined,
         },
       });
+      if (isStale()) return;
       const items = res.data.data || [];
       setOrders(items);
 
@@ -39,15 +42,23 @@ const PortalOrdersPage = () => {
         });
       }
     } catch {
+      if (isStale()) return;
       toast.error(lang === "no" ? "Kunne ikke laste ordrehistorikk" : "Failed to load order history");
     } finally {
-      setLoading(false);
+      if (!isStale()) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchOrders(page, pageSize);
-  }, [page, pageSize]);
+    let cancelled = false;
+    const timeout = setTimeout(() => {
+      fetchOrders(page, pageSize, () => cancelled);
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [page, pageSize, search]);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -61,6 +72,17 @@ const PortalOrdersPage = () => {
           {orders.length} {lang === "no" ? "Ordrer" : "Orders"}
         </span>
       </div>
+
+      <input
+        type="text"
+        value={search}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setPage(1);
+        }}
+        placeholder={lang === "no" ? "Søk ordre, artikkel, SKU, status, beløp, dato..." : "Search order, article, SKU, status, amount, date..."}
+        className="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none focus:border-blue-500 transition"
+      />
 
       {loading ? (
         <div className="p-12 text-center text-xs font-semibold text-slate-400">Loading order history...</div>

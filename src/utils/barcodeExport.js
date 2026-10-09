@@ -1,5 +1,6 @@
 import ExcelJS from "exceljs";
 import bwipjs from "bwip-js";
+import { tr } from "./appLang";
 
 const API_BASE =
   import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes("railway")
@@ -85,11 +86,11 @@ export const generateQRCodeImageBase64 = async (text) => {
 export const exportArticlesToExcelWithBarcodes = async ({
   products = [],
   fileName = "Articles_Barcodes_Report",
-  sheetName = "Articles & Barcodes",
+  sheetName = tr("Articles & Barcodes", "Artikler og strekkoder"),
   onProgress = null,
 }) => {
   if (!products || products.length === 0) {
-    throw new Error("No articles available to export.");
+    throw new Error(tr("No articles available to export.", "Ingen artikler å eksportere."));
   }
 
   const workbook = new ExcelJS.Workbook();
@@ -102,17 +103,17 @@ export const exportArticlesToExcelWithBarcodes = async ({
 
   // Define Columns
   worksheet.columns = [
-    { header: "Style No / Code", key: "styleNumber", width: 18 },
-    { header: "Article Name", key: "productName", width: 34 },
-    { header: "Category", key: "category", width: 18 },
-    { header: "Color", key: "color", width: 14 },
-    { header: "Size", key: "size", width: 10 },
+    { header: tr("Style No / Code", "Stilnr. / kode"), key: "styleNumber", width: 18 },
+    { header: tr("Article Name", "Artikkelnavn"), key: "productName", width: 34 },
+    { header: tr("Category", "Kategori"), key: "category", width: 18 },
+    { header: tr("Color", "Farge"), key: "color", width: 14 },
+    { header: tr("Size", "Størrelse"), key: "size", width: 10 },
     { header: "SKU", key: "sku", width: 18 },
-    { header: "Barcode No", key: "barcodeValue", width: 22 },
-    { header: "Barcode Sticker (Image)", key: "barcodeImage", width: 26 },
-    { header: "Stock Qty", key: "stockQuantity", width: 12 },
-    { header: "Price (NOK)", key: "salePrice", width: 15 },
-    { header: "Stock Status", key: "status", width: 14 },
+    { header: tr("Barcode No", "Strekkodenr."), key: "barcodeValue", width: 22 },
+    { header: tr("Barcode Sticker (Image)", "Strekkodeetikett (bilde)"), key: "barcodeImage", width: 26 },
+    { header: tr("Stock Qty", "Lagerantall"), key: "stockQuantity", width: 12 },
+    { header: tr("Price (NOK)", "Pris (NOK)"), key: "salePrice", width: 15 },
+    { header: tr("Stock Status", "Lagerstatus"), key: "status", width: 14 },
   ];
 
   // Style Header Row (Row 1)
@@ -160,7 +161,7 @@ export const exportArticlesToExcelWithBarcodes = async ({
     const row = worksheet.addRow({
       styleNumber: p.styleNumber || p.baseStyleNumber || p.sku || "-",
       productName: p.productName || p.styleName || "-",
-      category: p.category?.name || p.category || "Apparel",
+      category: p.category?.name || p.category || tr("Apparel", "Klær"),
       color: p.color || "-",
       size: p.size || "-",
       sku: p.sku || "-",
@@ -168,7 +169,7 @@ export const exportArticlesToExcelWithBarcodes = async ({
       barcodeImage: "", // Will hold embedded image
       stockQuantity: p.stockQuantity ?? 0,
       salePrice: p.salePrice ? Number(p.salePrice) : 0,
-      status: isLowStock ? "Low Stock" : "In Stock",
+      status: isLowStock ? tr("Low Stock", "Lavt lager") : tr("In Stock", "På lager"),
     });
 
     row.height = 56; // Ample room for barcode image
@@ -277,14 +278,14 @@ export const exportMixedCartonToExcel = async ({
   workbook.creator = "Nordic Inventory Management System";
   workbook.created = new Date();
 
-  const worksheet = workbook.addWorksheet("Carton Manifest", {
+  const worksheet = workbook.addWorksheet(tr("Carton Manifest", "Kartongmanifest"), {
     views: [{ showGridLines: true }],
   });
 
   // Title Block
   worksheet.mergeCells("A1:E1");
   const titleCell = worksheet.getCell("A1");
-  titleCell.value = "NORDIC PROWEAR - CARTON PACKING MANIFEST (MIXED SIZES)";
+  titleCell.value = tr("NORDIC PROWEAR - CARTON PACKING MANIFEST (MIXED SIZES)", "NORDIC PROWEAR - KARTONGPAKKELISTE (BLANDEDE STØRRELSER)");
   titleCell.font = { name: "Calibri", size: 14, bold: true, color: { argb: "FFFFFFFF" } };
   titleCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF0F172A" } };
   titleCell.alignment = { vertical: "middle", horizontal: "center" };
@@ -292,9 +293,9 @@ export const exportMixedCartonToExcel = async ({
 
   // Specs Rows
   const specs = [
-    ["Order Reference:", orderNo, "Carton No:", cartonNo],
-    ["Style Number:", `#${styleNo} (${styleName})`, "Garment Color:", `${color.toUpperCase()} (Solid Color Box)`],
-    ["Total Quantity:", `${totalQty} PCS`, "Master Barcode:", masterBarcodeVal],
+    [tr("Order Reference:", "Ordrereferanse:"), orderNo, tr("Carton No:", "Kartongnr.:"), cartonNo],
+    [tr("Style Number:", "Stilnummer:"), `#${styleNo} (${styleName})`, tr("Garment Color:", "Plaggfarge:"), `${color.toUpperCase()} (${tr("Solid Color Box", "Ensfarget eske")})`],
+    [tr("Total Quantity:", "Totalt antall:"), `${totalQty} ${tr("PCS", "STK")}`, tr("Master Barcode:", "Hovedstrekkode:"), masterBarcodeVal],
   ];
 
   specs.forEach((spec, idx) => {
@@ -332,11 +333,11 @@ export const exportMixedCartonToExcel = async ({
 
   // Table Headers
   const tableHeaderRow = worksheet.addRow([
-    "Size",
-    "SKU Code",
-    "Carton Qty (PCS)",
-    "Unit Barcode Value",
-    "Unit Barcode Sticker",
+    tr("Size", "Størrelse"),
+    tr("SKU Code", "SKU-kode"),
+    tr("Carton Qty (PCS)", "Antall i kartong (STK)"),
+    tr("Unit Barcode Value", "Enhetsstrekkode"),
+    tr("Unit Barcode Sticker", "Enhetsetikett"),
   ]);
   tableHeaderRow.height = 28;
   tableHeaderRow.eachCell((cell) => {
@@ -409,7 +410,7 @@ export const exportMixedCartonToExcel = async ({
   }
 
   // Summary Row
-  const summaryRow = worksheet.addRow(["Total", "", totalQty, "", ""]);
+  const summaryRow = worksheet.addRow([tr("Total", "Totalt"), "", totalQty, "", ""]);
   summaryRow.height = 24;
   summaryRow.getCell(1).font = { name: "Calibri", size: 11, bold: true, color: { argb: "FF0F172A" } };
   summaryRow.getCell(3).font = { name: "Calibri", size: 11, bold: true, color: { argb: "FFDC2626" } };

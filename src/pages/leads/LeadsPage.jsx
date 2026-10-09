@@ -62,7 +62,8 @@ const LeadsPage = () => {
     pageSizeToFetch = pageSize,
     currentSearch = search,
     currentTab = activeTab,
-    currentPriority = priorityFilter
+    currentPriority = priorityFilter,
+    isStale = () => false
   ) {
     try {
       setLoading(true);
@@ -78,6 +79,7 @@ const LeadsPage = () => {
         segment: segmentQuery,
         priority: priorityQuery,
       });
+      if (isStale()) return;
 
       const items = Array.isArray(response.data) ? response.data : response.data?.leads || [];
       setLeads(items);
@@ -93,18 +95,23 @@ const LeadsPage = () => {
         });
       }
     } catch {
+      if (isStale()) return;
       toast.error(isNo ? "Kunne ikke laste leads" : "Failed to load leads");
     } finally {
-      setLoading(false);
+      if (!isStale()) setLoading(false);
     }
   }
 
   useEffect(() => {
+    let cancelled = false;
     const timeout = setTimeout(() => {
-      fetchLeads(page, pageSize, search, activeTab, priorityFilter);
+      fetchLeads(page, pageSize, search, activeTab, priorityFilter, () => cancelled);
     }, 300);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
   }, [page, pageSize, search, activeTab, priorityFilter]);
 
   const openDeleteModal = (lead) => {

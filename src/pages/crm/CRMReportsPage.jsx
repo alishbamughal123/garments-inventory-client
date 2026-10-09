@@ -5,10 +5,11 @@ import SurfaceCard from "../../components/ui/SurfaceCard";
 import Pagination from "../../components/common/Pagination";
 import { useLanguage } from "../../context/LanguageContext";
 import api from "../../services/api";
+import { getCustomers } from "../../services/customer.service";
 import logoImg from "../../assets/logo.png";
 import {
   FileSpreadsheet, Filter, Box, ArrowDownCircle, ArrowUpCircle,
-  FileText, Repeat, AlertTriangle, ShoppingCart, Clock, Download, FileDown
+  FileText, Repeat, AlertTriangle, ShoppingCart, Clock, Download, FileDown, ShoppingBag
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
@@ -20,11 +21,38 @@ const CRMReportsPage = () => {
   const [activeTab, setActiveTab] = useState("inventory");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [exporting, setExporting] = useState(false);
+  const [customers, setCustomers] = useState([]);
+  const [customerId, setCustomerId] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const res = await getCustomers({ limit: 500 });
+        const list = Array.isArray(res.data) ? res.data : res.data?.customers || res.customers || [];
+        if (isMounted) setCustomers(list);
+      } catch {
+        /* customer filter stays empty */
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const customerParam = () => (activeTab === "salesReport" && customerId ? customerId : undefined);
+
+  const selectedCustomerName = () => {
+    if (customerId === "WALKIN") return isNo ? "Gjestekunde" : "Walk-in Customer";
+    const cu = customers.find((x) => x.id === customerId);
+    return cu?.companyName || cu?.fullName || "";
+  };
 
   const getEndpoint = () => {
     let endpoint = "/reports/inventory";
@@ -35,20 +63,24 @@ const CRMReportsPage = () => {
     if (activeTab === "lowStock") endpoint = "/reports/low-stock";
     if (activeTab === "customerPurchases") endpoint = "/reports/customer-purchases";
     if (activeTab === "openOrders") endpoint = "/reports/open-orders";
+    if (activeTab === "salesReport") endpoint = "/reports/sales";
     return endpoint;
   };
 
-  const fetchReport = async (pageToFetch = page, pageSizeToFetch = pageSize) => {
+  const fetchReport = async (pageToFetch = page, pageSizeToFetch = pageSize, isStale = () => false) => {
     try {
       setLoading(true);
       const params = {
         from: fromDate || undefined,
         to: toDate || undefined,
+        search: search.trim() || undefined,
+        customerId: customerParam(),
         page: pageToFetch,
         limit: pageSizeToFetch,
       };
 
       const res = await api.get(getEndpoint(), { params });
+      if (isStale()) return;
       const rawData = res.data.data || null;
 
       if (rawData && Array.isArray(rawData.items)) {
@@ -74,16 +106,24 @@ const CRMReportsPage = () => {
         setReportData(rawData);
       }
     } catch {
+      if (isStale()) return;
       toast.error(lang === "no" ? "Kunne ikke hente rapport" : "Failed to load report");
     } finally {
-      setLoading(false);
+      if (!isStale()) setLoading(false);
     }
   };
 
   useEffect(() => {
+    let cancelled = false;
     setPage(1);
-    fetchReport(1, pageSize);
-  }, [activeTab]);
+    const timeout = setTimeout(() => {
+      fetchReport(1, pageSize, () => cancelled);
+    }, search ? 300 : 0);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [activeTab, search, customerId]);
 
   const handleApplyFilter = (e) => {
     e.preventDefault();
@@ -97,6 +137,8 @@ const CRMReportsPage = () => {
       params: {
         from: fromDate || undefined,
         to: toDate || undefined,
+        search: search.trim() || undefined,
+        customerId: customerParam(),
         all: "true",
       },
     });
@@ -116,10 +158,20 @@ const CRMReportsPage = () => {
         return;
       }
 
-      const worksheet = XLSX.utils.json_to_sheet(exportItems);
+      const sheetRows = isNo
+        ? exportItems.map((row) =>
+            Object.fromEntries(
+              Object.entries(row).map(([k, v]) => [
+                t(k.replace(/([A-Z])/g, " $1")),
+                typeof v === "boolean" ? (v ? "Ja" : "Nei") : v,
+              ])
+            )
+          )
+        : exportItems;
+      const worksheet = XLSX.utils.json_to_sheet(sheetRows);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, activeTab.toUpperCase());
-      XLSX.writeFile(workbook, `Nordic_Prowear_${activeTab}_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      XLSX.writeFile(workbook, `Nordic_Prowear_${activeTab}${customerParam() ? `_${selectedCustomerName().replace(/[^a-zA-Z0-9]+/g, "_")}` : ""}_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
       toast.success(lang === "no" ? `Rapport eksportert til Excel (${exportItems.length} rader)` : `Report exported to Excel (${exportItems.length} rows)`, { id: "rep-excel" });
     } catch (err) {
       console.error(err);
@@ -178,27 +230,33 @@ const CRMReportsPage = () => {
       doc.setTextColor(255, 255, 255);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(14);
-      const reportTitle = `${activeTab.replace(/([A-Z])/g, " $1").toUpperCase()} REPORT`;
+      const tabLabel = tabs.find((tb) => tb.key === activeTab)?.label || activeTab.replace(/([A-Z])/g, " $1");
+      const reportTitle = `${t(tabLabel).toUpperCase()} ${isNo ? "RAPPORT" : "REPORT"}`;
       doc.text(reportTitle, pageWidth - 14, 14, { align: "right" });
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8.5);
       doc.setTextColor(203, 213, 225);
-      doc.text(`Generated: ${new Date().toLocaleString()}`, pageWidth - 14, 21, { align: "right" });
+      doc.text(`${isNo ? "Generert" : "Generated"}: ${new Date().toLocaleString(isNo ? "nb-NO" : undefined)}`, pageWidth - 14, 21, { align: "right" });
 
       // Report Metadata Info
       let startY = 36;
       doc.setTextColor(15, 23, 42);
       doc.setFontSize(10);
       doc.setFont("helvetica", "bold");
-      doc.text("Executive Summary & Report Parameters", 14, startY);
+      doc.text(isNo ? "Sammendrag og rapportparametere" : "Executive Summary & Report Parameters", 14, startY);
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8.5);
       doc.setTextColor(71, 85, 105);
-      const dateText = `Filter Period: ${fromDate || "All Time"} to ${toDate || "Present"}`;
-      const countText = `Total Records: ${exportItems.length}`;
-      doc.text(`${dateText}  |  ${countText}`, 14, startY + 5);
+      const dateText = isNo
+        ? `Filterperiode: ${fromDate || "Hele perioden"} til ${toDate || "I dag"}`
+        : `Filter Period: ${fromDate || "All Time"} to ${toDate || "Present"}`;
+      const countText = `${isNo ? "Antall poster" : "Total Records"}: ${exportItems.length}`;
+      const customerText = activeTab === "salesReport" && customerId
+        ? `  |  ${isNo ? "Kunde" : "Customer"}: ${selectedCustomerName()}`
+        : "";
+      doc.text(`${dateText}  |  ${countText}${customerText}`, 14, startY + 5);
 
       startY += 12;
 
@@ -218,7 +276,7 @@ const CRMReportsPage = () => {
             doc.setFont("helvetica", "bold");
             doc.setFontSize(7);
             doc.setTextColor(100, 116, 139);
-            const label = k.replace(/([A-Z])/g, " $1").toUpperCase();
+            const label = t(k.replace(/([A-Z])/g, " $1")).toUpperCase();
             doc.text(label.slice(0, 28), x + 4, startY + 5);
 
             doc.setFont("helvetica", "bold");
@@ -233,12 +291,12 @@ const CRMReportsPage = () => {
 
       // Styled AutoTable
       const headers = Object.keys(exportItems[0]).map((col) =>
-        col.replace(/([A-Z])/g, " $1").toUpperCase()
+        t(col.replace(/([A-Z])/g, " $1")).toUpperCase()
       );
 
       const rows = exportItems.map((item) =>
         Object.values(item).map((val) =>
-          typeof val === "boolean" ? (val ? "Yes" : "No") : val != null ? String(val) : "-"
+          typeof val === "boolean" ? (val ? (isNo ? "Ja" : "Yes") : (isNo ? "Nei" : "No")) : val != null ? String(val) : "-"
         )
       );
 
@@ -266,13 +324,13 @@ const CRMReportsPage = () => {
           doc.setFont("helvetica", "normal");
           doc.setFontSize(7.5);
           doc.setTextColor(148, 163, 184);
-          const pageStr = `Page ${doc.internal.getNumberOfPages()}`;
+          const pageStr = `${isNo ? "Side" : "Page"} ${doc.internal.getNumberOfPages()}`;
           doc.text(pageStr, pageWidth - 14, pageHeight - 8, { align: "right" });
-          doc.text("Nordic Prowear AS — Confidential Internal Report", 14, pageHeight - 8);
+          doc.text(isNo ? "Nordic Prowear AS — Konfidensiell intern rapport" : "Nordic Prowear AS — Confidential Internal Report", 14, pageHeight - 8);
         },
       });
 
-      doc.save(`Nordic_Prowear_${activeTab}_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+      doc.save(`Nordic_Prowear_${activeTab}${customerParam() ? `_${selectedCustomerName().replace(/[^a-zA-Z0-9]+/g, "_")}` : ""}_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
       toast.success(lang === "no" ? "PDF lastet ned" : "PDF downloaded successfully", { id: "rep-pdf" });
     } catch (error) {
       console.error("PDF generation failed", error);
@@ -291,6 +349,7 @@ const CRMReportsPage = () => {
     { key: "lowStock", label: "Low Stock Alert", icon: AlertTriangle },
     { key: "customerPurchases", label: "Customer Purchases", icon: FileText },
     { key: "openOrders", label: "Open Orders Pipeline", icon: Clock },
+    { key: "salesReport", label: "Sales Report", icon: ShoppingBag },
   ];
 
   return (
@@ -364,6 +423,33 @@ const CRMReportsPage = () => {
               className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 outline-none"
             />
           </div>
+
+          {activeTab === "salesReport" && (
+            <div className="flex items-center gap-2">
+              <span>{isNo ? "Kunde" : "Customer"}:</span>
+              <select
+                value={customerId}
+                onChange={(e) => setCustomerId(e.target.value)}
+                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 outline-none max-w-[16rem]"
+              >
+                <option value="">{isNo ? "Alle kunder" : "All customers"}</option>
+                <option value="WALKIN">{isNo ? "Gjestekunde" : "Walk-in Customer"}</option>
+                {customers.map((cu) => (
+                  <option key={cu.id} value={cu.id}>
+                    {cu.companyName ? `${cu.companyName} (${cu.fullName})` : cu.fullName}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={isNo ? "Søk i alle kolonner..." : "Search all columns..."}
+            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 outline-none w-56"
+          />
 
           <button
             type="submit"

@@ -49,6 +49,32 @@ const CustomerAnalyticsPage = () => {
     useState(true);
   const [analytics, setAnalytics] =
     useState(null);
+  const [search, setSearch] =
+    useState("");
+
+  const filteredTopCustomers = (
+    analytics?.topCustomersByRevenue || []
+  ).filter((customer) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return [
+      customer.fullName,
+      customer.companyName,
+      customer.customerType,
+      formatLabel(customer.customerType),
+      customer.totalOrders,
+      customer.revenue,
+      formatCurrency(customer.revenue),
+    ]
+      .filter(
+        (value) =>
+          value !== null &&
+          value !== undefined
+      )
+      .join(" ")
+      .toLowerCase()
+      .includes(q);
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -273,6 +299,15 @@ const CustomerAnalyticsPage = () => {
             title="Top Customers by Revenue"
             description="Highest-value customer accounts in the selected period"
           >
+            <input
+              type="text"
+              value={search}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
+              placeholder="Search customer, company, type, orders, revenue..."
+              className="mb-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:bg-white"
+            />
             <div className="overflow-x-auto">
               <table className="min-w-full">
                 <thead className="border-b border-slate-100 text-left text-sm text-slate-500">
@@ -295,10 +330,7 @@ const CustomerAnalyticsPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {(
-                    analytics?.topCustomersByRevenue ||
-                    []
-                  ).map((customer) => (
+                  {filteredTopCustomers.map((customer) => (
                     <tr
                       key={customer.id}
                       className="border-b border-slate-100 text-sm text-slate-700"

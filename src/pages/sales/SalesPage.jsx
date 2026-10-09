@@ -12,6 +12,9 @@ import {
   FiPlus,
   FiTrash2,
   FiEdit,
+  FiDownload,
+  FiFileText,
+  FiX,
 } from "react-icons/fi";
 
 import toast from "react-hot-toast";
@@ -27,10 +30,14 @@ import {
   getSales,
   deleteSale,
 } from "../../services/sales.service";
+import { getCustomers } from "../../services/customer.service";
+import { exportSalesToExcel, exportSalesToPDF } from "../../utils/salesExport";
+import { useLanguage } from "../../context/LanguageContext";
 
 const SalesPage = () => {
   const navigate =
     useNavigate();
+  const { isNo } = useLanguage();
 
   const [sales, setSales] =
     useState([]);
@@ -48,14 +55,78 @@ const SalesPage = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
 
-  const fetchSales = async (pageToFetch = page, pageSizeToFetch = pageSize, searchQuery = search) => {
+  // Report filters
+  const [customers, setCustomers] = useState([]);
+  const [customerId, setCustomerId] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [summary, setSummary] = useState(null);
+  const [exporting, setExporting] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const res = await getCustomers({ limit: 500 });
+        const list = Array.isArray(res.data)
+          ? res.data
+          : res.data?.customers || res.customers || [];
+        if (isMounted) setCustomers(list);
+      } catch {
+        /* the customer filter simply stays empty */
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const reportFilters = () => ({
+    search: search.trim(),
+    customerId: customerId || undefined,
+    from: fromDate || undefined,
+    to: toDate || undefined,
+  });
+
+  const selectedCustomerLabel = () => {
+    if (!customerId) return isNo ? "Alle kunder" : "All customers";
+    if (customerId === "WALKIN") return isNo ? "Gjestekunde" : "Walk-in Customer";
+    const c = customers.find((x) => x.id === customerId);
+    return c?.companyName || c?.fullName || customerId;
+  };
+
+  const handleExport = async (kind) => {
+    try {
+      setExporting(kind);
+      const response = await getSales({ ...reportFilters(), all: "true" });
+      const all = Array.isArray(response.data) ? response.data : response.data?.sales || [];
+      if (all.length === 0) {
+        toast.error(isNo ? "Ingen salg å eksportere" : "No sales to export");
+        return;
+      }
+      const options = { sales: all, customerLabel: selectedCustomerLabel(), from: fromDate, to: toDate };
+      if (kind === "excel") await exportSalesToExcel(options);
+      else await exportSalesToPDF(options);
+      toast.success(isNo ? `Rapport lastet ned (${all.length} salg)` : `Report downloaded (${all.length} sales)`);
+    } catch (error) {
+      console.error(error);
+      toast.error(isNo ? "Kunne ikke lage rapporten" : "Failed to generate the report");
+    } finally {
+      setExporting("");
+    }
+  };
+
+  const fetchSales = async (pageToFetch = page, pageSizeToFetch = pageSize, searchQuery = search, isStale = () => false) => {
     try {
       setLoading(true);
       const response = await getSales({
         page: pageToFetch,
         limit: pageSizeToFetch,
+        ...reportFilters(),
         search: searchQuery.trim(),
       });
+      if (isStale()) return;
+      setSummary(response.pagination?.summary || null);
 
       const items = Array.isArray(response.data) ? response.data : response.data?.sales || [];
       setSales(items);
@@ -71,18 +142,23 @@ const SalesPage = () => {
         });
       }
     } catch {
+      if (isStale()) return;
       toast.error("Failed to fetch sales");
     } finally {
-      setLoading(false);
+      if (!isStale()) setLoading(false);
     }
   };
 
   useEffect(() => {
+    let cancelled = false;
     const timeout = setTimeout(() => {
-      fetchSales(page, pageSize, search);
+      fetchSales(page, pageSize, search, () => cancelled);
     }, 300);
-    return () => clearTimeout(timeout);
-  }, [page, pageSize, search]);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [page, pageSize, search, customerId, fromDate, toDate]);
 
   const openDeleteModal = (sale) => {
     setSelectedSale(sale);
@@ -135,19 +211,117 @@ const SalesPage = () => {
           }
         />
 
-        <SurfaceCard className="p-5">
+        <SurfaceCard className="p-5 space-y-4">
 
           <input
             type="text"
-            placeholder="Search invoice, customer, or product..."
+            placeholder="Search invoice, customer, product, payment, total, date..."
             value={search}
-            onChange={(e) =>
-              setSearch(
-                e.target.value
-              )
-            }
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             className={formControlClass}
           />
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="lg:col-span-2">
+              <label className="mb-1 block text-xs font-semibold text-slate-500">Customer</label>
+              <select
+                value={customerId}
+                onChange={(e) => {
+                  setCustomerId(e.target.value);
+                  setPage(1);
+                }}
+                className={formControlClass}
+              >
+                <option value="">All customers</option>
+                <option value="WALKIN">Walk-in Customer</option>
+                {customers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.companyName ? `${c.companyName} (${c.fullName})` : c.fullName}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-slate-500">From date</label>
+              <input
+                type="date"
+                value={fromDate}
+                max={toDate || undefined}
+                onChange={(e) => {
+                  setFromDate(e.target.value);
+                  setPage(1);
+                }}
+                className={formControlClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-slate-500">To date</label>
+              <input
+                type="date"
+                value={toDate}
+                min={fromDate || undefined}
+                onChange={(e) => {
+                  setToDate(e.target.value);
+                  setPage(1);
+                }}
+                className={formControlClass}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
+              <span className="text-slate-500">
+                <strong className="text-slate-900">{summary ? summary.count : paginationMeta.total}</strong>{" "}
+                sales
+              </span>
+              <span className="text-slate-500">
+                Total:{" "}
+                <strong className="text-slate-900">
+                  NOK {Number(summary?.grandTotal || 0).toLocaleString(isNo ? "nb-NO" : "en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </strong>
+              </span>
+              {(customerId || fromDate || toDate) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCustomerId("");
+                    setFromDate("");
+                    setToDate("");
+                    setPage(1);
+                  }}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-800"
+                >
+                  <FiX size={14} />
+                  Clear filters
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => handleExport("excel")}
+                disabled={!!exporting}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-60 sm:text-sm"
+              >
+                <FiDownload className="text-emerald-600" />
+                {exporting === "excel" ? "Exporting..." : "Export to Excel (.xlsx)"}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleExport("pdf")}
+                disabled={!!exporting}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-60 sm:text-sm"
+              >
+                <FiFileText className="text-red-600" />
+                {exporting === "pdf" ? "Exporting..." : "Download PDF (.pdf)"}
+              </button>
+            </div>
+          </div>
         </SurfaceCard>
 
         <div className="grid gap-4 lg:hidden">
