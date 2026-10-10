@@ -3,7 +3,9 @@ import toast from "react-hot-toast";
 import api from "../../services/api";
 import { useLanguage } from "../../context/LanguageContext";
 import StatusBadge from "../../components/ui/StatusBadge";
-import { Clock, Printer, Package, CheckCircle, FileText } from "lucide-react";
+import { Clock, Printer, Package, CheckCircle, FileText, Pencil, FileDown } from "lucide-react";
+import EditOrderModal from "../../components/orders/EditOrderModal";
+import { downloadReceiptPdf, orderToReceipt } from "../../utils/receiptPdf";
 import Pagination from "../../components/common/Pagination";
 import logo from "../../assets/newlogo.png";
 
@@ -12,6 +14,19 @@ const PortalOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePdfOrder, setActivePdfOrder] = useState(null);
+  const [editingOrder, setEditingOrder] = useState(null);
+
+  // Customers may edit their own order until it is shipped / fulfilled
+  const canCustomerEdit = (order) =>
+    ["PENDING", "APPROVED", "PROCESSING"].includes(order.status) && !order.deliveryNote;
+
+  const downloadPdf = async (order) => {
+    try {
+      await downloadReceiptPdf(orderToReceipt(order), { isNo: lang === "no" });
+    } catch {
+      toast.error(lang === "no" ? "Kunne ikke lage kvittering (PDF)" : "Failed to generate receipt PDF");
+    }
+  };
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
@@ -120,6 +135,24 @@ const PortalOrdersPage = () => {
                   NOK {Number(order.totalAmount).toLocaleString()}
                 </span>
 
+                {canCustomerEdit(order) && (
+                  <button
+                    onClick={() => setEditingOrder(order)}
+                    className="flex items-center gap-1.5 bg-brand-50 hover:bg-brand-100 border border-brand-200 text-brand-700 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer active:scale-95"
+                  >
+                    <Pencil size={13} />
+                    <span>{lang === "no" ? "Rediger" : "Edit"}</span>
+                  </button>
+                )}
+
+                <button
+                  onClick={() => downloadPdf(order)}
+                  className="flex items-center gap-1.5 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer active:scale-95"
+                >
+                  <FileDown size={13} />
+                  <span>PDF</span>
+                </button>
+
                 <button
                   onClick={() => setActivePdfOrder(order)}
                   className="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer active:scale-95"
@@ -151,6 +184,15 @@ const PortalOrdersPage = () => {
         </div>
       )}
 
+      {editingOrder && (
+        <EditOrderModal
+          order={editingOrder}
+          isNo={lang === "no"}
+          onClose={() => setEditingOrder(null)}
+          onSaved={() => fetchOrders()}
+        />
+      )}
+
       {/* PDF ORDER CONFIRMATION MODAL */}
       {activePdfOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-2 sm:p-4 animate-in fade-in duration-150">
@@ -160,6 +202,13 @@ const PortalOrdersPage = () => {
                 B2B Order Confirmation PDF
               </span>
               <div className="flex gap-2">
+                <button
+                  onClick={() => downloadPdf(activePdfOrder)}
+                  className="flex items-center gap-1.5 bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-red-700 transition cursor-pointer"
+                >
+                  <FileDown size={13} />
+                  <span>PDF</span>
+                </button>
                 <button
                   onClick={() => window.print()}
                   className="flex items-center gap-1.5 bg-brand-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-brand-700 transition cursor-pointer"
@@ -185,7 +234,6 @@ const PortalOrdersPage = () => {
                       Nordic Prowear AS
                     </span>
                   </div>
-                  <p className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5">Oslo, Norway • B2B Sales Division</p>
                 </div>
                 <div className="text-right">
                   <h2 className="text-sm sm:text-xl font-black text-brand-700 uppercase tracking-tight">
@@ -196,6 +244,19 @@ const PortalOrdersPage = () => {
                     {new Date(activePdfOrder.createdAt).toLocaleDateString()}
                   </p>
                 </div>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs space-y-0.5">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">CUSTOMER & DELIVERY:</span>
+                <p className="font-bold text-slate-900">
+                  {activePdfOrder.customer?.companyName || activePdfOrder.customer?.fullName}
+                </p>
+                <p className="text-slate-600 text-[11px]">
+                  {[activePdfOrder.customer?.fullName, activePdfOrder.customer?.email].filter(Boolean).join(" • ")}
+                </p>
+                <p className="text-slate-800 font-semibold text-[11px] pt-1">
+                  Delivery: {activePdfOrder.shippingAddress || "Registered Address"}
+                </p>
               </div>
 
               <div className="overflow-x-auto">

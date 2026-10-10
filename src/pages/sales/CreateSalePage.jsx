@@ -6,7 +6,8 @@ import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import { formControlClass, formLabelClass } from "../../components/ui/formStyles";
-import { createSale } from "../../services/sales.service";
+import { createSale, getSaleById } from "../../services/sales.service";
+import { downloadReceiptPdf, saleToReceipt } from "../../utils/receiptPdf";
 import { getProducts, getProductByBarcode } from "../../services/products.service";
 import { getCustomers } from "../../services/customer.service";
 import { useLanguage } from "../../context/LanguageContext";
@@ -20,6 +21,7 @@ import {
   Minus,
   CheckCircle,
   Printer,
+  FileDown,
   User,
   CreditCard,
   Tag,
@@ -277,16 +279,31 @@ const CreateSalePage = () => {
       };
 
       const res = await createSale(payload);
-      const invoiceData = res.data || {
+      const baseInvoice = res.data || {
         invoiceNumber: `INV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
-        customer: customerObj,
-        items: cart,
         subtotal,
         discount: Number(discount),
         tax: Number(tax),
         grandTotal,
         paymentMethod,
         createdAt: new Date().toISOString(),
+      };
+
+      // Pull the saved sale back so the receipt has full customer & product details
+      let fullSale = null;
+      if (baseInvoice.id) {
+        try {
+          fullSale = (await getSaleById(baseInvoice.id)).data;
+        } catch {
+          fullSale = null;
+        }
+      }
+
+      const invoiceData = {
+        ...baseInvoice,
+        customer: fullSale?.customer || customerObj,
+        items: cart,
+        saleItems: fullSale?.saleItems,
       };
 
       toast.success("Sale completed successfully!");
@@ -580,6 +597,21 @@ const CreateSalePage = () => {
                   <span>Sales Receipt Invoice Ready</span>
                 </div>
                 <div className="flex gap-2">
+                  {completedInvoice.saleItems && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          await downloadReceiptPdf(saleToReceipt(completedInvoice), { isNo: lang === "no" });
+                        } catch {
+                          toast.error("Failed to generate receipt PDF");
+                        }
+                      }}
+                      className="flex items-center gap-1.5 bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-700 transition"
+                    >
+                      <FileDown size={15} />
+                      <span>Download PDF</span>
+                    </button>
+                  )}
                   <button
                     onClick={() => window.print()}
                     className="flex items-center gap-1.5 bg-brand-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-brand-700 transition"
@@ -617,6 +649,11 @@ const CreateSalePage = () => {
                   <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">CUSTOMER:</span>
                     <p className="font-bold text-slate-900">{completedInvoice.customer.companyName || completedInvoice.customer.fullName}</p>
+                    {completedInvoice.customer.companyName && <p className="text-slate-600">{completedInvoice.customer.fullName}</p>}
+                    {completedInvoice.customer.phoneNumber && <p className="text-slate-500">{completedInvoice.customer.phoneNumber}</p>}
+                    {(completedInvoice.customer.address || completedInvoice.customer.city) && (
+                      <p className="text-slate-500">{[completedInvoice.customer.address, completedInvoice.customer.city].filter(Boolean).join(", ")}</p>
+                    )}
                   </div>
                 )}
 

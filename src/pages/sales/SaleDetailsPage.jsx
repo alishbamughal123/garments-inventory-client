@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { FiPrinter, FiEdit, FiArrowLeft } from "react-icons/fi";
+import { FiPrinter, FiEdit, FiArrowLeft, FiDownload } from "react-icons/fi";
+import { downloadReceiptPdf, saleToReceipt } from "../../utils/receiptPdf";
+import { useLanguage } from "../../context/LanguageContext";
 import toast from "react-hot-toast";
 import MainLayout from "../../layouts/MainLayout";
 import Button from "../../components/ui/Button";
@@ -14,6 +16,15 @@ const SaleDetailsPage = () => {
   const navigate = useNavigate();
   const [sale, setSale] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { isNo } = useLanguage();
+
+  const handleDownloadPdf = async () => {
+    try {
+      await downloadReceiptPdf(saleToReceipt(sale), { isNo });
+    } catch {
+      toast.error("Failed to generate receipt PDF");
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -72,7 +83,14 @@ const SaleDetailsPage = () => {
                 variant="secondary"
               >
                 <FiEdit />
-                Edit Remarks
+                Edit Sale
+              </Button>
+              <Button
+                onClick={handleDownloadPdf}
+                variant="secondary"
+              >
+                <FiDownload />
+                Download PDF
               </Button>
               <Button
                 onClick={() => window.print()}
@@ -100,6 +118,10 @@ const SaleDetailsPage = () => {
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Customer</p>
                 <p className="font-bold text-slate-900">{sale.customer?.fullName || "Walk-in Customer"}</p>
                 {sale.customer?.companyName && <p className="text-sm text-slate-500">{sale.customer.companyName}</p>}
+                {sale.customer?.phoneNumber && <p className="text-xs text-slate-500">{sale.customer.phoneNumber}</p>}
+                {(sale.customer?.address || sale.customer?.city) && (
+                  <p className="text-xs text-slate-500">{[sale.customer.address, sale.customer.city].filter(Boolean).join(", ")}</p>
+                )}
               </div>
               <div>
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Payment Method</p>

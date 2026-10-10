@@ -6,7 +6,9 @@ import MainLayout from "../../layouts/MainLayout";
 import PageHeader from "../../components/ui/PageHeader";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import StatusBadge from "../../components/ui/StatusBadge";
-import { CheckCircle, Truck, Package, Clock, Building2, Phone, Calendar, FileText, Download, Trash2 } from "lucide-react";
+import { CheckCircle, Truck, Package, Clock, Building2, Phone, Calendar, FileText, Download, Trash2, Pencil, Receipt } from "lucide-react";
+import EditOrderModal from "../../components/orders/EditOrderModal";
+import { downloadReceiptPdf, orderToReceipt } from "../../utils/receiptPdf";
 import Pagination from "../../components/common/Pagination";
 import DeleteModal from "../../components/common/DeleteModal";
 import jsPDF from "jspdf";
@@ -25,6 +27,15 @@ const B2BOrdersPage = () => {
   const [paginationMeta, setPaginationMeta] = useState({ total: 0, totalPages: 1 });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedOrderToDelete, setSelectedOrderToDelete] = useState(null);
+  const [editingOrder, setEditingOrder] = useState(null);
+
+  const downloadOrderReceipt = async (order) => {
+    try {
+      await downloadReceiptPdf(orderToReceipt(order), { isNo });
+    } catch {
+      toast.error(isNo ? "Kunne ikke lage kvittering (PDF)" : "Failed to generate receipt PDF");
+    }
+  };
 
   const fetchOrders = async (pageToFetch = page, pageSizeToFetch = pageSize, isStale = () => false) => {
     try {
@@ -175,10 +186,6 @@ const B2BOrdersPage = () => {
 
       const finalY = (doc).lastAutoTable?.finalY ? (doc).lastAutoTable.finalY + 10 : 150;
 
-      doc.setFont("helvetica", "italic");
-      doc.setFontSize(9);
-      doc.text(L("This electronic delivery note complies with EHF Pakkeseddel 3.0 (Peppol BIS Despatch Advice 3.0).", "Denne elektroniske pakkeseddelen er i samsvar med EHF Pakkeseddel 3.0 (Peppol BIS Despatch Advice 3.0)."), 14, finalY + 4);
-
       doc.save(`DeliveryNote_${dnNumber}.pdf`);
       toast.success(L("Delivery Note PDF downloaded!", "Pakkeseddel (PDF) lastet ned!"));
     } catch (err) {
@@ -290,6 +297,22 @@ const B2BOrdersPage = () => {
                         </span>
                       </div>
                       <button
+                        onClick={() => downloadOrderReceipt(order)}
+                        className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-600 transition hover:bg-slate-100 cursor-pointer flex-shrink-0"
+                        title={isNo ? "Last ned kvittering (PDF)" : "Download Receipt PDF"}
+                      >
+                        <Receipt size={16} />
+                      </button>
+                      {order.status !== "CANCELLED" && (
+                        <button
+                          onClick={() => setEditingOrder(order)}
+                          className="rounded-xl border border-brand-200 bg-brand-50/50 p-2.5 text-brand-600 transition hover:bg-brand-100 cursor-pointer flex-shrink-0"
+                          title={isNo ? "Rediger ordre" : "Edit Order"}
+                        >
+                          <Pencil size={16} />
+                        </button>
+                      )}
+                      <button
                         onClick={() => openDeleteModal(order)}
                         className="rounded-xl border border-red-200 bg-red-50/50 p-2.5 text-red-600 transition hover:bg-red-100 hover:text-red-700 cursor-pointer flex-shrink-0"
                         title={lang === "no" ? "Slett ordre" : "Delete Order"}
@@ -301,6 +324,11 @@ const B2BOrdersPage = () => {
 
                   {/* Customer Info Box */}
                   <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-1 text-xs">
+                    {order.shippingAddress && (
+                      <div className="pl-6 text-[11px] text-slate-500 font-medium">
+                        📍 {order.shippingAddress}
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 font-bold text-slate-900">
                       <Building2 size={15} className="text-brand-600 flex-shrink-0" />
                       <span>{order.customer?.companyName || order.customer?.fullName}</span>
@@ -406,6 +434,15 @@ const B2BOrdersPage = () => {
               />
             </div>
           </div>
+        )}
+
+        {editingOrder && (
+          <EditOrderModal
+            order={editingOrder}
+            isNo={isNo}
+            onClose={() => setEditingOrder(null)}
+            onSaved={() => fetchOrders()}
+          />
         )}
 
         <DeleteModal

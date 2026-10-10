@@ -18,6 +18,7 @@ import {
   Minus,
 } from "lucide-react";
 import logo from "../../assets/newlogo.png";
+import { downloadReceiptPdf, orderToReceipt } from "../../utils/receiptPdf";
 
 const PortalCartPage = () => {
   const { t, lang } = useLanguage();
@@ -508,6 +509,19 @@ const PortalCartPage = () => {
               </div>
               <div className="flex gap-2">
                 <button
+                  onClick={async () => {
+                    try {
+                      await downloadReceiptPdf(orderToReceipt(activeConfirmation), { isNo: lang === "no" });
+                    } catch {
+                      toast.error(lang === "no" ? "Kunne ikke lage kvittering (PDF)" : "Failed to generate receipt PDF");
+                    }
+                  }}
+                  className="flex items-center gap-1 bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-red-700 transition cursor-pointer"
+                >
+                  <FileText size={13} />
+                  <span>PDF</span>
+                </button>
+                <button
                   onClick={() => window.print()}
                   className="flex items-center gap-1 bg-brand-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-brand-700 transition cursor-pointer"
                 >
@@ -536,7 +550,6 @@ const PortalCartPage = () => {
                       Nordic Prowear AS
                     </span>
                   </div>
-                  <p className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5">Oslo, Norway • B2B Division</p>
                 </div>
                 <div className="text-right">
                   <h2 className="text-sm sm:text-xl font-black text-brand-700 uppercase tracking-tight">
