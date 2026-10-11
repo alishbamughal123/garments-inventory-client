@@ -501,7 +501,7 @@ const LeadDetailsPage = () => {
                   Lead source
                 </p>
                 <p className="mt-1 text-sm font-medium text-slate-900">
-                  {lead.source}
+                  {t(lead.source)}
                 </p>
               </div>
 

@@ -97,7 +97,7 @@ const LeadPipelinePage = () => {
         )
       );
 
-      toast.success(`Lead moved to ${newStage}`);
+      toast.success(isNo ? `Lead flyttet til ${t(newStage)}` : `Lead moved to ${newStage}`);
     } catch {
       toast.error("Failed to update lead stage");
     } finally {
@@ -268,7 +268,7 @@ const LeadPipelinePage = () => {
             </h3>
             <p className="text-sm text-slate-600 leading-relaxed">
               {isNo
-                ? `Er du sikker på at du vil flytte "${pendingMove.lead.fullName}" fra stadiet ${pendingMove.lead.status} til ${pendingMove.newStage}?`
+                ? `Er du sikker på at du vil flytte "${pendingMove.lead.fullName}" fra stadiet ${t(pendingMove.lead.status)} til ${t(pendingMove.newStage)}?`
                 : `Are you sure you want to move "${pendingMove.lead.fullName}" from stage ${pendingMove.lead.status} to ${pendingMove.newStage}?`}
             </p>
             <div className="flex justify-end gap-3 pt-2">

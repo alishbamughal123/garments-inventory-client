@@ -477,6 +477,13 @@ const phrases = {
   "Secure encrypted access portal": "Sikker, kryptert tilgangsportal",
   "Nordic": "Nordic",
   "Prowear": "Prowear",
+
+  // Lead source values (stored as enums)
+  "TRADE_SHOW": "B2B-prospekt / Messe",
+  "WEBSITE": "Nettside",
+  "REFERRAL": "Anbefaling",
+  "EXISTING_CUSTOMER": "Eksisterende kunde",
+  "OTHER": "Annet",
 };
 
 // Sentences that contain variable parts. {0}, {1}... capture the dynamic text.
